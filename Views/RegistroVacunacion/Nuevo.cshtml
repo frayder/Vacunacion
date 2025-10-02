@@ -116,6 +116,34 @@
             border-color: #28a745;
             color: white;
         }
+
+        /* Estilos para antecedentes médicos */
+        .form-label .text-danger {
+            font-weight: bold;
+        }
+
+        #listaAntecedentes {
+            border-top: 1px solid #dee2e6;
+            padding-top: 1rem;
+            margin-top: 1rem;
+        }
+
+        #listaAntecedentes .table td {
+            vertical-align: middle;
+        }
+
+        #listaAntecedentes .btn-danger {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.875rem;
+        }
+
+        .form-control:invalid {
+            border-color: #dc3545;
+        }
+
+        .form-control:valid {
+            border-color: #28a745;
+        }
         
         .step-label {
             font-size: 12px;
@@ -264,6 +292,14 @@
             // Cargar datos específicos para el paso 2 (Datos Complementarios)
             if (currentStep === 2) {
                 loadDatosComplementarios();
+            }
+
+            // Inicializar lógica específica para el paso 3 (Antecedentes Médicos)
+            if (currentStep === 3) {
+                setTimeout(() => {
+                    initializeAntecedentesLogic();
+                    restoreAntecedentes();
+                }, 200);
             }
         }
 
@@ -455,6 +491,159 @@
                 badge.textContent = `Paso ${currentStep} de ${totalSteps}`;
             }
         }
+
+        // Función para manejar antecedentes médicos
+        function initializeAntecedentesLogic() {
+            const agregarBtn = document.getElementById('agregarAntecedenteBtn');
+            if (agregarBtn) {
+                agregarBtn.addEventListener('click', function() {
+                    agregarAntecedente();
+                });
+            }
+        }
+
+        function agregarAntecedente() {
+            // Obtener valores del formulario
+            const fecha = document.querySelector('input[name="FechaRegistroAntecedente"]')?.value;
+            const tipo = document.querySelector('input[name="TipoAntecedente"]')?.value;
+            const descripcion = document.querySelector('textarea[name="DescripcionAntecedente"]')?.value;
+            const observaciones = document.querySelector('textarea[name="ObservacionesAntecedente"]')?.value;
+
+            // Validar campos requeridos
+            if (!fecha || !tipo || !descripcion) {
+                alert('Por favor complete todos los campos obligatorios (Fecha, Tipo y Descripción)');
+                return;
+            }
+
+            // Validar formato de fecha (para input type="date" el formato es yyyy-mm-dd)
+            if (!Date.parse(fecha)) {
+                alert('Por favor seleccione una fecha válida');
+                return;
+            }
+
+            // Formatear la fecha para mostrar en formato más legible
+            const fechaFormateada = new Date(fecha).toLocaleDateString('es-ES', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit'
+            });
+
+            // Crear el antecedente
+            const antecedente = {
+                fecha: fecha, // Guardar fecha original
+                fechaFormateada: fechaFormateada, // Fecha formateada para mostrar
+                tipo: tipo,
+                descripcion: descripcion,
+                observaciones: observaciones || 'N/A'
+            };
+
+            // Agregar a la lista
+            const tableBody = document.getElementById('antecedentesTableBody');
+            const listaContainer = document.getElementById('listaAntecedentes');
+            
+            if (tableBody && listaContainer) {
+                // Mostrar la tabla si está oculta
+                listaContainer.style.display = 'block';
+
+                // Crear fila de la tabla
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${antecedente.fechaFormateada}</td>
+                    <td>${antecedente.tipo}</td>
+                    <td>${antecedente.descripcion}</td>
+                    <td>${antecedente.observaciones}</td>
+                    <td>
+                        <button type="button" class="btn btn-danger btn-sm" onclick="eliminarAntecedente(this)">
+                            <i class="ri-delete-bin-line"></i>
+                        </button>
+                    </td>
+                `;
+
+                tableBody.appendChild(row);
+
+                // Limpiar el formulario
+                document.querySelector('input[name="FechaRegistroAntecedente"]').value = '';
+                document.querySelector('input[name="TipoAntecedente"]').value = '';
+                document.querySelector('textarea[name="DescripcionAntecedente"]').value = '';
+                document.querySelector('textarea[name="ObservacionesAntecedente"]').value = '';
+
+                // Guardar en formData
+                if (!formData.antecedentes) {
+                    formData.antecedentes = [];
+                }
+                formData.antecedentes.push(antecedente);
+                localStorage.setItem('vacunacionFormData', JSON.stringify(formData));
+
+                console.log('Antecedente agregado:', antecedente);
+            }
+        }
+
+        function eliminarAntecedente(button) {
+            if (confirm('¿Está seguro de que desea eliminar este antecedente?')) {
+                const row = button.closest('tr');
+                const index = Array.from(row.parentNode.children).indexOf(row);
+                
+                // Eliminar de la tabla
+                row.remove();
+
+                // Eliminar de formData
+                if (formData.antecedentes && formData.antecedentes.length > index) {
+                    formData.antecedentes.splice(index, 1);
+                    localStorage.setItem('vacunacionFormData', JSON.stringify(formData));
+                }
+
+                // Ocultar la tabla si no hay más antecedentes
+                const tableBody = document.getElementById('antecedentesTableBody');
+                const listaContainer = document.getElementById('listaAntecedentes');
+                if (tableBody && tableBody.children.length === 0 && listaContainer) {
+                    listaContainer.style.display = 'none';
+                }
+            }
+        }
+
+        // Función para restaurar antecedentes guardados
+        function restoreAntecedentes() {
+            if (formData.antecedentes && formData.antecedentes.length > 0) {
+                const tableBody = document.getElementById('antecedentesTableBody');
+                const listaContainer = document.getElementById('listaAntecedentes');
+                
+                if (tableBody && listaContainer) {
+                    // Limpiar tabla existente
+                    tableBody.innerHTML = '';
+                    
+                    // Mostrar la tabla
+                    listaContainer.style.display = 'block';
+
+                    // Agregar cada antecedente
+                    formData.antecedentes.forEach(antecedente => {
+                        // Si no tiene fechaFormateada (datos anteriores), formatearla
+                        const fechaMostrar = antecedente.fechaFormateada || 
+                            new Date(antecedente.fecha).toLocaleDateString('es-ES', {
+                                year: 'numeric',
+                                month: '2-digit',
+                                day: '2-digit'
+                            });
+
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${fechaMostrar}</td>
+                            <td>${antecedente.tipo}</td>
+                            <td>${antecedente.descripcion}</td>
+                            <td>${antecedente.observaciones}</td>
+                            <td>
+                                <button type="button" class="btn btn-danger btn-sm" onclick="eliminarAntecedente(this)">
+                                    <i class="ri-delete-bin-line"></i>
+                                </button>
+                            </td>
+                        `;
+                        tableBody.appendChild(row);
+                    });
+                }
+            }
+        }
+
+        // Hacer las funciones globalmente accesibles
+        window.eliminarAntecedente = eliminarAntecedente;
 
         // Initialize when DOM is ready
         document.addEventListener('DOMContentLoaded', function() { 

@@ -57,20 +57,20 @@
                             <div class="row">
                                 <div class="col-md-6">
                                     <div class="mb-3">
-                                        <label class="form-label">Fecha de registro del antecedente</label>
-                                        <input type="text" class="form-control" name="FechaRegistroAntecedente" placeholder="mm/dd/yyyy">
+                                        <label class="form-label">Fecha de registro del antecedente <span class="text-danger">*</span></label>
+                                        <input type="date" class="form-control" name="FechaRegistroAntecedente" required>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="mb-3">
-                                        <label class="form-label">Tipo</label>
-                                        <input type="text" class="form-control" name="TipoAntecedente" placeholder="Tipo de antecedente">
+                                        <label class="form-label">Tipo <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" name="TipoAntecedente" placeholder="Ej: Alergia, Enfermedad crónica, etc." required>
                                     </div>
                                 </div>
                                 <div class="col-md-12">
                                     <div class="mb-3">
-                                        <label class="form-label">Descripción</label>
-                                        <textarea class="form-control" name="DescripcionAntecedente" rows="3" placeholder="Descripción del antecedente..."></textarea>
+                                        <label class="form-label">Descripción <span class="text-danger">*</span></label>
+                                        <textarea class="form-control" name="DescripcionAntecedente" rows="3" placeholder="Descripción detallada del antecedente..." required></textarea>
                                     </div>
                                 </div>
                                 <div class="col-md-12">
