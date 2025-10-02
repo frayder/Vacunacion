@@ -1,0 +1,304 @@
+@model Highdmin.Models.Role
+
+@{
+    ViewData["Title"] = "Detalles del Rol";
+}
+
+<div class="container-fluid px-4">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">
+            <i class="fas fa-eye me-2"></i>
+            Detalles del Rol: @Model.Nombre
+        </h1>
+        <div class="d-flex gap-2">
+            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning shadow-sm">
+                <i class="fas fa-edit fa-sm text-white-50 me-1"></i>
+                Editar
+            </a>
+            <a asp-action="Index" class="btn btn-secondary shadow-sm">
+                <i class="fas fa-arrow-left fa-sm text-white-50 me-1"></i>
+                Volver
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Información básica del rol -->
+        <div class="col-xl-4 col-lg-5">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Información del Rol
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <strong>ID:</strong>
+                        </div>
+                        <div class="col-sm-6">
+                            <span class="badge bg-primary">#@Html.DisplayFor(model => model.Id)</span>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <strong>Nombre:</strong>
+                        </div>
+                        <div class="col-sm-6">
+                            @Html.DisplayFor(model => model.Nombre)
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <strong>Descripción:</strong>
+                        </div>
+                        <div class="col-sm-6">
+                            @(string.IsNullOrEmpty(Model.Descripcion) ? "Sin descripción" : Model.Descripcion)
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <strong>Total Permisos:</strong>
+                        </div>
+                        <div class="col-sm-6">
+                            <span class="badge bg-info">@Model.RolePermissions.Count</span>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <strong>Usuarios Asignados:</strong>
+                        </div>
+                        <div class="col-sm-6">
+                            <span class="badge bg-secondary">@Model.UserRoles.Count</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Usuarios asignados -->
+            @if (Model.UserRoles.Any())
+            {
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">
+                            <i class="fas fa-users me-2"></i>
+                            Usuarios con este Rol
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        @foreach (var userRole in Model.UserRoles)
+                        {
+                            <div class="d-flex align-items-center mb-2">
+                                <i class="fas fa-user me-2 text-gray-400"></i>
+                                <div>
+                                    <strong>@userRole.User.UserName</strong>
+                                    <br>
+                                    <small class="text-muted">@userRole.User.Email</small>
+                                </div>
+                            </div>
+                            @if (userRole != Model.UserRoles.Last())
+                            {
+                                <hr class="my-2">
+                            }
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+
+        <!-- Permisos del rol -->
+        <div class="col-xl-8 col-lg-7">
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-key me-2"></i>
+                        Permisos por Módulo
+                    </h6>
+                </div>
+                <div class="card-body">
+                    @if (Model.RolePermissions.Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-hover">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>
+                                            <i class="fas fa-cube me-1"></i>
+                                            Módulo
+                                        </th>
+                                        <th class="text-center">
+                                            <i class="fas fa-plus me-1"></i>
+                                            Crear
+                                        </th>
+                                        <th class="text-center">
+                                            <i class="fas fa-eye me-1"></i>
+                                            Leer
+                                        </th>
+                                        <th class="text-center">
+                                            <i class="fas fa-edit me-1"></i>
+                                            Actualizar
+                                        </th>
+                                        <th class="text-center">
+                                            <i class="fas fa-trash me-1"></i>
+                                            Eliminar
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var permission in Model.RolePermissions.OrderBy(rp => rp.MenuItem.Name))
+                                    {
+                                        <tr>
+                                            <td>
+                                                <strong>@permission.MenuItem.Name</strong>
+                                            </td>
+                                            <td class="text-center">
+                                                @if (permission.CanCreate)
+                                                {
+                                                    <i class="fas fa-check text-success"></i>
+                                                }
+                                                else
+                                                {
+                                                    <i class="fas fa-times text-danger"></i>
+                                                }
+                                            </td>
+                                            <td class="text-center">
+                                                @if (permission.CanRead)
+                                                {
+                                                    <i class="fas fa-check text-success"></i>
+                                                }
+                                                else
+                                                {
+                                                    <i class="fas fa-times text-danger"></i>
+                                                }
+                                            </td>
+                                            <td class="text-center">
+                                                @if (permission.CanUpdate)
+                                                {
+                                                    <i class="fas fa-check text-success"></i>
+                                                }
+                                                else
+                                                {
+                                                    <i class="fas fa-times text-danger"></i>
+                                                }
+                                            </td>
+                                            <td class="text-center">
+                                                @if (permission.CanDelete)
+                                                {
+                                                    <i class="fas fa-check text-success"></i>
+                                                }
+                                                else
+                                                {
+                                                    <i class="fas fa-times text-danger"></i>
+                                                }
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center py-4">
+                            <i class="fas fa-key fa-3x text-muted mb-3"></i>
+                            <h5 class="text-muted">Sin permisos asignados</h5>
+                            <p class="text-muted">Este rol no tiene permisos configurados.</p>
+                            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">
+                                <i class="fas fa-edit me-1"></i>
+                                Configurar Permisos
+                            </a>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Estadísticas de permisos -->
+    <div class="row mt-4">
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                Permisos de Creación
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                @Model.RolePermissions.Count(rp => rp.CanCreate)
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-plus fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                Permisos de Lectura
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                @Model.RolePermissions.Count(rp => rp.CanRead)
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-eye fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-warning shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                Permisos de Actualización
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                @Model.RolePermissions.Count(rp => rp.CanUpdate)
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-edit fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-danger shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">
+                                Permisos de Eliminación
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                @Model.RolePermissions.Count(rp => rp.CanDelete)
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-trash fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

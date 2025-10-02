@@ -1,0 +1,356 @@
+@model RegistroVacunacionViewModel
+@{
+    ViewData["Title"] = "Registro de Vacunación";
+    Layout = "~/Views/Shared/_VerticalLayout.cshtml";
+}
+
+<!-- Page Header -->
+<div class="page-title-box d-sm-flex align-items-center justify-content-between">
+    <h4 class="mb-sm-0">Registro de Vacunación</h4>
+    <div class="page-title-right">
+        <ol class="breadcrumb m-0">
+            <li class="breadcrumb-item"><a href="javascript: void(0);">Highdmin</a></li>
+            <li class="breadcrumb-item active">Registro de Vacunación</li>
+        </ol>
+    </div>
+</div>
+
+<!-- Info Card -->
+<div class="card mb-4">
+    <div class="card-body">
+        <div class="d-flex align-items-center">
+            <div class="flex-shrink-0">
+                <div class="avatar-sm">
+                    <span class="avatar-title bg-primary-subtle text-primary rounded-circle fs-3">
+                        <i class="ri-database-2-line"></i>
+                    </span>
+                </div>
+            </div>
+            <div class="flex-grow-1 ms-3">
+                <h5 class="mb-1">Sistema de Datos por Centro de Atención</h5>
+                <p class="text-muted mb-1">Como administrador, puede acceder a todos los centros o trabajar con un centro específico. Los datos (pacientes, registros de vacunación) están separados por centro de atención.</p>
+                <ul class="text-muted mb-0" style="font-size: 0.875rem;">
+                    <li>• Cada centro maneja su propia base de datos de pacientes</li>
+                    <li>• Los registros de vacunación son independientes por centro</li>
+                    <li>• Sólo los usuarios asignados pueden acceder a los datos de su centro</li>
+                    <li>• Como admin, puede ver y gestionar todos los centros</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Statistics Cards -->
+<div class="row mb-4">
+    <div class="col-xl-3 col-md-6">
+        <div class="card card-animate">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-grow-1 overflow-hidden">
+                        <p class="text-uppercase fw-medium text-muted text-truncate mb-0">Total Registros</p>
+                    </div>
+                    <div class="flex-shrink-0">
+                        <h5 class="text-success fs-14 mb-0">
+                            <i class="ri-group-line fs-13 align-middle"></i>
+                        </h5>
+                    </div>
+                </div>
+                <div class="d-flex align-items-end justify-content-between mt-4">
+                    <div>
+                        <h4 class="fs-22 fw-semibold ff-secondary mb-4">
+                            <span class="counter-value" data-target="@Model.TotalRegistros">@Model.TotalRegistros</span>
+                        </h4>
+                    </div>
+                    <div class="avatar-sm flex-shrink-0">
+                        <span class="avatar-title bg-success-subtle rounded fs-3">
+                            <i class="bx bx-user text-success"></i>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6">
+        <div class="card card-animate">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-grow-1 overflow-hidden">
+                        <p class="text-uppercase fw-medium text-muted text-truncate mb-0">Esquemas Completos</p>
+                    </div>
+                    <div class="flex-shrink-0">
+                        <h5 class="text-success fs-14 mb-0">
+                            <i class="ri-checkbox-circle-line fs-13 align-middle"></i>
+                        </h5>
+                    </div>
+                </div>
+                <div class="d-flex align-items-end justify-content-between mt-4">
+                    <div>
+                        <h4 class="fs-22 fw-semibold ff-secondary mb-4">
+                            <span class="counter-value" data-target="@Model.EsquemasCompletos">@Model.EsquemasCompletos</span>
+                        </h4>
+                    </div>
+                    <div class="avatar-sm flex-shrink-0">
+                        <span class="avatar-title bg-success-subtle rounded fs-3">
+                            <i class="bx bx-check-circle text-success"></i>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6">
+        <div class="card card-animate">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-grow-1 overflow-hidden">
+                        <p class="text-uppercase fw-medium text-muted text-truncate mb-0">Esquemas Incompletos</p>
+                    </div>
+                    <div class="flex-shrink-0">
+                        <h5 class="text-warning fs-14 mb-0">
+                            <i class="ri-time-line fs-13 align-middle"></i>
+                        </h5>
+                    </div>
+                </div>
+                <div class="d-flex align-items-end justify-content-between mt-4">
+                    <div>
+                        <h4 class="fs-22 fw-semibold ff-secondary mb-4">
+                            <span class="counter-value" data-target="@Model.EsquemasIncompletos">@Model.EsquemasIncompletos</span>
+                        </h4>
+                    </div>
+                    <div class="avatar-sm flex-shrink-0">
+                        <span class="avatar-title bg-warning-subtle rounded fs-3">
+                            <i class="bx bx-time text-warning"></i>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6">
+        <div class="card card-animate">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-grow-1 overflow-hidden">
+                        <p class="text-uppercase fw-medium text-muted text-truncate mb-0">Pendientes</p>
+                    </div>
+                    <div class="flex-shrink-0">
+                        <h5 class="text-danger fs-14 mb-0">
+                            <i class="ri-calendar-schedule-line fs-13 align-middle"></i>
+                        </h5>
+                    </div>
+                </div>
+                <div class="d-flex align-items-end justify-content-between mt-4">
+                    <div>
+                        <h4 class="fs-22 fw-semibold ff-secondary mb-4">
+                            <span class="counter-value" data-target="@Model.Pendientes">@Model.Pendientes</span>
+                        </h4>
+                    </div>
+                    <div class="avatar-sm flex-shrink-0">
+                        <span class="avatar-title bg-danger-subtle rounded fs-3">
+                            <i class="bx bx-calendar text-danger"></i>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Action Buttons -->
+<div class="row mb-3">
+    <div class="col-lg-12">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <form asp-action="DescargarRegistros" method="post" class="d-inline">
+                    <button type="submit" class="btn btn-success">
+                        <i class="ri-download-2-line align-bottom me-1"></i> Descargar Registros Completos
+                    </button>
+                </form>
+            </div>
+            <div>
+                <a asp-action="Nuevo" class="btn btn-primary">
+                    <i class="ri-add-line align-bottom me-1"></i> Nuevo Registro de Vacunación
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Data Table -->
+<div class="row">
+    <div class="col-lg-12">
+        <div class="card">
+            <div class="card-header">
+                <div class="d-flex align-items-center">
+                    <div class="flex-shrink-0">
+                        <i class="ri-vaccine-line fs-20"></i>
+                    </div>
+                    <div class="flex-grow-1 ms-2">
+                        <h5 class="card-title mb-0">Registros de Vacunación</h5>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <!-- Search and Filters -->
+                <div class="row g-4 mb-3">
+                    <div class="col-sm-auto">
+                        <div class="search-box">
+                            <input type="text" class="form-control" id="searchBox" placeholder="Buscar por nombre o documento...">
+                            <i class="ri-search-line search-icon"></i>
+                        </div>
+                    </div>
+                    <div class="col-sm-auto ms-auto">
+                        <div class="d-flex gap-2">
+                            <div class="input-group">
+                                <span class="input-group-text">Todos</span>
+                                <select class="form-select" id="statusFilter">
+                                    <option value="">Todos los estados</option>
+                                    <option value="completo">Esquemas Completos</option>
+                                    <option value="incompleto">Esquemas Incompletos</option>
+                                    <option value="pendiente">Pendientes</option>
+                                </select>
+                            </div>
+                            <div class="input-group">
+                                <span class="input-group-text">Todos</span>
+                                <input type="text" class="form-control" placeholder="Buscar por ID de madre/cuidador..." id="idFilter">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Table -->
+                <div class="table-responsive table-card mt-3 mb-1">
+                    <table class="table align-middle table-nowrap" id="registrosTable">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="sort" data-sort="paciente">Paciente</th>
+                                <th class="sort" data-sort="documento">Documento</th>
+                                <th class="sort" data-sort="edad">Edad</th>
+                                <th class="sort" data-sort="vacunas">Vacunas Aplicadas</th>
+                                <th class="sort" data-sort="ultima">Última Vacuna</th>
+                                <th class="sort" data-sort="estado">Estado</th>
+                                <th class="sort" data-sort="fecha">Fecha Registro</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody class="list form-check-all">
+                            @if (Model.Registros != null && Model.Registros.Any())
+                            {
+                                @foreach (var registro in Model.Registros)
+                                {
+                                    <tr>
+                                        <td class="paciente">@registro.Paciente</td>
+                                        <td class="documento">@registro.Documento</td>
+                                        <td class="edad">@registro.Edad</td>
+                                        <td class="vacunas">@registro.VacunasAplicadas</td>
+                                        <td class="ultima">@registro.UltimaVacuna</td>
+                                        <td class="estado">
+                                            @if (registro.Estado == "Completo")
+                                            {
+                                                <span class="badge bg-success-subtle text-success">Completo</span>
+                                            }
+                                            else if (registro.Estado == "Incompleto")
+                                            {
+                                                <span class="badge bg-warning-subtle text-warning">Incompleto</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-danger-subtle text-danger">Pendiente</span>
+                                            }
+                                        </td>
+                                        <td class="fecha">@registro.FechaRegistro.ToString("dd/MM/yyyy")</td>
+                                        <td>
+                                            <div class="d-flex gap-2">
+                                                <div class="edit">
+                                                    <button class="btn btn-sm btn-success edit-item-btn" data-bs-toggle="tooltip" data-bs-placement="top" title="Editar">
+                                                        <i class="ri-pencil-fill"></i>
+                                                    </button>
+                                                </div>
+                                                <div class="remove">
+                                                    <button class="btn btn-sm btn-danger remove-item-btn" data-bs-toggle="tooltip" data-bs-placement="top" title="Eliminar">
+                                                        <i class="ri-delete-bin-fill"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="8" class="text-center py-5">
+                                        <div class="text-center">
+                                            <i class="ri-file-search-line fs-1 text-muted"></i>
+                                            <p class="text-muted mt-2">No se encontraron registros que coincidan con los filtros.</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="d-flex justify-content-end">
+                    <div class="pagination-wrap hstack gap-2">
+                        <a class="page-item pagination-prev disabled" href="javascript:void(0);">
+                            Anterior
+                        </a>
+                        <ul class="pagination listjs-pagination mb-0"></ul>
+                        <a class="page-item pagination-next" href="javascript:void(0);">
+                            Siguiente
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Inicializar tooltips
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl)
+        });
+
+        // Filtrado de tabla
+        document.getElementById('searchBox').addEventListener('keyup', function() {
+            // Implementar filtrado por texto
+        });
+
+        document.getElementById('statusFilter').addEventListener('change', function() {
+            // Implementar filtrado por estado
+        });
+
+        document.getElementById('idFilter').addEventListener('keyup', function() {
+            // Implementar filtrado por ID
+        });
+
+        // Animación de contadores
+        document.addEventListener('DOMContentLoaded', function() {
+            const counters = document.querySelectorAll('.counter-value');
+            counters.forEach(counter => {
+                const target = parseInt(counter.getAttribute('data-target'));
+                let count = 0;
+                const increment = target / 200;
+                
+                const updateCount = () => {
+                    if (count < target) {
+                        counter.textContent = Math.ceil(count);
+                        count += increment;
+                        setTimeout(updateCount, 10);
+                    } else {
+                        counter.textContent = target;
+                    }
+                };
+                
+                updateCount();
+            });
+        });
+    </script>
+}

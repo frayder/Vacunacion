@@ -1,0 +1,256 @@
+@model RegistroVacunacionItemViewModel
+
+<div class="card border-0">
+    <div class="card-header bg-primary text-white">
+        <h6 class="mb-0 text-white">
+            <i class="ri-vaccine-line me-1"></i> Esquema de Vacunación
+        </h6>
+    </div>
+    <div class="card-body">
+        <!-- Tipo de carnét -->
+        <div class="row">
+            <div class="col-md-12">
+                <div class="mb-3">
+                    <label class="form-label">Tipo de carnét</label>
+                    <select class="form-select" name="TipoCarnet" id="tipoCarnet">
+                        <option value="">Seleccione tipo de carnét</option>
+                        <option value="PAI">PAI (Programa Ampliado de Inmunizaciones)</option>
+                        <option value="COVID19">COVID-19</option>
+                        <option value="FIEBRE_AMARILLA">Fiebre Amarilla</option>
+                        <option value="INTERNACIONAL">Certificado Internacional</option>
+                        <option value="ESPECIAL">Esquema Especial</option>
+                        <option value="OTRO">Otro</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sección Agregar Vacuna Aplicada -->
+        <div class="card mt-4">
+            <div class="card-header bg-light">
+                <div class="d-flex align-items-center">
+                    <i class="ri-add-circle-line text-primary me-2"></i>
+                    <h6 class="mb-0 text-primary fw-bold">Agregar Vacuna Aplicada</h6>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="mb-3">
+                            <label class="form-label">Seleccionar Vacuna</label>
+                            <select class="form-select" name="VacunaSeleccionada" id="vacunaSeleccionada">
+                                <option value="">Seleccione la vacuna aplicada</option>
+                                <optgroup label="Vacunas del PAI">
+                                    <option value="BCG">BCG (Bacilo de Calmette y Guérin)</option>
+                                    <option value="HEPATITIS_B">Hepatitis B</option>
+                                    <option value="PENTAVALENTE">Pentavalente (DPT + HepB + Hib)</option>
+                                    <option value="POLIO_IPV">Polio IPV (Inactivada)</option>
+                                    <option value="POLIO_OPV">Polio OPV (Oral)</option>
+                                    <option value="ROTAVIRUS">Rotavirus</option>
+                                    <option value="NEUMOCOCO">Neumococo</option>
+                                    <option value="INFLUENZA">Influenza</option>
+                                    <option value="SRP">SRP (Sarampión, Rubéola, Parotiditis)</option>
+                                    <option value="VARICELA">Varicela</option>
+                                    <option value="HEPATITIS_A">Hepatitis A</option>
+                                    <option value="DPT">DPT (Difteria, Pertussis, Tétanos)</option>
+                                    <option value="TD">Td (Tétanos, Difteria)</option>
+                                    <option value="VPH">VPH (Virus del Papiloma Humano)</option>
+                                </optgroup>
+                                <optgroup label="Vacunas Especiales">
+                                    <option value="COVID19_PFIZER">COVID-19 Pfizer</option>
+                                    <option value="COVID19_MODERNA">COVID-19 Moderna</option>
+                                    <option value="COVID19_ASTRAZENECA">COVID-19 AstraZeneca</option>
+                                    <option value="COVID19_JANSSEN">COVID-19 Janssen</option>
+                                    <option value="COVID19_SINOVAC">COVID-19 Sinovac</option>
+                                    <option value="FIEBRE_AMARILLA">Fiebre Amarilla</option>
+                                    <option value="MENINGITIS">Meningitis</option>
+                                    <option value="ENCEFALITIS_JAPONESA">Encefalitis Japonesa</option>
+                                </optgroup>
+                                <optgroup label="Otras">
+                                    <option value="OTRA">Otra vacuna</option>
+                                </optgroup>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Campos adicionales que aparecen al seleccionar una vacuna -->
+                <div id="detallesVacuna" style="display: none;">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Número de dosis</label>
+                                <select class="form-select" name="NumeroDosis">
+                                    <option value="">Seleccione...</option>
+                                    <option value="1">Primera dosis</option>
+                                    <option value="2">Segunda dosis</option>
+                                    <option value="3">Tercera dosis</option>
+                                    <option value="4">Cuarta dosis</option>
+                                    <option value="REFUERZO">Refuerzo</option>
+                                    <option value="UNICA">Dosis única</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Fecha de aplicación</label>
+                                <input type="date" class="form-control" name="FechaAplicacion">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Lote</label>
+                                <input type="text" class="form-control" name="LoteVacuna" placeholder="Número de lote">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Laboratorio</label>
+                                <input type="text" class="form-control" name="Laboratorio" placeholder="Laboratorio fabricante">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Vía de administración</label>
+                                <select class="form-select" name="ViaAdministracion">
+                                    <option value="">Seleccione...</option>
+                                    <option value="INTRAMUSCULAR">Intramuscular</option>
+                                    <option value="SUBCUTANEA">Subcutánea</option>
+                                    <option value="ORAL">Oral</option>
+                                    <option value="INTRADERMICA">Intradérmica</option>
+                                    <option value="NASAL">Nasal</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Sitio de aplicación</label>
+                                <select class="form-select" name="SitioAplicacion">
+                                    <option value="">Seleccione...</option>
+                                    <option value="BRAZO_IZQUIERDO">Brazo izquierdo</option>
+                                    <option value="BRAZO_DERECHO">Brazo derecho</option>
+                                    <option value="MUSLO_IZQUIERDO">Muslo izquierdo</option>
+                                    <option value="MUSLO_DERECHO">Muslo derecho</option>
+                                    <option value="ORAL">Vía oral</option>
+                                    <option value="NASAL">Vía nasal</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="mb-3">
+                                <label class="form-label">Observaciones</label>
+                                <textarea class="form-control" name="ObservacionesVacuna" rows="3" placeholder="Observaciones sobre la vacuna aplicada..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-end">
+                        <button type="button" class="btn btn-primary" onclick="agregarVacuna()">
+                            <i class="ri-add-line me-1"></i> Agregar Vacuna
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Lista de vacunas agregadas -->
+        <div id="vacunasAplicadas" class="mt-4" style="display: none;">
+            <h6 class="fw-bold text-primary mb-3">
+                <i class="ri-list-check me-1"></i> Vacunas Aplicadas
+            </h6>
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Vacuna</th>
+                            <th>Dosis</th>
+                            <th>Fecha</th>
+                            <th>Lote</th>
+                            <th>Laboratorio</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tablaVacunas">
+                        <!-- Las vacunas se agregarán aquí dinámicamente -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.getElementById('vacunaSeleccionada').addEventListener('change', function() {
+    const detallesVacuna = document.getElementById('detallesVacuna');
+    if (this.value) {
+        detallesVacuna.style.display = 'block';
+    } else {
+        detallesVacuna.style.display = 'none';
+    }
+});
+
+let contadorVacunas = 0;
+
+function agregarVacuna() {
+    const vacuna = document.querySelector('[name="VacunaSeleccionada"]').value;
+    const vacunaTexto = document.querySelector('[name="VacunaSeleccionada"] option:checked').text;
+    const dosis = document.querySelector('[name="NumeroDosis"]').value;
+    const dosisTexto = document.querySelector('[name="NumeroDosis"] option:checked').text;
+    const fecha = document.querySelector('[name="FechaAplicacion"]').value;
+    const lote = document.querySelector('[name="LoteVacuna"]').value;
+    const laboratorio = document.querySelector('[name="Laboratorio"]').value;
+    
+    if (!vacuna || !dosis || !fecha) {
+        alert('Por favor complete los campos obligatorios: Vacuna, Dosis y Fecha');
+        return;
+    }
+    
+    const tablaVacunas = document.getElementById('tablaVacunas');
+    const nuevaFila = document.createElement('tr');
+    nuevaFila.innerHTML = `
+        <td>${vacunaTexto}</td>
+        <td>${dosisTexto}</td>
+        <td>${fecha}</td>
+        <td>${lote}</td>
+        <td>${laboratorio}</td>
+        <td>
+            <button type="button" class="btn btn-sm btn-danger" onclick="eliminarVacuna(this)">
+                <i class="ri-delete-bin-line"></i>
+            </button>
+        </td>
+    `;
+    
+    tablaVacunas.appendChild(nuevaFila);
+    
+    // Mostrar la tabla de vacunas aplicadas
+    document.getElementById('vacunasAplicadas').style.display = 'block';
+    
+    // Limpiar el formulario
+    document.querySelector('[name="VacunaSeleccionada"]').value = '';
+    document.querySelector('[name="NumeroDosis"]').value = '';
+    document.querySelector('[name="FechaAplicacion"]').value = '';
+    document.querySelector('[name="LoteVacuna"]').value = '';
+    document.querySelector('[name="Laboratorio"]').value = '';
+    document.querySelector('[name="ViaAdministracion"]').value = '';
+    document.querySelector('[name="SitioAplicacion"]').value = '';
+    document.querySelector('[name="ObservacionesVacuna"]').value = '';
+    
+    // Ocultar los detalles de vacuna
+    document.getElementById('detallesVacuna').style.display = 'none';
+    
+    contadorVacunas++;
+}
+
+function eliminarVacuna(boton) {
+    if (confirm('¿Está seguro de que desea eliminar esta vacuna?')) {
+        const fila = boton.closest('tr');
+        fila.remove();
+        
+        // Si no quedan vacunas, ocultar la tabla
+        const tablaVacunas = document.getElementById('tablaVacunas');
+        if (tablaVacunas.children.length === 0) {
+            document.getElementById('vacunasAplicadas').style.display = 'none';
+        }
+    }
+}
+</script>

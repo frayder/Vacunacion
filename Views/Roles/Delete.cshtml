@@ -1,0 +1,231 @@
+@model Highdmin.Models.Role
+
+@{
+    ViewData["Title"] = "Eliminar Rol";
+}
+
+<div class="container-fluid px-4">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">
+            <i class="fas fa-trash me-2 text-danger"></i>
+            Eliminar Rol: @Model.Nombre
+        </h1>
+        <a asp-action="Index" class="btn btn-secondary shadow-sm">
+            <i class="fas fa-arrow-left fa-sm text-white-50 me-1"></i>
+            Volver a Lista
+        </a>
+    </div>
+
+    <!-- Alerta de confirmación -->
+    <div class="alert alert-danger border-left-danger" role="alert">
+        <div class="d-flex align-items-center">
+            <i class="fas fa-exclamation-triangle fa-2x me-3"></i>
+            <div>
+                <h6 class="alert-heading mb-1">¡Atención! Esta acción no se puede deshacer</h6>
+                <p class="mb-0">Está a punto de eliminar permanentemente el rol <strong>"@Model.Nombre"</strong> del sistema.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card shadow">
+                <div class="card-header py-3 bg-danger text-white">
+                    <h6 class="m-0 font-weight-bold">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Información del Rol a Eliminar
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-sm-3">
+                            <strong>ID del Rol:</strong>
+                        </div>
+                        <div class="col-sm-9">
+                            <span class="badge bg-primary">#@Html.DisplayFor(model => model.Id)</span>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-sm-3">
+                            <strong>Nombre:</strong>
+                        </div>
+                        <div class="col-sm-9">
+                            @Html.DisplayFor(model => model.Nombre)
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-sm-3">
+                            <strong>Descripción:</strong>
+                        </div>
+                        <div class="col-sm-9">
+                            @(string.IsNullOrEmpty(Model.Descripcion) ? "Sin descripción" : Model.Descripcion)
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-sm-3">
+                            <strong>Permisos Asignados:</strong>
+                        </div>
+                        <div class="col-sm-9">
+                            <span class="badge bg-info">@Model.RolePermissions.Count permisos</span>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-sm-3">
+                            <strong>Usuarios Asignados:</strong>
+                        </div>
+                        <div class="col-sm-9">
+                            @if (Model.UserRoles.Any())
+                            {
+                                <span class="badge bg-warning">@Model.UserRoles.Count usuarios</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-success">0 usuarios</span>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <!-- Verificación de usuarios asignados -->
+            @if (Model.UserRoles.Any())
+            {
+                <div class="card border-warning shadow mb-4">
+                    <div class="card-header bg-warning text-dark py-3">
+                        <h6 class="m-0 font-weight-bold">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            ¡No se puede eliminar!
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <p class="text-warning mb-3">
+                            <strong>Este rol tiene usuarios asignados y no puede ser eliminado.</strong>
+                        </p>
+                        
+                        <h6 class="text-dark">Usuarios con este rol:</h6>
+                        <div class="list-group list-group-flush">
+                            @foreach (var userRole in Model.UserRoles.Take(5))
+                            {
+                                <div class="list-group-item px-0 py-2">
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-user me-2 text-gray-400"></i>
+                                        <div>
+                                            <small class="d-block">@userRole.User.UserName</small>
+                                            <small class="text-muted">@userRole.User.Email</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                            @if (Model.UserRoles.Count > 5)
+                            {
+                                <div class="list-group-item px-0 py-2 text-center">
+                                    <small class="text-muted">... y @(Model.UserRoles.Count - 5) usuario(s) más</small>
+                                </div>
+                            }
+                        </div>
+                        
+                        <div class="mt-3">
+                            <small class="text-muted">
+                                Para eliminar este rol, primero debe reasignar o eliminar todos los usuarios que lo tienen asignado.
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="card border-success shadow mb-4">
+                    <div class="card-header bg-success text-white py-3">
+                        <h6 class="m-0 font-weight-bold">
+                            <i class="fas fa-check-circle me-2"></i>
+                            Listo para eliminar
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <p class="text-success mb-0">
+                            Este rol no tiene usuarios asignados y puede ser eliminado de forma segura.
+                        </p>
+                    </div>
+                </div>
+            }
+
+            <!-- Impacto de la eliminación -->
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-info me-2"></i>
+                        Qué se eliminará
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <ul class="list-unstyled mb-0">
+                        <li class="mb-2">
+                            <i class="fas fa-check text-danger me-2"></i>
+                            El rol <strong>"@Model.Nombre"</strong>
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-check text-danger me-2"></i>
+                            Todos los permisos del rol (@Model.RolePermissions.Count)
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-info text-info me-2"></i>
+                            Los usuarios NO se eliminarán
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Botones de acción -->
+    <div class="d-flex justify-content-between mt-4">
+        <a asp-action="Index" class="btn btn-secondary">
+            <i class="fas fa-arrow-left me-1"></i>
+            Cancelar
+        </a>
+        
+        @if (!Model.UserRoles.Any())
+        {
+            <form asp-action="Delete" method="post" class="d-inline" id="deleteForm">
+                @Html.AntiForgeryToken()
+                <input type="hidden" asp-for="Id" />
+                <button type="submit" class="btn btn-danger" id="confirmDeleteBtn">
+                    <i class="fas fa-trash me-1"></i>
+                    Confirmar Eliminación
+                </button>
+            </form>
+        }
+        else
+        {
+            <button type="button" class="btn btn-danger" disabled>
+                <i class="fas fa-ban me-1"></i>
+                No se puede eliminar
+            </button>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            $('#deleteForm').on('submit', function(e) {
+                e.preventDefault();
+                
+                // Mostrar confirmación final
+                if (confirm('¿Está completamente seguro de que desea eliminar el rol "@Model.Nombre"?\n\nEsta acción NO se puede deshacer.')) {
+                    // Deshabilitar botón para evitar envíos múltiples
+                    $('#confirmDeleteBtn').prop('disabled', true).html('<i class="fas fa-spinner fa-spin me-1"></i>Eliminando...');
+                    
+                    // Enviar formulario
+                    this.submit();
+                }
+            });
+        });
+    </script>
+}

@@ -1,0 +1,76 @@
+@model Highdmin.ViewModels.SidenavViewModel
+
+<!-- Sidenav Menu Start -->
+<div class="sidenav-menu">
+
+    <!-- Brand Logo -->
+    <a href=@Url.Action("Index", "Dashboard") class="logo">
+        <span class="logo-light">
+            <span class="logo-lg"><img src="~/images/logo.png" alt="logo"></span>
+            <span class="logo-sm"><img src="~/images/logo-sm.png" alt="small logo"></span>
+        </span>
+
+        <span class="logo-dark">
+            <span class="logo-lg"><img src="~/images/logo-dark.png" alt="dark logo"></span>
+            <span class="logo-sm"><img src="~/images/logo-sm.png" alt="small logo"></span>
+        </span>
+    </a>
+
+    <!-- Sidebar Hover Menu Toggle Button -->
+    <button class="button-sm-hover">
+        <i class="ri-circle-line align-middle"></i>
+    </button>
+
+    <!-- Full Sidebar Menu Close Button -->
+    <button class="button-close-fullsidebar">
+        <i class="ri-close-line align-middle"></i>
+    </button>
+
+    <div data-simplebar>
+
+        <!-- User -->
+        <div class="sidenav-user">
+            <div class="dropdown-center">
+                <a class="topbar-link dropdown-toggle text-reset drop-arrow-none px-2 d-flex align-items-center justify-content-center" data-bs-toggle="dropdown" data-bs-offset="0,19" type="button" aria-haspopup="false" aria-expanded="false">
+                    <img src="~/images/users/avatar-1.jpg" width="42" class="rounded-circle me-2 d-flex" alt="user-image">
+                    <span class="d-flex flex-column gap-1 sidebar-user-name">
+                        <h4 class="my-0 fw-bold fs-15">@Model.UserName</h4>
+                        <h6 class="my-0">@Model.UserRole</h6>
+                    </span>
+                    <i class="ri-arrow-down-s-line d-block sidebar-user-arrow align-middle ms-2"></i>
+                </a>
+                <div class="dropdown-menu dropdown-menu-end">
+                    <!-- item-->
+                    <div class="dropdown-header noti-title">
+                        <h6 class="text-overflow m-0">Bienvenido!</h6>
+                    </div>
+
+                    <!-- item-->
+                    <a href="javascript:void(0);" class="dropdown-item">
+                        <i class="ri-account-circle-line me-1 fs-16 align-middle"></i>
+                        <span class="align-middle">Mi Cuenta</span>
+                    </a>
+
+                    <!-- item-->
+                    <a href=@Url.Action("Logout", "Auth") class="dropdown-item active fw-semibold text-danger">
+                        <i class="ri-logout-box-line me-1 fs-16 align-middle"></i>
+                        <span class="align-middle">Cerrar Sesión</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!--- Sidenav Menu -->
+        <ul class="side-nav">
+            <li class="side-nav-title">Menú</li>
+
+            @foreach (var menuItem in Model.MenuItems)
+            {
+                @await Html.PartialAsync("_MenuItemPartial", menuItem)
+            }
+        </ul>
+
+        <div class="clearfix"></div>
+    </div>
+</div>
+<!-- Sidenav Menu End -->

@@ -1,0 +1,218 @@
+@model TipoCarnetCreateViewModel
+@{
+    ViewData["Title"] = "Nuevo Tipo de Carnet";
+    Layout = "~/Views/Shared/_VerticalLayout.cshtml";
+}
+
+<!-- Page Header -->
+<div class="page-title-box d-sm-flex align-items-center justify-content-between">
+    <h4 class="mb-sm-0">Nuevo Tipo de Carnet</h4>
+    <div class="page-title-right">
+        <ol class="breadcrumb m-0">
+            <li class="breadcrumb-item"><a href="javascript: void(0);">Highdmin</a></li>
+            <li class="breadcrumb-item"><a asp-action="Index">Tipos de Carnet</a></li>
+            <li class="breadcrumb-item active">Nuevo</li>
+        </ol>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <div class="d-flex align-items-center">
+                    <div class="flex-shrink-0">
+                        <div class="avatar-sm">
+                            <span class="avatar-title bg-primary-subtle text-primary rounded-circle fs-5">
+                                <i class="ri-add-line"></i>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <h5 class="card-title mb-1">Crear Nuevo Tipo de Carnet</h5>
+                        <p class="text-muted mb-0">Complete la información del nuevo tipo de carnet</p>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <!-- Alerts -->
+                @if (!ViewData.ModelState.IsValid)
+                {
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <i class="ri-error-warning-line me-2"></i>
+                        <strong>Error de validación:</strong>
+                        <ul class="mb-0 mt-2">
+                            @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                            {
+                                <li>@error.ErrorMessage</li>
+                            }
+                        </ul>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                }
+
+                <form asp-action="Crear" method="post" id="tipoCarnetForm">
+                    @Html.AntiForgeryToken()
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="Codigo" class="form-label">Código <span class="text-danger">*</span></label>
+                                <input asp-for="Codigo" class="form-control" placeholder="Ej: CVI" maxlength="10" />
+                                <span asp-validation-for="Codigo" class="text-danger"></span>
+                                <div class="form-text">Código único para identificar el tipo de carnet (máx. 10 caracteres)</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="Estado" class="form-label">Estado</label>
+                                <div class="form-check form-switch mt-2">
+                                    <input asp-for="Estado" class="form-check-input" type="checkbox" />
+                                    <label asp-for="Estado" class="form-check-label">Activo</label>
+                                </div>
+                                <div class="form-text">Determine si el tipo de carnet estará disponible para su uso</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Nombre" class="form-label">Nombre <span class="text-danger">*</span></label>
+                        <input asp-for="Nombre" class="form-control" placeholder="Ej: CARNET DE VACUNACION INFANTIL" maxlength="255" />
+                        <span asp-validation-for="Nombre" class="text-danger"></span>
+                        <div class="form-text">Nombre descriptivo del tipo de carnet (máx. 255 caracteres)</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Descripcion" class="form-label">Descripción</label>
+                        <textarea asp-for="Descripcion" class="form-control" rows="4" placeholder="Descripción detallada del tipo de carnet..." maxlength="500"></textarea>
+                        <span asp-validation-for="Descripcion" class="text-danger"></span>
+                        <div class="form-text">Descripción opcional del tipo de carnet (máx. 500 caracteres)</div>
+                    </div>
+
+                    <div class="text-end">
+                        <a asp-action="Index" class="btn btn-secondary me-2">
+                            <i class="ri-arrow-left-line me-1"></i> Cancelar
+                        </a>
+                        <button type="submit" class="btn btn-success">
+                            <i class="ri-save-line me-1"></i> Crear Tipo de Carnet
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="ri-information-line me-1"></i> Información Importante
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-info border-0 bg-info-subtle" role="alert">
+                    <h6 class="text-info mb-2">
+                        <i class="ri-lightbulb-line me-1"></i> Consejos
+                    </h6>
+                    <ul class="text-info mb-0">
+                        <li class="mb-1">El código debe ser único y fácil de recordar</li>
+                        <li class="mb-1">Use códigos cortos y descriptivos (ej: CVI, CVA)</li>
+                        <li class="mb-1">El nombre debe ser claro y comprensible</li>
+                        <li>La descripción ayuda a otros usuarios a entender el uso</li>
+                    </ul>
+                </div>
+
+                <div class="alert alert-warning border-0 bg-warning-subtle" role="alert">
+                    <h6 class="text-warning mb-2">
+                        <i class="ri-alert-line me-1"></i> Importante
+                    </h6>
+                    <ul class="text-warning mb-0">
+                        <li class="mb-1">Una vez creado, el código no puede ser modificado</li>
+                        <li class="mb-1">Los campos marcados con * son obligatorios</li>
+                        <li>Solo los tipos activos aparecerán en los formularios</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="ri-file-list-3-line me-1"></i> Ejemplos de Tipos de Carnet
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="d-flex align-items-center mb-3">
+                    <div class="flex-shrink-0">
+                        <div class="avatar-xs">
+                            <div class="avatar-title rounded-circle bg-primary-subtle text-primary">
+                                C
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex-grow-1 ms-2">
+                        <h6 class="mb-1">CVI</h6>
+                        <p class="mb-0 text-muted fs-12">Carnet de Vacunación Infantil</p>
+                    </div>
+                </div>
+
+                <div class="d-flex align-items-center mb-3">
+                    <div class="flex-shrink-0">
+                        <div class="avatar-xs">
+                            <div class="avatar-title rounded-circle bg-success-subtle text-success">
+                                C
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex-grow-1 ms-2">
+                        <h6 class="mb-1">CVA</h6>
+                        <p class="mb-0 text-muted fs-12">Certificado de Vacunación de Adultos</p>
+                    </div>
+                </div>
+
+                <div class="d-flex align-items-center">
+                    <div class="flex-shrink-0">
+                        <div class="avatar-xs">
+                            <div class="avatar-title rounded-circle bg-info-subtle text-info">
+                                C
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex-grow-1 ms-2">
+                        <h6 class="mb-1">CVI-INT</h6>
+                        <p class="mb-0 text-muted fs-12">Certificado Internacional de Vacunación</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Auto-uppercase for code field
+            const codigoField = document.getElementById('Codigo');
+            if (codigoField) {
+                codigoField.addEventListener('input', function(e) {
+                    e.target.value = e.target.value.toUpperCase();
+                });
+            }
+
+            // Form validation
+            const form = document.getElementById('tipoCarnetForm');
+            form.addEventListener('submit', function(e) {
+                const codigo = document.getElementById('Codigo').value.trim();
+                const nombre = document.getElementById('Nombre').value.trim();
+                
+                if (!codigo || !nombre) {
+                    e.preventDefault();
+                    alert('Por favor complete todos los campos obligatorios.');
+                    return false;
+                }
+            });
+        });
+    </script>
+}

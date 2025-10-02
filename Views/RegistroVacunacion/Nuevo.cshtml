@@ -1,0 +1,329 @@
+@model RegistroVacunacionItemViewModel
+@{
+    ViewData["Title"] = "Nuevo Registro de Vacunación";
+    Layout = "~/Views/Shared/_VerticalLayout.cshtml";
+}
+
+<!-- Page Header -->
+<div class="page-title-box d-sm-flex align-items-center justify-content-between">
+    <h4 class="mb-sm-0">Nuevo Registro de Vacunación</h4>
+</div>
+
+<div class="row">
+    <div class="col-lg-12">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h5 class="card-title mb-0 text-white">
+                    <i class="ri-vaccine-line me-2"></i>Formulario por Pasos
+                </h5>
+                <p class="mb-0 text-white-50">Complete la información de paciente paso a paso</p>
+            </div>
+            <div class="card-body">
+                <!-- Progress Steps -->
+                <div class="mb-4">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <span class="badge bg-primary text-white px-3 py-2">Paso 1 de 7</span>
+                    </div>
+                    
+                    <!-- Step indicators -->
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="step-indicator active" data-step="1">
+                            <div class="step-circle bg-primary text-white">1</div>
+                            <span class="step-label">Datos Básicos</span>
+                        </div>
+                        <div class="step-indicator" data-step="2">
+                            <div class="step-circle">2</div>
+                            <span class="step-label">Datos Complementarios</span>
+                        </div>
+                        <div class="step-indicator" data-step="3">
+                            <div class="step-circle">3</div>
+                            <span class="step-label">Antecedentes Médicos</span>
+                        </div>
+                        <div class="step-indicator" data-step="4">
+                            <div class="step-circle">4</div>
+                            <span class="step-label">Condición Usuario</span>
+                        </div>
+                        <div class="step-indicator" data-step="5">
+                            <div class="step-circle">5</div>
+                            <span class="step-label">Médico/Cuidador</span>
+                        </div>
+                        <div class="step-indicator" data-step="6">
+                            <div class="step-circle">6</div>
+                            <span class="step-label">Esquema Vacunación</span>
+                        </div>
+                        <div class="step-indicator" data-step="7">
+                            <div class="step-circle">7</div>
+                            <span class="step-label">Responsable</span>
+                        </div>
+                    </div>
+                </div>
+
+                <form asp-action="Nuevo" method="post" id="vacunacionForm">
+                    <!-- Hidden fields for model binding -->
+                    <input type="hidden" asp-for="Paciente" />
+                    
+                    <!-- Dynamic Step Container -->
+                    <div id="step-container">
+                        <!-- Steps will be loaded here dynamically -->
+                        <partial name="Steps/_DatosBasicos" model="Model" />
+                    </div>
+
+                    <!-- Navigation Buttons -->
+                    <div class="d-flex justify-content-between mt-4">
+                        <button type="button" class="btn btn-secondary" id="prevBtn" style="display: none;">
+                            <i class="ri-arrow-left-line me-1"></i> Anterior
+                        </button>
+                        <div class="ms-auto">
+                            <button type="button" class="btn btn-primary" id="nextBtn">
+                                Siguiente <i class="ri-arrow-right-line ms-1"></i>
+                            </button>
+                            <button type="submit" class="btn btn-success" id="submitBtn" style="display: none;">
+                                <i class="ri-save-line me-1"></i> Guardar Registro
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        .step-indicator {
+            text-align: center;
+            flex: 1;
+            position: relative;
+        }
+        
+        .step-circle {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 2px solid #dee2e6;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 10px;
+            background-color: #f8f9fa;
+            color: #6c757d;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        
+        .step-indicator.active .step-circle {
+            background-color: #5d87ff;
+            border-color: #5d87ff;
+            color: white;
+        }
+        
+        .step-indicator.completed .step-circle {
+            background-color: #28a745;
+            border-color: #28a745;
+            color: white;
+        }
+        
+        .step-label {
+            font-size: 12px;
+            color: #6c757d;
+            display: block;
+        }
+        
+        .step-indicator.active .step-label {
+            color: #5d87ff;
+            font-weight: 600;
+        }
+        
+        .step-content {
+            display: none;
+        }
+        
+        .step-content.active {
+            display: block;
+        }
+        
+        .step-indicator:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            top: 20px;
+            right: -50%;
+            left: 50%;
+            height: 2px;
+            background-color: #dee2e6;
+            z-index: -1;
+        }
+        
+        .step-indicator.completed:not(:last-child)::after {
+            background-color: #28a745;
+        }
+        
+        .form-control:focus, .form-select:focus {
+            border-color: #5d87ff;
+            box-shadow: 0 0 0 0.2rem rgba(93, 135, 255, 0.25);
+        }
+        
+        .text-danger.small {
+            font-size: 11px;
+            margin-top: 2px;
+        }
+        
+        .card.bg-light {
+            border: 1px solid #dee2e6;
+        }
+        
+        .table-sm td, .table-sm th {
+            padding: 0.25rem;
+            font-size: 0.875rem;
+        }
+        
+        .btn-outline-danger {
+            border-color: #dc3545;
+            color: #dc3545;
+        }
+        
+        .btn-outline-danger:hover {
+            background-color: #dc3545;
+            color: white;
+        }
+    </style>
+}
+
+@section Scripts {
+    <script>
+        console.log('Inline JavaScript loaded!');
+        
+        let currentStep = 1;
+        const totalSteps = 7;
+
+        // Define functions first
+        async function nextStep() {
+            console.log('nextStep function called');
+            
+            if (currentStep < totalSteps) {
+                currentStep++;
+                console.log('Moving to step:', currentStep);
+                
+                try {
+                    const url = '/RegistroVacunacion/LoadStep?step=' + currentStep;
+                    console.log('Fetching URL:', url);
+                    
+                    const response = await fetch(url);
+                    console.log('Response status:', response.status);
+                    
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    
+                    const html = await response.text();
+                    console.log('Response HTML length:', html.length);
+                    console.log('Response HTML preview:', html.substring(0, 200));
+                    
+                    const stepContainer = document.getElementById('step-container');
+                    if (stepContainer) {
+                        stepContainer.innerHTML = html;
+                        console.log('HTML inserted into step-container');
+                        updateButtons();
+                        updateStepIndicators();
+                        console.log('Step loaded successfully:', currentStep);
+                    } else {
+                        console.error('step-container element not found!');
+                    }
+                } catch (error) {
+                    console.error('Error loading step:', error);
+                    alert('Error al cargar el paso: ' + error.message);
+                }
+            }
+        }
+        
+        function prevStep() {
+            console.log('prevStep function called');
+            
+            if (currentStep > 1) {
+                currentStep--;
+                console.log('Moving to step:', currentStep);
+                
+                fetch('/RegistroVacunacion/LoadStep?step=' + currentStep)
+                    .then(response => response.text())
+                    .then(html => {
+                        document.getElementById('step-container').innerHTML = html;
+                        updateButtons();
+                        updateStepIndicators();
+                    });
+            }
+        }
+        
+        function updateButtons() {
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            const submitBtn = document.getElementById('submitBtn');
+
+            if (prevBtn) {
+                prevBtn.style.display = currentStep === 1 ? 'none' : 'inline-block';
+            }
+
+            if (currentStep === totalSteps) {
+                if (nextBtn) nextBtn.style.display = 'none';
+                if (submitBtn) submitBtn.style.display = 'inline-block';
+            } else {
+                if (nextBtn) nextBtn.style.display = 'inline-block';
+                if (submitBtn) submitBtn.style.display = 'none';
+            }
+        }
+        
+        function updateStepIndicators() {
+            document.querySelectorAll('.step-indicator').forEach((indicator, index) => {
+                const stepNumber = index + 1;
+
+                if (stepNumber < currentStep) {
+                    indicator.classList.add('completed');
+                    indicator.classList.remove('active');
+                } else if (stepNumber === currentStep) {
+                    indicator.classList.add('active');
+                    indicator.classList.remove('completed');
+                } else {
+                    indicator.classList.remove('active', 'completed');
+                }
+            });
+
+            const badge = document.querySelector('.badge');
+            if (badge) {
+                badge.textContent = `Paso ${currentStep} de ${totalSteps}`;
+            }
+        }
+
+        // Initialize when DOM is ready
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM loaded - inline script');
+            
+            const nextBtn = document.getElementById('nextBtn');
+            const prevBtn = document.getElementById('prevBtn');
+            
+            console.log('Next button:', nextBtn);
+            console.log('Previous button:', prevBtn);
+            
+            if (nextBtn) {
+                nextBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    console.log('NEXT BUTTON CLICKED!');
+                    console.log('About to call nextStep()');
+                    try {
+                        nextStep();
+                        console.log('nextStep() called successfully');
+                    } catch (error) {
+                        console.error('Error calling nextStep:', error);
+                        alert('Error: ' + error.message);
+                    }
+                });
+                console.log('Event listener added to next button');
+            }
+            
+            if (prevBtn) {
+                prevBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    console.log('PREV BUTTON CLICKED!');
+                    prevStep();
+                });
+            }
+        });
+    </script>
+}

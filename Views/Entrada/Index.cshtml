@@ -1,0 +1,423 @@
+@model EntradaViewModel
+@{
+    ViewData["Title"] = "Gestión de Entradas de Biológicos";
+    Layout = "~/Views/Shared/_VerticalLayout.cshtml";
+}
+
+<div class="row">
+    <div class="col-12">
+        <div class="page-title-box d-sm-flex align-items-center justify-content-between">
+            <h4 class="mb-sm-0">
+                <i class="ri-medicine-bottle-line me-2"></i>Gestión de Entradas de Biológicos
+            </h4>
+            <div class="page-title-right">
+                <ol class="breadcrumb m-0">
+                    <li class="breadcrumb-item"><a href="javascript: void(0);">Operativos</a></li>
+                    <li class="breadcrumb-item active">Entradas</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <p class="text-muted mb-4">Registre y administre las entradas mensuales de insumos biológicos</p>
+    </div>
+</div>
+
+<!-- Statistics Cards -->
+<div class="row">
+    <div class="col-xl-3 col-md-6">
+        <div class="card card-animate">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-grow-1 overflow-hidden">
+                        <p class="text-uppercase fw-medium text-muted text-truncate mb-0">
+                            <i class="ri-calendar-line me-1"></i> Entradas del Mes
+                        </p>
+                        <div class="d-flex align-items-end justify-content-between">
+                            <h4 class="fs-22 fw-semibold ff-secondary mb-0">
+                                <span class="counter-value" data-target="@Model.EntradasDelMes">0</span>
+                            </h4>
+                        </div>
+                    </div>
+                    <div class="flex-shrink-0">
+                        <div class="avatar-sm">
+                            <span class="avatar-title bg-primary-subtle text-primary rounded-circle fs-3">
+                                <i class="ri-calendar-line"></i>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6">
+        <div class="card card-animate">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-grow-1 overflow-hidden">
+                        <p class="text-uppercase fw-medium text-muted text-truncate mb-0">
+                            <i class="ri-line-chart-line me-1"></i> Cantidad Total
+                        </p>
+                        <div class="d-flex align-items-end justify-content-between">
+                            <h4 class="fs-22 fw-semibold ff-secondary mb-0">
+                                <span class="counter-value" data-target="@Model.TotalEntradas">0</span>
+                            </h4>
+                        </div>
+                    </div>
+                    <div class="flex-shrink-0">
+                        <div class="avatar-sm">
+                            <span class="avatar-title bg-success-subtle text-success rounded-circle fs-3">
+                                <i class="ri-line-chart-line"></i>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6">
+        <div class="card card-animate">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-grow-1 overflow-hidden">
+                        <p class="text-uppercase fw-medium text-muted text-truncate mb-0">
+                            <i class="ri-bar-chart-line me-1"></i> Insumos Diferentes
+                        </p>
+                        <div class="d-flex align-items-end justify-content-between">
+                            <h4 class="fs-22 fw-semibold ff-secondary mb-0">
+                                <span class="counter-value" data-target="@Model.InsumosDiferentes">0</span>
+                            </h4>
+                        </div>
+                    </div>
+                    <div class="flex-shrink-0">
+                        <div class="avatar-sm">
+                            <span class="avatar-title bg-info-subtle text-info rounded-circle fs-3">
+                                <i class="ri-bar-chart-line"></i>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6">
+        <div class="card card-animate">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-grow-1 overflow-hidden">
+                        <p class="text-uppercase fw-medium text-muted text-truncate mb-0">
+                            <i class="ri-user-line me-1"></i> Usuarios Activos
+                        </p>
+                        <div class="d-flex align-items-end justify-content-between">
+                            <h4 class="fs-22 fw-semibold ff-secondary mb-0">
+                                <span class="counter-value" data-target="@Model.UsuariosActivos">0</span>
+                            </h4>
+                        </div>
+                    </div>
+                    <div class="flex-shrink-0">
+                        <div class="avatar-sm">
+                            <span class="avatar-title bg-warning-subtle text-warning rounded-circle fs-3">
+                                <i class="ri-user-line"></i>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Main Content -->
+<div class="card">
+    <div class="card-header">
+        <div class="d-flex align-items-center">
+            <div class="flex-shrink-0">
+                <div class="avatar-sm">
+                    <span class="avatar-title bg-primary-subtle text-primary rounded-circle fs-5">
+                        <i class="ri-medicine-bottle-line"></i>
+                    </span>
+                </div>
+            </div>
+            <div class="flex-grow-1 ms-3">
+                <h5 class="card-title mb-1">Registro de Entradas</h5>
+                <p class="text-muted mb-0">Mostrando @Model.TotalEntradas de @Model.TotalEntradas entradas</p>
+            </div>
+            <div class="flex-shrink-0">
+                <div class="d-flex gap-2">
+                    <button type="button" class="btn btn-outline-secondary">
+                        <i class="ri-file-transfer-line me-1"></i> Traslado
+                    </button>
+                    <button type="button" class="btn btn-outline-info">
+                        <i class="ri-upload-cloud-line me-1"></i> Carga Masiva
+                    </button>
+                    <a href="@Url.Action("Create")" class="btn btn-primary">
+                        <i class="ri-add-line me-1"></i> Nueva Entrada
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <!-- Navigation Tabs -->
+        <ul class="nav nav-tabs nav-tabs-custom nav-success mb-3" role="tablist">
+            <li class="nav-item">
+                <a class="nav-link active" data-bs-toggle="tab" href="#registro-entradas" role="tab">
+                    <i class="ri-file-list-line me-1"></i> Registro de Entradas
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" data-bs-toggle="tab" href="#balances-mensuales" role="tab">
+                    <i class="ri-bar-chart-box-line me-1"></i> Balances Mensuales
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" data-bs-toggle="tab" href="#informe-entradas" role="tab">
+                    <i class="ri-file-chart-line me-1"></i> Informe Entradas
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" data-bs-toggle="tab" href="#informe-movimientos" role="tab">
+                    <i class="ri-exchange-line me-1"></i> Informe Movimientos
+                </a>
+            </li>
+        </ul>
+
+        <!-- Tab Content -->
+        <div class="tab-content text-muted">
+            <div class="tab-pane active" id="registro-entradas" role="tabpanel">
+                <!-- Search and Filter Bar -->
+                <div class="row g-3 mb-4">
+                    <div class="col-xxl-4 col-sm-6">
+                        <div class="search-box">
+                            <input type="text" class="form-control search" placeholder="Buscar por insumo, usuario o notas...">
+                            <i class="ri-search-line search-icon"></i>
+                        </div>
+                    </div>
+                    <div class="col-xxl-2 col-sm-3">
+                        <select class="form-control" data-choices data-choices-search-false id="mesFilter">
+                            <option value="">Mes actual</option>
+                            <option value="">Todos los insumos</option>
+                        </select>
+                    </div>
+                    <div class="col-xxl-2 col-sm-3">
+                        <select class="form-control" data-choices data-choices-search-false id="tipoFilter">
+                            <option value="">Todos los tipos</option>
+                            <option value="Vacuna">Vacuna</option>
+                            <option value="Jeringa">Jeringa</option>
+                            <option value="Diluyente">Diluyente</option>
+                            <option value="Gotero">Gotero</option>
+                        </select>
+                    </div>
+                    <div class="col-xxl-4 col-sm-12">
+                        <div class="d-flex gap-2">
+                            <button type="button" class="btn btn-success">
+                                <i class="ri-equalizer-fill me-2"></i>Filtros
+                            </button>
+                            <button type="button" class="btn btn-outline-secondary">
+                                <i class="ri-refresh-line me-2"></i>Limpiar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Entries Table -->
+                <div class="table-responsive table-card mb-1">
+                    <table class="table table-nowrap align-middle" id="entradasTable">
+                        <thead class="table-light text-muted">
+                            <tr>
+                                <th class="sort" data-sort="insumo">Insumo</th>
+                                <th class="sort" data-sort="fecha">Fecha</th>
+                                <th class="sort" data-sort="tipo">Tipo</th>
+                                <th class="sort" data-sort="cantidad">Cantidad</th>
+                                <th class="sort" data-sort="usuario">Usuario</th>
+                                <th class="sort" data-sort="mes">Mes</th>
+                                <th class="sort" data-sort="notas">Notas</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody class="list form-check-all">
+                            @if (Model.Entradas.Any())
+                            {
+                                @foreach (var entrada in Model.Entradas)
+                                {
+                                    <tr>
+                                        <td class="insumo">
+                                            <div class="d-flex align-items-center">
+                                                <div class="flex-shrink-0">
+                                                    <div class="avatar-xs">
+                                                        <span class="avatar-title bg-primary-subtle text-primary rounded-circle fs-6">
+                                                            <i class="ri-medicine-bottle-line"></i>
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                                <div class="flex-grow-1 ms-3">
+                                                    <h6 class="fs-14 mb-1">@entrada.InsumoNombre</h6>
+                                                    <p class="text-muted mb-0">@entrada.InsumoCodigo</p>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="fecha">
+                                            <span class="text-muted">@entrada.FechaEntrada.ToString("dd/MM/yyyy")</span>
+                                        </td>
+                                        <td class="tipo">
+                                            <span class="@entrada.TipoBadgeClass">@entrada.InsumoTipo</span>
+                                        </td>
+                                        <td class="cantidad">
+                                            <span class="fw-semibold">@entrada.Cantidad.ToString("N0")</span>
+                                        </td>
+                                        <td class="usuario">
+                                            <span class="text-muted">@entrada.UsuarioNombre</span>
+                                        </td>
+                                        <td class="mes">
+                                            <span class="text-muted">@entrada.Mes</span>
+                                        </td>
+                                        <td class="notas">
+                                            <span class="text-muted">@(entrada.Notas ?? "N/A")</span>
+                                        </td>
+                                        <td>
+                                            <div class="dropdown d-inline-block">
+                                                <button class="btn btn-soft-secondary btn-sm dropdown" type="button" data-bs-toggle="dropdown">
+                                                    <i class="ri-more-fill align-middle"></i>
+                                                </button>
+                                                <ul class="dropdown-menu dropdown-menu-end">
+                                                    <li>
+                                                        <a href="@Url.Action("Details", new { id = entrada.Id })" class="dropdown-item">
+                                                            <i class="ri-eye-fill align-bottom me-2 text-muted"></i> Ver Detalles
+                                                        </a>
+                                                    </li>
+                                                    <li>
+                                                        <a href="@Url.Action("Edit", new { id = entrada.Id })" class="dropdown-item">
+                                                            <i class="ri-pencil-fill align-bottom me-2 text-muted"></i> Editar
+                                                        </a>
+                                                    </li>
+                                                    <li>
+                                                        <a href="@Url.Action("Delete", new { id = entrada.Id })" class="dropdown-item">
+                                                            <i class="ri-delete-bin-fill align-bottom me-2 text-muted"></i> Eliminar
+                                                        </a>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="8" class="text-center py-4">
+                                        <div class="d-flex flex-column align-items-center">
+                                            <i class="ri-inbox-line display-4 text-muted mb-3"></i>
+                                            <h5 class="mt-2">No se encontraron entradas</h5>
+                                            <p class="text-muted mb-0">Prueba ajustando los filtros de búsqueda</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination -->
+                @if (Model.Entradas.Any())
+                {
+                    <div class="d-flex justify-content-end">
+                        <div class="pagination-wrap hstack gap-2">
+                            <a class="page-item pagination-prev disabled" href="javascript:void(0);">
+                                Anterior
+                            </a>
+                            <ul class="pagination listjs-pagination mb-0"></ul>
+                            <a class="page-item pagination-next" href="javascript:void(0);">
+                                Siguiente
+                            </a>
+                        </div>
+                    </div>
+                }
+            </div>
+
+            <div class="tab-pane" id="balances-mensuales" role="tabpanel">
+                <div class="text-center py-5">
+                    <i class="ri-bar-chart-box-line display-4 text-muted mb-3"></i>
+                    <h5>Balances Mensuales</h5>
+                    <p class="text-muted">Esta funcionalidad estará disponible próximamente.</p>
+                </div>
+            </div>
+
+            <div class="tab-pane" id="informe-entradas" role="tabpanel">
+                <div class="text-center py-5">
+                    <i class="ri-file-chart-line display-4 text-muted mb-3"></i>
+                    <h5>Informe de Entradas</h5>
+                    <p class="text-muted">Esta funcionalidad estará disponible próximamente.</p>
+                </div>
+            </div>
+
+            <div class="tab-pane" id="informe-movimientos" role="tabpanel">
+                <div class="text-center py-5">
+                    <i class="ri-exchange-line display-4 text-muted mb-3"></i>
+                    <h5>Informe de Movimientos</h5>
+                    <p class="text-muted">Esta funcionalidad estará disponible próximamente.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/assets/libs/list.js/list.min.js"></script>
+    <script src="~/assets/libs/list.pagination.js/list.pagination.min.js"></script>
+    <script src="~/assets/js/pages/listjs.init.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize List.js for search and pagination
+            var options = {
+                valueNames: ['insumo', 'fecha', 'tipo', 'cantidad', 'usuario', 'mes', 'notas'],
+                page: 10,
+                pagination: true
+            };
+            var entradaList = new List('entradasTable', options);
+
+            // Search functionality
+            document.querySelector('.search').addEventListener('keyup', function(e) {
+                var searchString = e.target.value;
+                entradaList.search(searchString);
+            });
+
+            // Filter functionality
+            document.getElementById('tipoFilter').addEventListener('change', function(e) {
+                var filterValue = e.target.value;
+                if (filterValue === '') {
+                    entradaList.filter();
+                } else {
+                    entradaList.filter(function(item) {
+                        return item.values().tipo.includes(filterValue);
+                    });
+                }
+            });
+
+            // Counter animation
+            const counters = document.querySelectorAll('.counter-value');
+            counters.forEach(counter => {
+                const target = +counter.getAttribute('data-target');
+                const increment = target / 200;
+                
+                const updateCounter = () => {
+                    const current = +counter.innerText;
+                    if (current < target) {
+                        counter.innerText = Math.ceil(current + increment);
+                        setTimeout(updateCounter, 10);
+                    } else {
+                        counter.innerText = target;
+                    }
+                };
+                
+                updateCounter();
+            });
+        });
+    </script>
+}

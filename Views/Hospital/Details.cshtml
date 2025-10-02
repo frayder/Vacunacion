@@ -1,0 +1,76 @@
+@model HospitalItemViewModel
+@{
+    ViewData["Title"] = "Detalles de Hospital";
+    Layout = "~/Views/Shared/_VerticalLayout.cshtml";
+}
+
+<div class="page-title-box d-sm-flex align-items-center justify-content-between">
+    <h4 class="mb-sm-0">Detalles de Hospital</h4>
+    <div class="page-title-right">
+        <ol class="breadcrumb m-0">
+            <li class="breadcrumb-item"><a href="javascript: void(0);">Highdmin</a></li>
+            <li class="breadcrumb-item"><a asp-action="Index">Hospitales</a></li>
+            <li class="breadcrumb-item active">Detalles</li>
+        </ol>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="card-title mb-0">Información del Hospital</h4>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">@Html.DisplayNameFor(model => model.Codigo)</label>
+                            <p class="form-control-plaintext">@Html.DisplayFor(model => model.Codigo)</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">@Html.DisplayNameFor(model => model.Nombre)</label>
+                            <p class="form-control-plaintext">@Html.DisplayFor(model => model.Nombre)</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label fw-bold">@Html.DisplayNameFor(model => model.Descripcion)</label>
+                    <p class="form-control-plaintext">@Html.DisplayFor(model => model.Descripcion)</p>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">@Html.DisplayNameFor(model => model.Estado)</label>
+                            <p class="form-control-plaintext">
+                                @if (Model.Estado)
+                                {
+                                    <span class="badge bg-success">Activo</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-danger">Inactivo</span>
+                                }
+                            </p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">@Html.DisplayNameFor(model => model.FechaCreacion)</label>
+                            <p class="form-control-plaintext">@Html.DisplayFor(model => model.FechaCreacion)</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-end">
+                    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">Editar</a>
+                    <a asp-action="Index" class="btn btn-secondary">Volver al Listado</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

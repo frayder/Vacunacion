@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Leptospira_455>
+
+
+  <Bloques Nombre ="Datos" Tipo="PrimeraVez" >
+    <Secciones Nombre="INFORMACIÓN GENERAL">
+      <Campos Nombre="Código de la UPGD"  Requerido="true" Mensaje="Código de la UPGD"  TipoValor="TEXTO" TipoControl="Html" Control="input" Identificador="inputCodigoUPGD" />
+      <Campos Nombre="Razón social de la unidad primaria generadora del dato"  Requerido="true" Mensaje="Razón social de la unidad primaria generadora del dato"  TipoValor="TEXTO" TipoControl="Html" Control="input" Identificador="inputRazonSocial" />
+      <Campos Nombre="Nombre del evento"  Requerido="true" Mensaje="Nombre del evento"  TipoValor="TEXTO" TipoControl="Html" Control="input" Identificador="inputNombreEvento" />
+      <Campos Nombre="Código del evento"  Requerido="true" Mensaje="Código del evento"  TipoValor="TEXTO" TipoControl="Html" Control="input" Identificador="inputEvento" />
+      <Campos Nombre="Fecha de la notificación"  Requerido="true" Mensaje="Fecha de la notificación"  TipoValor="TEXTO" TipoControl="Html" Control="input" Identificador="inputFechaHora" />
+      <Campos Nombre="fecha Formato"  Requerido="true" Mensaje="fechaFormato"  TipoValor="TEXTO" TipoControl="Html" Control="input" Identificador="fechaFormato" />
+    </Secciones>
+
+
+      <Secciones Nombre="IDENTIFICACIÓN DEL PACIENTE">
+          <Campos Nombre="Tipo de documento"  Requerido="true" Mensaje=" Tipo de documento"  TipoValor="TEXTO" TipoControl="Html" Control="radio" Identificador="tipoDoc" />
+          <Campos Nombre="Número de identificación"  Requerido="true" Mensaje="Número de identificación"  TipoValor="TEXTO" TipoControl="Html" Control="input" Identificador="inputNumeroIdentificacion" />
+          <Campos Nombre="Nombres y apellidos del paciente"  Requerido="true" Mensaje="Nombres y apellidos del paciente"  TipoValor="TEXTO" TipoControl="Html" Control="input" Identificador="inputNombrePaciente" />
+          <Campos Nombre="Teléfono"  Requerido="false" Mensaje="Teléfono"  TipoValor="TEXTO" TipoControl="Html" Control="input" Identificador="inputTelefonoPaciente" />
+          <Campos Nombre="Fecha de nacimiento"  Requerido="true" Mensaje="Fecha de nacimiento "  TipoValor="TEXTO" TipoControl="Html" Control="input" Identificador="inputFechaNaciemiento" />
+          <Campos Nombre="Edad"  Requerido="true" Mensaje="Edad"  TipoValor="TEXTO" TipoControl="Html" Control="input" Identificador="inputEdadPaciente" />
+          <Campos Nombre="Unidad de medida de la edad"  Requerido="true" Mensaje="Unidad de medida de la edad"  TipoValor="TEXTO" TipoControl="Html" Control="radio" Identificador="radioUnidadMedia" />
+          <Campos Nombre="Sexo"  Requerido="true" Mensaje="Sexo"  TipoValor="TEXTO" TipoControl="Html" Control="radio" Identificador="radioSexo" />
+
+          <Campos Nombre="Nacionalidad"  Requerido="true" Mensaje="Nacionalidad"  TipoValor="TEXTO" TipoControl="Html" Control="input" Identificador="inputNacionalidadPaciente" />
+          <Campos Nombre="País de ocurrencia del caso"  Requerido="true" Mensaje="País de ocurrencia del caso"  TipoValor="TEXTO" TipoControl="Html" Control="input" Identificador="inputPaisOcurriencia" />
+          <Campos Nombre="Departamento  procedencia/ocurrencia"  Requerido="true" Mensaje="Departamento de procedencia/ocurrencia"  TipoValor="TEXTO" TipoControl="Html" Control="input" Identificador="inputDepartamentoOcurriencia" />
+
+        
+          <Campos Nombre="AreaOcurrencia"  Requerido="false" Mensaje="AreaOcurrencia"  TipoValor="TEXTO" TipoControl="Html" Control="radio" Identificador="radioAreaOcurrencia" />
+
+          <Campos Nombre="Localidad de ocurrencia del caso"  Requerido="false" Mensaje="Localidad de ocurrencia del caso"  TipoValor="TEXTO" TipoControl="Html" Control="input" Identificador="inputLocalidadOcurrencia" />
+          <Campos Nombre="Barrio de ocurrencia del caso"  Requerido="false" Mensaje="Barrio de ocurrencia del caso"  TipoValor="TEXTO" TipoControl="Html" Control="input" Identificador="inputBarrioOcurrencia" />
+          <Campos Nombre="Cabecera municipal/centro poblado/rural disperso"  Requerido="false" Mensaje="Cabecera municipal/centro poblado/rural disperso"  TipoValor="TEXTO" TipoControl="Html" Control="input" Identificador="inputCabeceraOcurrencia" />
+          <Campos Nombre="Vereda/zona"  Requerido="false" Mensaje="Vereda/zona"  TipoValor="TEXTO" TipoControl="Html" Control="input" Identificador="inputVeredaOcurrencia" />
+          <Campos Nombre="Ocupación del paciente"  Requerido="true" Mensaje="Ocupación del paciente"  TipoValor="TEXTO" TipoControl="Html" Control="input" Identificador="inputOcupacionPaciente" />
+
+          <Campos Nombre="Tipo de régimen en salud"  Requerido="true" Mensaje="Tipo de régimen en salud"  TipoValor="TEXTO" TipoControl="Html" Control="radio" Identificador="radioTipoRegimen" />
+          <Campos Nombre="Nombre de la administradora de Planes de beneficios"  Requerido="true" Mensaje="Nombre de la administradora de Planes de beneficios"  TipoValor="TEXTO" TipoControl="Html" Control="input" Identificador="inputADM" />
+          <Campos Nombre="Pertenencia étnica"  Requerido="false" Mensaje="Pertenencia étnica"  TipoValor="TEXTO" TipoControl="Html" Control="radio" Identificador="radioPEtnica" />
+          <Campos Nombre="Grupo Étnico"  Requerido="false" Mensaje="Grupo Étnico"  TipoValor="TEXTO" TipoControl="Html" Control="input" Identificador="inputGrupoEtnico" />
+          <Campos Nombre="Estrato"  Requerido="false" Mensaje="Estrato"  TipoValor="TEXTO" TipoControl="Html" Control="input" Identificador="inputEstrato" />
+          <Campos Nombre="chkGrupoPoblaciones" Requerido="false" Mensaje="Seleccione los grupos poblacionales a los que pertenece el paciente" TipoValor="SeleccionMultiple" TipoControl="Html" Control="checkbox" Identificador="chkGrupoPoblaciones" />
+          <Campos Nombre="Semanas"  Requerido="false" Mensaje="Semanas"  TipoValor="TEXTO" TipoControl="Html" Control="input" Identificador="inputSemGestacion" />
+
+      </Secciones>
+
+    <Secciones Nombre="NOTIFICACIÓN">
+      <Campos Nombre="Fuente Notificacion"            Requerido="false"  Mensaje="Fuente Notificacion"            TipoValor="Radio" TipoControl="Html" Control="radio" Identificador="radioFuente" />
+      <Campos Nombre="Departamento Residencia"  Requerido="true" Mensaje="Departamento Residencia"  TipoValor="TEXTO" TipoControl="Html" Control="input" Identificador="inputDepartamento" />
+      <Campos Nombre="Pais Residencia"  Requerido="true" Mensaje="Pais Residencia"  TipoValor="TEXTO" TipoControl="Html" Control="input" Identificador="inputPais32" />
+      <Campos Nombre="Dirección de residencia"  Requerido="false" Mensaje="Dirección de residencia"  TipoValor="TEXTO" TipoControl="Html" Control="input" Identificador="inputDireccionResidencia" />
+      <Campos Nombre="Fecha de consulta"  Requerido="false" Mensaje="Fecha de consulta"  TipoValor="TEXTO" TipoControl="Html" Control="input" Identificador="inputFechaConsulta" />
+      <Campos Nombre="Clasificación inicial de caso"  Requerido="true"   Mensaje="Clasificacion inicial de caso"  TipoValor="Radio" TipoControl="Html" Control="radio" Identificador="radioClasificacionInicial" />
+      <Campos Nombre="Fecha de inicio de síntomas"  Requerido="false" Mensaje="Fecha de inicio de síntomas"  TipoValor="TEXTO" TipoControl="Html" Control="input" Identificador="inputFechaSintomas" />
+      <Campos Nombre="Hospitalizado"  Requerido="true" Mensaje="Hospitalizado"  TipoValor="Radio" TipoControl="Html" Control="radio" Identificador="radioHospitalizado" />
+      <Campos Nombre="Fecha de la Hospitalización"  Requerido="false" Mensaje="Fecha de la Hospitalización"  TipoValor="TEXTO" TipoControl="Html" Control="input" Identificador="inputFechaConsultaNotificacion" />
+      <Campos Nombre="Condición final"  Requerido="true" Mensaje="Condición final"  TipoValor="Radio" TipoControl="Html" Control="radio" Identificador="radioCondicionFinal" />
+      <Campos Nombre="Fecha de defunción"  Requerido="false" Mensaje="Fecha de defunción"  TipoValor="TEXTO" TipoControl="Html" Control="input" Identificador="inputFechaDefuncion" />
+      <Campos Nombre="Número certificado de defunción"  Requerido="false" Mensaje=" Número certificado de defunción"  TipoValor="TEXTO" TipoControl="Html" Control="input" Identificador="inputNumeroCertificado" />
+      <Campos Nombre="Causa básica de muerte"  Requerido="false" Mensaje="Causa básica de muerte"  TipoValor="TEXTO" TipoControl="Html" Control="input" Identificador="inputCausaBasicaMuerte" />
+      <Campos Nombre="Nombre del profesional que diligenció la ficha"  Requerido="true" Mensaje="Nombre del profesional que diligenció la ficha"  TipoValor="TEXTO" TipoControl="Html" Control="input" Identificador="inputProfesionalDiligencia" />
+      <Campos Nombre="Teléfono Personal"  Requerido="true" Mensaje="Teléfono Personal"  TipoValor="TEXTO" TipoControl="Html" Control="input" Identificador="inputTelefonoPersonal" />
+    </Secciones>
+    <Secciones Nombre="ESPACIO EXCLUSIVO PARA USO DE LOS ENTES TERRITORIALES">
+      <Campos Nombre="Seguimiento y clasificación final del caso"  Requerido="false" Mensaje="Seguimiento y clasificación final del caso"  TipoValor="Radio" TipoControl="Html" Control="radio" Identificador="radioSeguimientoFinalCaso" />
+      <Campos Nombre="Fecha de ajuste"  Requerido="false" Mensaje="Fecha de ajuste"  TipoValor="TEXTO" TipoControl="Html" Control="input" Identificador="inputFechaAjuste" />
+    </Secciones>
+    <!-- Final Hoja UNO -->
+
+    <Secciones Nombre="RELACIÓN CON DATOS BÁSICOS">
+      <Campos Nombre="Nombres y apellidos del paciente"  Requerido="true" Mensaje="Nombres y apellidos del paciente"  TipoValor="TEXTO" TipoControl="Html" Control="input" Identificador="inputNombreApellidoPaciente" />
+      <Campos Nombre="Tipo de ID"  Requerido="true" Mensaje="Tipo de ID"  TipoValor="TEXTO" TipoControl="Html" Control="input" Identificador="inputTipoID" />
+      <Campos Nombre="Número de identificación"  Requerido="true" Mensaje="Número de identificación"  TipoValor="TEXTO" TipoControl="Html" Control="input" Identificador="inputIdentificacionPaciente" />
+    </Secciones>
+
+    <Secciones Nombre="6. ANTECEDENTES PRENATALES DEL EMBARAZO ACTUAL">
+      <Campos Nombre="¿Tuvo control prenatal?" Requerido="true" Mensaje="¿Tuvo control prenatal?" TipoValor="Radio" TipoControl="Html" Control="radio" Identificador="controlprenatal" />
+      <Campos Nombre="Número C.P.N" Requerido="true" Mensaje="Número C.P.N" TipoValor="TEXTO" TipoControl="Html" Control="input" Identificador="numeroCPN" />
+      <Campos Nombre="Semana gestacional al inicio de C.P.N" Requerido="true" Mensaje="Semana gestacional al inicio de C.P.N" TipoValor="TEXTO" TipoControl="Html" Control="input" Identificador="semanaInicioCPN" />
+    </Secciones>
+    <Secciones Nombre="7. DATOS RELACIONADOS CON LA MUERTE MATERNA">
+      <Campos Nombre="Momento en que ocurrió la muerte materna" Requerido="true" Mensaje="Momento en que ocurrió la muerte materna" TipoValor="Radio" TipoControl="Html" Control="radio" Identificador="momentoMuerte" />
+      <Campos Nombre="Fecha de terminación de la gestación" Requerido="true" Mensaje="Fecha de terminación de la gestación" TipoValor="TEXTO" TipoControl="Html" Control="input" Identificador="fechaTerminacionGestacion" />
+      <Campos Nombre="Tipo de parto" Requerido="true" Mensaje="Tipo de parto" TipoValor="Radio" TipoControl="Html" Control="radio" Identificador="tipoParto" />
+      <Campos Nombre="Parto atendido por" Requerido="true" Mensaje="Parto atendido por" TipoValor="Radio" TipoControl="Html" Control="radio" Identificador="partoAtendidoPor" />
+      <Campos Nombre="Parto atendido por - Otro" Requerido="false" Mensaje="¿Cuál?" TipoValor="TEXTO" TipoControl="Html" Control="input" Identificador="partoAtendidoPorOtro" />
+      <Campos Nombre="Sitio donde ocurrió la muerte" Requerido="true" Mensaje="Sitio donde ocurrió la muerte" TipoValor="Radio" TipoControl="Html" Control="radio" Identificador="sitioMuerte" />
+    </Secciones>
+    <Secciones Nombre="8. DATOS DE LA PERSONA MÁS CERCANA DE LA MUJER FALLECIDA">
+      <Campos Nombre="Nombres y apellidos" Requerido="true" Mensaje="Nombres y apellidos" TipoValor="TEXTO" TipoControl="Html" Control="input" Identificador="nombresApellidos" />
+      <Campos Nombre="País de residencia habitual" Requerido="true" Mensaje="País de residencia habitual" TipoValor="TEXTO" TipoControl="Html" Control="input" Identificador="paisResidencia" />
+      <Campos Nombre="Departamento de residencia habitual" Requerido="true" Mensaje="Departamento de residencia habitual" TipoValor="TEXTO" TipoControl="Html" Control="input" Identificador="departamentoResidencia" />
+      <Campos Nombre="Municipio de residencia habitual" Requerido="true" Mensaje="Municipio de residencia habitual" TipoValor="TEXTO" TipoControl="Html" Control="input" Identificador="municipioResidencia" />
+      <Campos Nombre="Área de residencia habitual" Requerido="true" Mensaje="Área de residencia habitual" TipoValor="Radio" TipoControl="Html" Control="radio" Identificador="areaResidencia" />
+      <Campos Nombre="Localidad de residencia habitual" Requerido="false" Mensaje="Localidad de residencia habitual" TipoValor="TEXTO" TipoControl="Html" Control="input" Identificador="localidadResidencia" />
+      <Campos Nombre="Barrio de residencia habitual" Requerido="false" Mensaje="Barrio de residencia habitual" TipoValor="TEXTO" TipoControl="Html" Control="input" Identificador="barrioResidencia" />
+      <Campos Nombre="Cabecera municipal/centro poblado/rural disperso" Requerido="false" Mensaje="Cabecera municipal/centro poblado/rural disperso" TipoValor="TEXTO" TipoControl="Html" Control="input" Identificador="cabeceraResidencia" />
+      <Campos Nombre="Vereda/zona" Requerido="false" Mensaje="Vereda/zona" TipoValor="TEXTO" TipoControl="Html" Control="input" Identificador="veredaResidencia" />
+      <Campos Nombre="Dirección de residencia habitual" Requerido="false" Mensaje="Dirección de residencia habitual" TipoValor="TEXTO" TipoControl="Html" Control="input" Identificador="direccionResidencia" />
+      <Campos Nombre="Teléfono" Requerido="false" Mensaje="Teléfono" TipoValor="TEXTO" TipoControl="Html" Control="input" Identificador="telefonoResidencia" />
+      <Campos Nombre="Parentesco" Requerido="true" Mensaje="Parentesco" TipoValor="Radio" TipoControl="Html" Control="radio" Identificador="parentesco" />
+    </Secciones>
+
+  </Bloques>
+
+</Leptospira_455>

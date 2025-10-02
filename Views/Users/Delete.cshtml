@@ -1,0 +1,57 @@
+@{
+    ViewBag.Title = "Eliminar Usuario";
+    Layout = "~/Views/Shared/_VerticalLayout.cshtml";
+}
+
+@model Highdmin.Models.User
+
+<div class="row">
+    <div class="col-12">
+        <div class="page-title-box">
+            <h4 class="page-title">Eliminar Usuario</h4>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card border-danger">
+            <div class="card-header bg-danger text-white">
+                <h5 class="card-title mb-0">
+                    <i class="ri-error-warning-line me-2"></i>
+                    Confirmar Eliminación
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-warning">
+                    <i class="ri-alert-line me-2"></i>
+                    <strong>¿Está seguro de que desea eliminar este usuario?</strong>
+                    <br>Esta acción no se puede deshacer.
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>ID:</strong> @Model.UserId</p>
+                        <p><strong>Nombre de Usuario:</strong> @Model.UserName</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>Email:</strong> @Model.Email</p>
+                        <p><strong>Roles:</strong> @(Model.UserRoles?.Count > 0 ? string.Join(", ", Model.UserRoles.Select(ur => ur.Role?.Nombre)) : "Sin roles")</p>
+                    </div>
+                </div>
+
+                <form asp-action="Delete">
+                    <input type="hidden" asp-for="UserId" />
+                    <div class="mt-4">
+                        <button type="submit" class="btn btn-danger">
+                            <i class="ri-delete-bin-line me-1"></i> Eliminar Usuario
+                        </button>
+                        <a asp-action="Index" class="btn btn-secondary ms-2">
+                            <i class="ri-arrow-left-line me-1"></i> Cancelar
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

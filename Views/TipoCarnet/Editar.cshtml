@@ -1,0 +1,266 @@
+@model TipoCarnetEditViewModel
+@{
+    ViewData["Title"] = "Editar Tipo de Carnet";
+    Layout = "~/Views/Shared/_VerticalLayout.cshtml";
+}
+
+<!-- Page Header -->
+<div class="page-title-box d-sm-flex align-items-center justify-content-between">
+    <h4 class="mb-sm-0">Editar Tipo de Carnet</h4>
+    <div class="page-title-right">
+        <ol class="breadcrumb m-0">
+            <li class="breadcrumb-item"><a href="javascript: void(0);">Highdmin</a></li>
+            <li class="breadcrumb-item"><a asp-action="Index">Tipos de Carnet</a></li>
+            <li class="breadcrumb-item active">Editar</li>
+        </ol>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <div class="d-flex align-items-center">
+                    <div class="flex-shrink-0">
+                        <div class="avatar-sm">
+                            <span class="avatar-title bg-warning-subtle text-warning rounded-circle fs-5">
+                                <i class="ri-edit-line"></i>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <h5 class="card-title mb-1">Editar Tipo de Carnet</h5>
+                        <p class="text-muted mb-0">Modifique la información del tipo de carnet <strong>@Model.Codigo</strong></p>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <!-- Alerts -->
+                @if (!ViewData.ModelState.IsValid)
+                {
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <i class="ri-error-warning-line me-2"></i>
+                        <strong>Error de validación:</strong>
+                        <ul class="mb-0 mt-2">
+                            @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                            {
+                                <li>@error.ErrorMessage</li>
+                            }
+                        </ul>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                }
+
+                <form asp-action="Editar" method="post" id="tipoCarnetForm">
+                    @Html.AntiForgeryToken()
+                    <input asp-for="Id" type="hidden" />
+                    <input asp-for="FechaCreacion" type="hidden" />
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="Codigo" class="form-label">Código <span class="text-danger">*</span></label>
+                                <input asp-for="Codigo" class="form-control" placeholder="Ej: CVI" maxlength="10" />
+                                <span asp-validation-for="Codigo" class="text-danger"></span>
+                                <div class="form-text">Código único para identificar el tipo de carnet (máx. 10 caracteres)</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="Estado" class="form-label">Estado</label>
+                                <div class="form-check form-switch mt-2">
+                                    <input asp-for="Estado" class="form-check-input" type="checkbox" />
+                                    <label asp-for="Estado" class="form-check-label">Activo</label>
+                                </div>
+                                <div class="form-text">Determine si el tipo de carnet estará disponible para su uso</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Nombre" class="form-label">Nombre <span class="text-danger">*</span></label>
+                        <input asp-for="Nombre" class="form-control" placeholder="Ej: CARNET DE VACUNACION INFANTIL" maxlength="255" />
+                        <span asp-validation-for="Nombre" class="text-danger"></span>
+                        <div class="form-text">Nombre descriptivo del tipo de carnet (máx. 255 caracteres)</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Descripcion" class="form-label">Descripción</label>
+                        <textarea asp-for="Descripcion" class="form-control" rows="4" placeholder="Descripción detallada del tipo de carnet..." maxlength="500"></textarea>
+                        <span asp-validation-for="Descripcion" class="text-danger"></span>
+                        <div class="form-text">Descripción opcional del tipo de carnet (máx. 500 caracteres)</div>
+                    </div>
+
+                    <div class="text-end">
+                        <a asp-action="Index" class="btn btn-secondary me-2">
+                            <i class="ri-arrow-left-line me-1"></i> Cancelar
+                        </a>
+                        <button type="submit" class="btn btn-success">
+                            <i class="ri-save-line me-1"></i> Actualizar Tipo de Carnet
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="ri-information-line me-1"></i> Información del Registro
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-borderless mb-0">
+                        <tbody>
+                            <tr>
+                                <th class="ps-0" scope="row">ID:</th>
+                                <td class="text-muted">@Model.Id</td>
+                            </tr>
+                            <tr>
+                                <th class="ps-0" scope="row">Código Actual:</th>
+                                <td class="text-muted">
+                                    <span class="badge bg-primary-subtle text-primary">@Model.Codigo</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th class="ps-0" scope="row">Fecha Creación:</th>
+                                <td class="text-muted">@Model.FechaCreacion.ToString("dd/MM/yyyy HH:mm")</td>
+                            </tr>
+                            <tr>
+                                <th class="ps-0" scope="row">Estado Actual:</th>
+                                <td class="text-muted">
+                                    @if (Model.Estado)
+                                    {
+                                        <span class="badge bg-success">Activo</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-danger">Inactivo</span>
+                                    }
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="ri-alert-line me-1"></i> Consideraciones Importantes
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-warning border-0 bg-warning-subtle" role="alert">
+                    <h6 class="text-warning mb-2">
+                        <i class="ri-alert-line me-1"></i> Atención
+                    </h6>
+                    <ul class="text-warning mb-0">
+                        <li class="mb-1">Al cambiar el código, verifique que no exista otro igual</li>
+                        <li class="mb-1">Los campos marcados con * son obligatorios</li>
+                        <li class="mb-1">Si desactiva este tipo, no aparecerá en formularios nuevos</li>
+                        <li>Los registros existentes mantendrán la referencia</li>
+                    </ul>
+                </div>
+
+                <div class="alert alert-info border-0 bg-info-subtle" role="alert">
+                    <h6 class="text-info mb-2">
+                        <i class="ri-lightbulb-line me-1"></i> Recomendaciones
+                    </h6>
+                    <ul class="text-info mb-0">
+                        <li class="mb-1">Use códigos descriptivos y únicos</li>
+                        <li class="mb-1">Mantenga una nomenclatura consistente</li>
+                        <li>Actualice la descripción si cambia el uso del carnet</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="ri-delete-bin-line me-1"></i> Acciones Adicionales
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="d-grid">
+                    <button type="button" class="btn btn-danger" onclick="eliminarTipoCarnet(@Model.Id, '@Model.Codigo')">
+                        <i class="ri-delete-bin-line me-1"></i> Eliminar Tipo de Carnet
+                    </button>
+                </div>
+                <div class="form-text mt-2">
+                    <i class="ri-information-line me-1"></i>
+                    Esta acción eliminará permanentemente el tipo de carnet.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para Eliminar -->
+<div class="modal fade zoomIn" id="deleteRecordModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="btn-close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mt-2 text-center">
+                    <lord-icon src="https://cdn.lordicon.com/gsqxdxog.json" trigger="loop" colors="primary:#f7b84b,secondary:#f06548" style="width:100px;height:100px"></lord-icon>
+                    <div class="mt-4 pt-2 fs-15 mx-4 mx-sm-5">
+                        <h4>¿Está seguro?</h4>
+                        <p class="text-muted mx-4 mb-0">¿Está seguro de que desea eliminar este tipo de carnet?</p>
+                        <p class="text-muted mx-4 mb-0" id="delete-record-text"></p>
+                    </div>
+                </div>
+                <div class="d-flex gap-2 justify-content-center mt-4 mb-2">
+                    <button type="button" class="btn w-sm btn-light" data-bs-dismiss="modal">Cancelar</button>
+                    <form id="deleteForm" method="post" style="display: inline;">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn w-sm btn-danger">Sí, Eliminar</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    
+    <script>
+        function eliminarTipoCarnet(id, codigo) {
+            document.getElementById('delete-record-text').innerText = 'Código: ' + codigo;
+            document.getElementById('deleteForm').action = '@Url.Action("Eliminar", "TipoCarnet")/' + id;
+            var deleteModal = new bootstrap.Modal(document.getElementById('deleteRecordModal'));
+            deleteModal.show();
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Auto-uppercase for code field
+            const codigoField = document.getElementById('Codigo');
+            if (codigoField) {
+                codigoField.addEventListener('input', function(e) {
+                    e.target.value = e.target.value.toUpperCase();
+                });
+            }
+
+            // Form validation
+            const form = document.getElementById('tipoCarnetForm');
+            form.addEventListener('submit', function(e) {
+                const codigo = document.getElementById('Codigo').value.trim();
+                const nombre = document.getElementById('Nombre').value.trim();
+                
+                if (!codigo || !nombre) {
+                    e.preventDefault();
+                    alert('Por favor complete todos los campos obligatorios.');
+                    return false;
+                }
+            });
+        });
+    </script>
+}

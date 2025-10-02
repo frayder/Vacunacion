@@ -1,0 +1,145 @@
+@model InsumoItemViewModel
+@{
+    ViewData["Title"] = "Detalles del Insumo";
+    Layout = "~/Views/Shared/_VerticalLayout.cshtml";
+}
+
+<div class="row">
+    <div class="col-12">
+        <div class="page-title-box d-sm-flex align-items-center justify-content-between">
+            <h4 class="mb-sm-0">Detalles del Insumo</h4>
+            <div class="page-title-right">
+                <ol class="breadcrumb m-0">
+                    <li class="breadcrumb-item"><a href="@Url.Action("Index")">Insumos</a></li>
+                    <li class="breadcrumb-item active">Detalles</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <div class="d-flex align-items-center">
+                    <div class="flex-shrink-0">
+                        <div class="avatar-sm">
+                            <span class="avatar-title bg-primary-subtle text-primary rounded-circle fs-5">
+                                <i class="ri-medicine-bottle-line"></i>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <h5 class="card-title mb-1">@Model.Nombre</h5>
+                        <p class="text-muted mb-0">Código: @Model.Codigo</p>
+                    </div>
+                    <div class="flex-shrink-0">
+                        <span class="@Model.TipoBadgeClass">@Model.Tipo</span>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-borderless mb-0">
+                        <tbody>
+                            <tr>
+                                <th class="ps-0" scope="row">Código:</th>
+                                <td class="text-muted">@Model.Codigo</td>
+                            </tr>
+                            <tr>
+                                <th class="ps-0" scope="row">Nombre:</th>
+                                <td class="text-muted">@Model.Nombre</td>
+                            </tr>
+                            <tr>
+                                <th class="ps-0" scope="row">Tipo:</th>
+                                <td><span class="@Model.TipoBadgeClass">@Model.Tipo</span></td>
+                            </tr>
+                            <tr>
+                                <th class="ps-0" scope="row">Descripción:</th>
+                                <td class="text-muted">@(Model.Descripcion ?? "No especificada")</td>
+                            </tr>
+                            <tr>
+                                <th class="ps-0" scope="row">Rango/Dosis:</th>
+                                <td class="text-muted">@(Model.RangoDosis ?? "No especificado")</td>
+                            </tr>
+                            <tr>
+                                <th class="ps-0" scope="row">Estado:</th>
+                                <td><span class="@Model.EstadoClass">@Model.EstadoTexto</span></td>
+                            </tr>
+                            <tr>
+                                <th class="ps-0" scope="row">Fecha de Creación:</th>
+                                <td class="text-muted">@Model.FechaCreacion.ToString("dd/MM/yyyy HH:mm")</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Acciones</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a href="@Url.Action("Edit", new { id = Model.Id })" class="btn btn-primary">
+                        <i class="ri-pencil-line me-1"></i> Editar Insumo
+                    </a>
+                    <a href="@Url.Action("Index")" class="btn btn-secondary">
+                        <i class="ri-arrow-left-line me-1"></i> Volver a Lista
+                    </a>
+                    <button type="button" class="btn btn-danger" onclick="confirmarEliminacion()">
+                        <i class="ri-delete-bin-line me-1"></i> Eliminar Insumo
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        @if (!string.IsNullOrEmpty(Model.RangoDosis))
+        {
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Información de Rango/Dosis</h5>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted mb-0">@Model.RangoDosis</p>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+<!-- Modal de confirmación para eliminar -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" style="display: none;" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel">Confirmar Eliminación</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>¿Está seguro que desea eliminar el insumo <strong>@Model.Nombre</strong>?</p>
+                <p class="text-muted">Esta acción no se puede deshacer.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <form asp-action="Delete" method="post" class="d-inline">
+                    <input type="hidden" name="id" value="@Model.Id">
+                    <button type="submit" class="btn btn-danger">Eliminar</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function confirmarEliminacion() {
+            var deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
+            deleteModal.show();
+        }
+    </script>
+}

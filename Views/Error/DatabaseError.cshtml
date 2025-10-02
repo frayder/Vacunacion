@@ -1,0 +1,60 @@
+@{
+    ViewBag.Title = ViewBag.ErrorTitle ?? "Error de Base de Datos";
+    Layout = "~/Views/Shared/_VerticalLayout.cshtml";
+}
+
+<div class="row">
+    <div class="col-12">
+        <div class="page-title-box">
+            <h4 class="page-title">@ViewBag.ErrorTitle</h4>
+        </div>
+    </div>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-body text-center">
+                <div class="avatar-xl mx-auto mb-4">
+                    <span class="avatar-title bg-danger-subtle text-danger rounded-circle fs-42">
+                        <i class="ri-database-2-line"></i>
+                    </span>
+                </div>
+
+                <h4 class="text-danger mb-3">@ViewBag.ErrorTitle</h4>
+
+                <p class="text-muted mb-4">
+                    @ViewBag.ErrorMessage
+                </p>
+
+                <p class="text-muted mb-4">
+                    @ViewBag.ErrorDescription
+                </p>
+
+                <div class="d-grid gap-2 d-md-flex justify-content-md-center">
+                    <a href="@Url.Action("Login", "Auth")" class="btn btn-primary">
+                        <i class="ri-refresh-line me-1"></i> Intentar de Nuevo
+                    </a>
+                    <button type="button" class="btn btn-outline-secondary" onclick="window.history.back()">
+                        <i class="ri-arrow-left-line me-1"></i> Volver
+                    </button>
+                </div>
+
+                <div class="mt-4 pt-3 border-top">
+                    <p class="text-muted mb-0">
+                        <small>Si el problema persiste, contacte al soporte técnico.</small>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts {
+    <script>
+        // Auto-refresh después de 30 segundos
+        setTimeout(function() {
+            window.location.href = '@Url.Action("Login", "Auth")';
+        }, 30000);
+    </script>
+}

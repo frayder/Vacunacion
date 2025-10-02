@@ -1,0 +1,80 @@
+@model PertenenciaEtnicaItemViewModel
+@{
+    ViewData["Title"] = "Eliminar Pertenencia Étnica";
+    Layout = "~/Views/Shared/_VerticalLayout.cshtml";
+}
+
+<div class="page-title-box d-sm-flex align-items-center justify-content-between">
+    <h4 class="mb-sm-0">Eliminar Pertenencia Étnica</h4>
+    <div class="page-title-right">
+        <ol class="breadcrumb m-0">
+            <li class="breadcrumb-item"><a href="javascript: void(0);">Highdmin</a></li>
+            <li class="breadcrumb-item"><a asp-action="Index">Pertenencia Étnica</a></li>
+            <li class="breadcrumb-item active">Eliminar</li>
+        </ol>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card border-danger">
+            <div class="card-header bg-danger text-white">
+                <h4 class="card-title mb-0 text-white">
+                    <i class="ri-delete-bin-line me-2"></i>Confirmar Eliminación
+                </h4>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-warning" role="alert">
+                    <i class="ri-alert-line me-2"></i>
+                    <strong>¡Atención!</strong> Esta acción no se puede deshacer. ¿Está seguro de que desea eliminar esta pertenencia étnica?
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Código:</label>
+                            <p class="text-muted">@Model.Codigo</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Nombre:</label>
+                            <p class="text-muted">@Model.Nombre</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Descripción:</label>
+                    <p class="text-muted">@(string.IsNullOrEmpty(Model.Descripcion) ? "Sin descripción" : Model.Descripcion)</p>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Estado:</label>
+                            <br>
+                            <span class="@Model.EstadoClass">@Model.EstadoTexto</span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Fecha de Creación:</label>
+                            <p class="text-muted">@Model.FechaCreacion.ToString("dd/MM/yyyy HH:mm")</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <form asp-action="Delete" method="post">
+                    <input asp-for="Id" type="hidden" />
+                    <div class="text-end">
+                        <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
+                        <button type="submit" class="btn btn-danger">
+                            <i class="ri-delete-bin-line me-1"></i>Eliminar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

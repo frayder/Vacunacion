@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Logout</title>
+</head>
+<body>
+    <h1>Test de Logout</h1>
+    <button onclick="logout()">Cerrar Sesión</button>
+
+    <!-- Logout Form (Hidden) -->
+    <form id="logoutForm" method="post" action="/Auth/Logout" style="display: none;">
+        <input name="__RequestVerificationToken" type="hidden" value="test-token" />
+    </form>
+
+    <script>
+        function logout() {
+            if (confirm('¿Estás seguro de que deseas cerrar sesión?')) {
+                console.log('Enviando formulario de logout...');
+                document.getElementById('logoutForm').submit();
+            }
+        }
+    </script>
+</body>
+</html>

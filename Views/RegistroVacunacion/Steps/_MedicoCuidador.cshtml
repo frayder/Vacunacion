@@ -1,0 +1,286 @@
+@model RegistroVacunacionItemViewModel
+
+<div class="card border-0">
+    <div class="card-header bg-secondary text-white">
+        <h6 class="mb-0 text-white">
+            <i class="ri-parent-line me-1"></i> Madre/Cuidador
+        </h6>
+    </div>
+    <div class="card-body">
+        <!-- Pregunta inicial -->
+        <div class="mb-3">
+            <label class="form-label fw-bold">¿Hay información de la madre disponible?</label>
+            <div class="mt-2">
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="TipoInformacion" id="infoMadre" value="madre" checked onchange="
+                        document.getElementById('contentMadre').style.display = 'block';
+                        document.getElementById('contentCuidador').style.display = 'none';
+                        document.getElementById('tabMadre').style.color = '#0d6efd';
+                        document.getElementById('tabCuidador').style.color = '#6c757d';
+                        document.getElementById('tabMadre').querySelector('div').style.transform = 'scaleX(1)';
+                        document.getElementById('tabCuidador').querySelector('div').style.transform = 'scaleX(0)';
+                    ">
+                    <label class="form-check-label" for="infoMadre">
+                        SÍ - Datos de la Madre
+                    </label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="TipoInformacion" id="infoCuidador" value="cuidador" onchange="
+                        document.getElementById('contentMadre').style.display = 'none';
+                        document.getElementById('contentCuidador').style.display = 'block';
+                        document.getElementById('tabMadre').style.color = '#6c757d';
+                        document.getElementById('tabCuidador').style.color = '#0d6efd';
+                        document.getElementById('tabMadre').querySelector('div').style.transform = 'scaleX(0)';
+                        document.getElementById('tabCuidador').querySelector('div').style.transform = 'scaleX(1)';
+                    ">
+                    <label class="form-check-label" for="infoCuidador">
+                        NO - Datos del Cuidador
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pestañas -->
+        <div class="row">
+            <div class="col-12">
+                <div class="d-flex border-bottom mb-3">
+                    <button type="button" id="tabMadre" class="btn btn-link text-decoration-none border-0 px-3 py-2 position-relative" onclick="
+                        document.getElementById('infoMadre').checked = true;
+                        document.getElementById('contentMadre').style.display = 'block';
+                        document.getElementById('contentCuidador').style.display = 'none';
+                        this.style.color = '#0d6efd';
+                        document.getElementById('tabCuidador').style.color = '#6c757d';
+                        this.querySelector('div').style.transform = 'scaleX(1)';
+                        document.getElementById('tabCuidador').querySelector('div').style.transform = 'scaleX(0)';
+                    " style="color: #0d6efd;">
+                        <i class="ri-women-line me-1"></i> Datos de la Madre
+                        <div class="position-absolute bottom-0 start-0 w-100" style="height: 2px; background-color: #ffc107; transform: scaleX(1); transition: transform 0.3s;"></div>
+                    </button>
+                    <button type="button" id="tabCuidador" class="btn btn-link text-decoration-none border-0 px-3 py-2 position-relative" onclick="
+                        document.getElementById('infoCuidador').checked = true;
+                        document.getElementById('contentMadre').style.display = 'none';
+                        document.getElementById('contentCuidador').style.display = 'block';
+                        this.style.color = '#0d6efd';
+                        document.getElementById('tabMadre').style.color = '#6c757d';
+                        this.querySelector('div').style.transform = 'scaleX(1)';
+                        document.getElementById('tabMadre').querySelector('div').style.transform = 'scaleX(0)';
+                    " style="color: #6c757d;">
+                        <i class="ri-user-heart-line me-1"></i> Datos del Cuidador
+                        <div class="position-absolute bottom-0 start-0 w-100" style="height: 2px; background-color: #ffc107; transform: scaleX(0); transition: transform 0.3s;"></div>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Contenido de Datos de la Madre -->
+        <div id="contentMadre" class="tab-content" style="display: block;">
+            <div class="alert alert-info mb-3">
+                <i class="ri-information-line me-1"></i>
+                Los datos de la madre aplican únicamente cuando hay información de la madre disponible.
+            </div>
+            
+            <h6 class="fw-bold mb-3">Información de identificación</h6>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label class="form-label">Tipo de identificación</label>
+                        <select class="form-select" name="TipoIdMadre">
+                            <option value="">Seleccione tipo</option>
+                            <option value="CC">Cédula de Ciudadanía</option>
+                            <option value="CE">Cédula de Extranjería</option>
+                            <option value="TI">Tarjeta de Identidad</option>
+                            <option value="RC">Registro Civil</option>
+                            <option value="PA">Pasaporte</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label class="form-label">Número de identificación</label>
+                        <input type="text" class="form-control" name="NumeroIdMadre" placeholder="Número de documento">
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label class="form-label">Primer nombre</label>
+                        <input type="text" class="form-control" name="PrimerNombreMadre" placeholder="Primer nombre">
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label class="form-label">Segundo nombre</label>
+                        <input type="text" class="form-control" name="SegundoNombreMadre" placeholder="Segundo nombre (opcional)">
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label class="form-label">Primer apellido</label>
+                        <input type="text" class="form-control" name="PrimerApellidoMadre" placeholder="Primer apellido">
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label class="form-label">Segundo apellido</label>
+                        <input type="text" class="form-control" name="SegundoApellidoMadre" placeholder="Segundo apellido (opcional)">
+                    </div>
+                </div>
+            </div>
+
+            <h6 class="fw-bold mb-3">Información de contacto</h6>
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="mb-3">
+                        <label class="form-label">Correo electrónico</label>
+                        <input type="email" class="form-control" name="EmailMadre" placeholder="correo@ejemplo.com">
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="mb-3">
+                        <label class="form-label">Indicativo + Teléfono fijo</label>
+                        <input type="text" class="form-control" name="TelefonoFijoMadre" placeholder="+57 1 234567">
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="mb-3">
+                        <label class="form-label">Celular</label>
+                        <input type="text" class="form-control" name="CelularMadre" placeholder="300 1234567">
+                    </div>
+                </div>
+            </div>
+
+            <h6 class="fw-bold mb-3">Información adicional</h6>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label class="form-label">Régimen de afiliación</label>
+                        <select class="form-select" name="RegimenMadre">
+                            <option value="">Seleccione régimen</option>
+                            <option value="contributivo">Contributivo</option>
+                            <option value="subsidiado">Subsidiado</option>
+                            <option value="especial">Especial</option>
+                            <option value="no_afiliado">No afiliado</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label class="form-label">Pertenencia étnica</label>
+                        <select class="form-select" name="EtniaMadre">
+                            <option value="">Seleccione pertenencia étnica</option>
+                            <option value="indigena">Indígena</option>
+                            <option value="rom">Rom (gitano)</option>
+                            <option value="raizal">Raizal</option>
+                            <option value="palenquero">Palenquero</option>
+                            <option value="negro">Negro(a)</option>
+                            <option value="afrocolombiano">Afrocolombiano(a)</option>
+                            <option value="afrodescendiente">Afrodescendiente</option>
+                            <option value="ninguna">Ninguna</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="mb-3">
+                        <label class="form-label">Desplazado</label>
+                        <div class="mt-2">
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="DesplazadoMadre" id="desplazadoMadreSi" value="Si">
+                                <label class="form-check-label" for="desplazadoMadreSi">Sí</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="DesplazadoMadre" id="desplazadoMadreNo" value="No">
+                                <label class="form-check-label" for="desplazadoMadreNo">NO</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Contenido de Datos del Cuidador -->
+        <div id="contentCuidador" class="tab-content" style="display: none;">
+            <div class="alert alert-info mb-3">
+                <i class="ri-information-line me-1"></i>
+                Los datos del cuidador aplican únicamente cuando no hay información de la madre disponible.
+            </div>
+            
+            <h6 class="fw-bold mb-3">Información de identificación</h6>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label class="form-label">Tipo de identificación</label>
+                        <select class="form-select" name="TipoIdCuidador">
+                            <option value="">Seleccione tipo</option>
+                            <option value="CC">Cédula de Ciudadanía</option>
+                            <option value="CE">Cédula de Extranjería</option>
+                            <option value="TI">Tarjeta de Identidad</option>
+                            <option value="RC">Registro Civil</option>
+                            <option value="PA">Pasaporte</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label class="form-label">Número de identificación</label>
+                        <input type="text" class="form-control" name="NumeroIdCuidador" placeholder="Número de documento">
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label class="form-label">Primer nombre</label>
+                        <input type="text" class="form-control" name="PrimerNombreCuidador" placeholder="Primer nombre">
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label class="form-label">Segundo nombre</label>
+                        <input type="text" class="form-control" name="SegundoNombreCuidador" placeholder="Segundo nombre (opcional)">
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label class="form-label">Primer apellido</label>
+                        <input type="text" class="form-control" name="PrimerApellidoCuidador" placeholder="Primer apellido">
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label class="form-label">Segundo apellido</label>
+                        <input type="text" class="form-control" name="SegundoApellidoCuidador" placeholder="Segundo apellido (opcional)">
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <div class="mb-3">
+                        <label class="form-label">Parentesco</label>
+                        <input type="text" class="form-control" name="ParentescoCuidador" placeholder="Ej: Abuelo, Tío, Hermano, etc.">
+                    </div>
+                </div>
+            </div>
+
+            <h6 class="fw-bold mb-3">Información de contacto</h6>
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="mb-3">
+                        <label class="form-label">Correo electrónico</label>
+                        <input type="email" class="form-control" name="EmailCuidador" placeholder="correo@ejemplo.com">
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="mb-3">
+                        <label class="form-label">Indicativo + Teléfono fijo</label>
+                        <input type="text" class="form-control" name="TelefonoFijoCuidador" placeholder="+57 1 234567">
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="mb-3">
+                        <label class="form-label">Celular</label>
+                        <input type="text" class="form-control" name="CelularCuidador" placeholder="300 1234567">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+

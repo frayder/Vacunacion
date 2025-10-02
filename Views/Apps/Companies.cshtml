@@ -1,0 +1,318 @@
+
+
+@{
+    ViewBag.Title = "Companies";
+    ViewBag.SubTitle = "Apps";
+}
+
+<div class="row">
+    <div class="col-lg-12">
+        <div class="card">
+            <div class="card-body">
+                <form>
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <div class="row">
+                                <div class="col-lg-4">
+                                    <div class="app-search">
+                                        <input type="text" class="form-control" placeholder="Search something here...">
+                                        <i class="app-search-icon ri-search-line text-muted"></i>
+                                    </div>
+                                </div>
+                                <div class="col-lg-4">
+                                    <div class="flex-grow-1 d-flex align-items-center">
+                                        <label for="status-select" class="me-2">Sort
+                                            By</label>
+                                        <div class="flex-grow-1 me-sm-3">
+                                            <select class="form-select my-1 my-md-0">
+                                                <option>Select</option>
+                                                <option value="Date">Date</option>
+                                                <option value="Name">Name</option>
+                                                <option value="Revenue">Revenue</option>
+                                                <option value="Employees">Employees</option>
+                                                <option value="Products">Products</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="text-md-end mt-3 mt-md-0">
+                                <button type="button" class="btn btn-success"><i
+                                        class="ri-settings-3-line me-1"></i>More Setting</button>
+                                <button type="button" class="btn btn-dark"><i class="ri-filter-line me-1"></i>
+                                    Filters</button>
+                                <button type="button" class="btn btn-danger btn-icon"><i
+                                        class="ri-add-line"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Card 1: Amazon -->
+    <div class="col-lg-3 col-md-6">
+        <div class="card">
+            <div class="card-body text-center">
+                <div class="mb-3">
+                    <img src="~/images/companies/amazon.png" alt="Amazon Logo"
+                        class="avatar-xl rounded-circle shadow-lg mb-3">
+                    <h4 class="mb-1 fs-22 font-weight-bold text-dark">Amazon Inc.</h4>
+                    <p class="text-muted fs-16">Seattle, Washington</p>
+                </div>
+
+                <div class="d-flex justify-content-center mb-4">
+                    <a href="javascript:void(0);" class="btn btn-outline-primary btn-sm">View More Info</a>
+                </div>
+
+                <div class="row justify-content-center">
+                    <div class="col-6">
+                        <h6 class="text-muted mb-1">Revenue (USD)</h6>
+                        <h5 class="fw-semibold text-dark">17,786 Cr</h5>
+                    </div>
+                    <div class="col-6">
+                        <h6 class="text-muted mb-1">Employees</h6>
+                        <h5 class="fw-semibold text-dark">566K</h5>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Card 2: Apple -->
+    <div class="col-lg-3 col-md-6">
+        <div class="card">
+            <div class="card-body text-center">
+                <div class="mb-3">
+                    <img src="~/images/companies/apple.png" alt="Apple Logo"
+                        class="avatar-xl rounded-circle shadow-lg mb-3">
+                    <h4 class="mb-1 fs-22 font-weight-bold text-dark">Apple Inc.</h4>
+                    <p class="text-muted fs-16">Cupertino, California</p>
+                </div>
+
+                <div class="d-flex justify-content-center mb-4">
+                    <a href="javascript:void(0);" class="btn btn-outline-primary btn-sm">View More Info</a>
+                </div>
+
+                <div class="row justify-content-center">
+                    <div class="col-6">
+                        <h6 class="text-muted mb-1">Revenue (USD)</h6>
+                        <h5 class="fw-semibold text-dark">22,923.4 Cr</h5>
+                    </div>
+                    <div class="col-6">
+                        <h6 class="text-muted mb-1">Employees</h6>
+                        <h5 class="fw-semibold text-dark">47K</h5>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Card 3: Google -->
+    <div class="col-lg-3 col-md-6">
+        <div class="card">
+            <div class="card-body text-center">
+                <div class="mb-3">
+                    <img src="~/images/companies/google.png" alt="Google Logo"
+                        class="avatar-xl rounded-circle shadow-lg mb-3">
+                    <h4 class="mb-1 fs-22 font-weight-bold text-dark">Google LLC</h4>
+                    <p class="text-muted fs-16">Menlo Park, California</p>
+                </div>
+
+                <div class="d-flex justify-content-center mb-4">
+                    <a href="javascript:void(0);" class="btn btn-outline-primary btn-sm">View More Info</a>
+                </div>
+
+                <div class="row justify-content-center">
+                    <div class="col-6">
+                        <h6 class="text-muted mb-1">Revenue (USD)</h6>
+                        <h5 class="fw-semibold text-dark">110 BN</h5>
+                    </div>
+                    <div class="col-6">
+                        <h6 class="text-muted mb-1">Employees</h6>
+                        <h5 class="fw-semibold text-dark">72K</h5>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Card 4: Airbnb -->
+    <div class="col-lg-3 col-md-6">
+        <div class="card">
+            <div class="card-body text-center">
+                <div class="mb-3">
+                    <img src="~/images/companies/airbnb.png" alt="Airbnb Logo"
+                        class="avatar-xl rounded-circle shadow-lg mb-3">
+                    <h4 class="mb-1 fs-22 font-weight-bold text-dark">Airbnb Inc.</h4>
+                    <p class="text-muted fs-16">San Francisco, California</p>
+                </div>
+
+                <div class="d-flex justify-content-center mb-4">
+                    <a href="javascript:void(0);" class="btn btn-outline-primary btn-sm">View More Info</a>
+                </div>
+
+                <div class="row justify-content-center">
+                    <div class="col-6">
+                        <h6 class="text-muted mb-1">Revenue (USD)</h6>
+                        <h5 class="fw-semibold text-dark">260 Cr</h5>
+                    </div>
+                    <div class="col-6">
+                        <h6 class="text-muted mb-1">Employees</h6>
+                        <h5 class="fw-semibold text-dark">3.1K</h5>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Card 5: Facebook -->
+    <div class="col-lg-3 col-md-6">
+        <div class="card">
+            <div class="card-body text-center">
+                <div class="mb-3">
+                    <img src="~/images/companies/facebook.png" alt="Facebook Logo"
+                        class="avatar-xl rounded-circle shadow-lg mb-3">
+                    <h4 class="mb-1 fs-22 font-weight-bold text-dark">Facebook Inc.</h4>
+                    <p class="text-muted fs-16">Menlo Park, California</p>
+                </div>
+
+                <div class="d-flex justify-content-center mb-4">
+                    <a href="javascript:void(0);" class="btn btn-outline-primary btn-sm">View More Info</a>
+                </div>
+
+                <div class="row justify-content-center">
+                    <div class="col-6">
+                        <h6 class="text-muted mb-1">Revenue (USD)</h6>
+                        <h5 class="fw-semibold text-dark">9.16 BN</h5>
+                    </div>
+                    <div class="col-6">
+                        <h6 class="text-muted mb-1">Employees</h6>
+                        <h5 class="fw-semibold text-dark">25.1K</h5>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Card 6: Cisco -->
+    <div class="col-lg-3 col-md-6">
+        <div class="card">
+            <div class="card-body text-center">
+                <div class="mb-3">
+                    <img src="~/images/companies/cisco.png" alt="Cisco Logo"
+                        class="avatar-xl rounded-circle shadow-lg mb-3">
+                    <h4 class="mb-1 fs-22 font-weight-bold text-dark">Cisco Systems</h4>
+                    <p class="text-muted fs-16">San Jose, California</p>
+                </div>
+
+                <div class="d-flex justify-content-center mb-4">
+                    <a href="javascript:void(0);" class="btn btn-outline-primary btn-sm">View More Info</a>
+                </div>
+
+                <div class="row justify-content-center">
+                    <div class="col-6">
+                        <h6 class="text-muted mb-1">Revenue (USD)</h6>
+                        <h5 class="fw-semibold text-dark">4,800.5 Cr</h5>
+                    </div>
+                    <div class="col-6">
+                        <h6 class="text-muted mb-1">Employees</h6>
+                        <h5 class="fw-semibold text-dark">73.4K</h5>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Card 7: Microsoft -->
+    <div class="col-lg-3 col-md-6">
+        <div class="card">
+            <div class="card-body text-center">
+                <div class="mb-3">
+                    <img src="~/images/companies/microsoft.png" alt="Microsoft Logo"
+                        class="avatar-xl rounded-circle shadow-lg mb-3">
+                    <h4 class="mb-1 fs-22 font-weight-bold text-dark">Microsoft</h4>
+                    <p class="text-muted fs-16">Redmond, Washington</p>
+                </div>
+
+                <div class="d-flex justify-content-center mb-4">
+                    <a href="javascript:void(0);" class="btn btn-outline-primary btn-sm">View More Info</a>
+                </div>
+
+                <div class="row justify-content-center">
+                    <div class="col-6">
+                        <h6 class="text-muted mb-1">Revenue (USD)</h6>
+                        <h5 class="fw-semibold text-dark">168 BN</h5>
+                    </div>
+                    <div class="col-6">
+                        <h6 class="text-muted mb-1">Employees</h6>
+                        <h5 class="fw-semibold text-dark">221K</h5>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Card 8: Tesla -->
+    <div class="col-lg-3 col-md-6">
+        <div class="card">
+            <div class="card-body text-center">
+                <div class="mb-3">
+                    <img src="~/images/companies/tesla.png" alt="Tesla Logo"
+                        class="avatar-xl rounded-circle shadow-lg mb-3">
+                    <h4 class="mb-1 fs-22 font-weight-bold text-dark">Tesla Inc.</h4>
+                    <p class="text-muted fs-16">Palo Alto, California</p>
+                </div>
+
+                <div class="d-flex justify-content-center mb-4">
+                    <a href="javascript:void(0);" class="btn btn-outline-primary btn-sm">View More Info</a>
+                </div>
+
+                <div class="row justify-content-center">
+                    <div class="col-6">
+                        <h6 class="text-muted mb-1">Revenue (USD)</h6>
+                        <h5 class="fw-semibold text-dark">53.9 BN</h5>
+                    </div>
+                    <div class="col-6">
+                        <h6 class="text-muted mb-1">Employees</h6>
+                        <h5 class="fw-semibold text-dark">127K</h5>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- end row -->
+
+<div class="row">
+    <div class="col-12">
+        <div class="text-end">
+            <ul class="pagination pagination-rounded justify-content-end">
+                <li class="page-item">
+                    <a class="page-link" href="javascript: void(0);" aria-label="Previous">
+                        <span aria-hidden="true">«</span>
+                        <span class="visually-hidden">Previous</span>
+                    </a>
+                </li>
+                <li class="page-item active"><a class="page-link" href="javascript: void(0);">1</a></li>
+                <li class="page-item"><a class="page-link" href="javascript: void(0);">2</a></li>
+                <li class="page-item"><a class="page-link" href="javascript: void(0);">3</a></li>
+                <li class="page-item"><a class="page-link" href="javascript: void(0);">4</a></li>
+                <li class="page-item"><a class="page-link" href="javascript: void(0);">5</a></li>
+                <li class="page-item">
+                    <a class="page-link" href="javascript: void(0);" aria-label="Next">
+                        <span aria-hidden="true">»</span>
+                        <span class="visually-hidden">Next</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+<!-- end row -->

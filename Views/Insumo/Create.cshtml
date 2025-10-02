@@ -1,0 +1,124 @@
+@model InsumoCreateViewModel
+@{
+    ViewData["Title"] = "Crear Insumo";
+    Layout = "~/Views/Shared/_VerticalLayout.cshtml";
+}
+
+<div class="row">
+    <div class="col-12">
+        <div class="page-title-box d-sm-flex align-items-center justify-content-between">
+            <h4 class="mb-sm-0">Crear Nuevo Insumo</h4>
+            <div class="page-title-right">
+                <ol class="breadcrumb m-0">
+                    <li class="breadcrumb-item"><a href="@Url.Action("Index")">Insumos</a></li>
+                    <li class="breadcrumb-item active">Crear</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="card-title mb-0">Información del Insumo</h4>
+            </div>
+            <div class="card-body">
+                <form asp-action="Create" method="post">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="Codigo" class="form-label"></label>
+                                <input asp-for="Codigo" class="form-control" placeholder="Ej: VAC001">
+                                <span asp-validation-for="Codigo" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="Tipo" class="form-label"></label>
+                                <select asp-for="Tipo" class="form-control" data-choices data-choices-search-false>
+                                    <option value="">Seleccionar tipo</option>
+                                    <option value="Vacuna">Vacuna</option>
+                                    <option value="Jeringa">Jeringa</option>
+                                    <option value="Diluyente">Diluyente</option>
+                                    <option value="Gotero">Gotero</option>
+                                    <option value="Carnet">Carnet</option>
+                                    <option value="Tarjeta">Tarjeta</option>
+                                </select>
+                                <span asp-validation-for="Tipo" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Nombre" class="form-label"></label>
+                        <input asp-for="Nombre" class="form-control" placeholder="Ej: Pentavalente (DPT+HepB+Hib)">
+                        <span asp-validation-for="Nombre" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Descripcion" class="form-label"></label>
+                        <textarea asp-for="Descripcion" class="form-control" rows="3" placeholder="Descripción detallada del insumo"></textarea>
+                        <span asp-validation-for="Descripcion" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <div class="form-check form-switch">
+                            <input asp-for="Estado" class="form-check-input" type="checkbox">
+                            <label asp-for="Estado" class="form-check-label"></label>
+                        </div>
+                    </div>
+
+                    <div class="text-end">
+                        <a href="@Url.Action("Index")" class="btn btn-secondary">Cancelar</a>
+                        <button type="submit" class="btn btn-primary">Crear Insumo</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Configuración de Rangos</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <label asp-for="DescripcionRango" class="form-label"></label>
+                    <input asp-for="DescripcionRango" class="form-control" placeholder="Ej: DE 2 MESES Y 5 AÑOS">
+                </div>
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="mb-3">
+                            <label asp-for="EdadMinimaDias" class="form-label"></label>
+                            <input asp-for="EdadMinimaDias" class="form-control" type="number" min="0" placeholder="Ej: 60">
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="mb-3">
+                            <label asp-for="EdadMaximaDias" class="form-label"></label>
+                            <input asp-for="EdadMaximaDias" class="form-control" type="number" min="0" placeholder="Ej: 2189">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Dosis" class="form-label"></label>
+                    <select asp-for="Dosis" class="form-control" data-choices data-choices-search-false>
+                        <option value="">Seleccionar dosis</option>
+                        <option value="1ERA DOSIS">1ERA DOSIS</option>
+                        <option value="2DA DOSIS">2DA DOSIS</option>
+                        <option value="DOSIS UNICA">DOSIS UNICA</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

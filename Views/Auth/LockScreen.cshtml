@@ -1,0 +1,46 @@
+
+
+@{
+    Layout = "~/Views/Shared/_BaseLayout.cshtml";
+    ViewBag.BodyClass = "h-100";
+    ViewBag.Title = "Lock Screen";
+}
+
+<div class="auth-bg d-flex min-vh-100 justify-content-center align-items-center">
+    <div class="row g-0 justify-content-center w-100 m-xxl-5 px-xxl-4 m-3">
+        <div class="col-xl-4 col-lg-5 col-md-6">
+            <div class="card overflow-hidden text-center h-100 p-xxl-4 p-4 mb-0">
+                <a href=@Url.Action("Index", "Dashboard") class="auth-brand mb-4">
+                    <img src="~/images/logo-dark.png" alt="dark logo" height="26" class="logo-dark">
+                    <img src="~/images/logo.png" alt="logo light" height="26" class="logo-light">
+                </a>
+
+                <div class="text-center">
+                    <img src="~/images/users/avatar-1.jpg" alt="" class="avatar-xl rounded-circle img-thumbnail">
+                    <div class="mt-2 mb-3">
+                        <h4 class="fw-semibold text-dark">Hi ! Dhanoo K.</h4>
+                        <p class="mb-0 fst-italic">Please input your password to access the screen. </p>
+                    </div>
+                </div>
+
+                <form  class="text-start mb-3">
+                    <div class="mb-3">
+                        <label class="form-label" for="lock-password">Enter Password</label>
+                        <input type="password" id="lock-password" name="lock-password" class="form-control"
+                            placeholder="Password">
+                    </div>
+                    <div class="mb-2 d-grid">
+                        <button class="btn btn-primary fw-semibold" type="submit">Access to Screen</button>
+                    </div>
+                </form>
+                <p class="text-muted fs-14 mb-4">Back To <a href=@Url.Action("Login", "Auth")
+                        class="fw-semibold text-danger ms-1">Login !</a></p>
+
+                <p class="mt-auto mb-0">
+                    <script>document.write(new Date().getFullYear())</script> © Highdmin - By <span
+                        class="fw-bold text-decoration-underline text-uppercase text-reset fs-12">I Analitycs</span>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>

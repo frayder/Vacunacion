@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+
+@{
+  var html_attributes = ViewBag.HTMLAttributes != null ? ViewBag.HTMLAttributes : "";
+}
+
+<html lang="en" @html_attributes>
+
+    <head>
+      @await Html.PartialAsync("~/Views/Shared/Partials/_TitleMeta.cshtml")
+      @RenderSection("styles", false)
+      @await Html.PartialAsync("~/Views/Shared/Partials/_HeadCSS.cshtml")
+    </head>
+
+    <body>
+
+        <div class="wrapper">
+
+        @await Html.PartialAsync("~/Views/Shared/Partials/_Topbar.cshtml")
+        @await Html.PartialAsync("~/Views/Shared/Partials/_Sidenav.cshtml")
+
+            <div class="page-content">
+                <div class="page-container">
+                   @RenderBody()
+                </div>
+
+                @await Html.PartialAsync("~/Views/Shared/Partials/_Footer.cshtml")
+
+            </div>
+        </div>
+
+        @await Html.PartialAsync("~/Views/Shared/Partials/_Customizer.cshtml")
+        @await Html.PartialAsync("~/Views/Shared/Partials/_FooterScripts.cshtml")
+        @RenderSection("scripts", required: false)
+
+    </body>
+
+</html>

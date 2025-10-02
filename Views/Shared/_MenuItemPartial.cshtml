@@ -1,0 +1,59 @@
+@model Highdmin.ViewModels.MenuViewModel
+
+@if (Model.HasPermission || Model.Children.Any(c => c.HasPermission))
+{
+    <li class="side-nav-item">
+        @if (Model.Children.Any(c => c.HasPermission))
+        {
+            <!-- Menú con submenús -->
+            <a data-bs-toggle="collapse" href="#sidebar@(Model.Resource?.Replace(":", ""))" 
+               aria-expanded="false" aria-controls="sidebar@(Model.Resource?.Replace(":", ""))"
+               class="side-nav-link">
+                <span class="menu-icon">
+                    <i class="@(Model.Icon ?? "ri-file-line")"></i>
+                </span>
+                <span class="menu-text"> @Model.Name </span>
+                <span class="menu-arrow"></span>
+            </a>
+            <div class="collapse" id="sidebar@(Model.Resource?.Replace(":", ""))">
+                <ul class="sub-menu">
+                    @foreach (var subItem in Model.Children.Where(c => c.HasPermission))
+                    {
+                        @await Html.PartialAsync("_MenuItemPartial", subItem)
+                    }
+                </ul>
+            </div>
+        }
+        else
+        {
+            <!-- Menú simple sin submenús -->
+            @if (!string.IsNullOrEmpty(Model.Controller) && !string.IsNullOrEmpty(Model.Action))
+            {
+                <a href=@Url.Action(Model.Action, Model.Controller) class="side-nav-link">
+                    <span class="menu-icon">
+                        <i class="@(Model.Icon ?? "ri-file-line")"></i>
+                    </span>
+                    <span class="menu-text"> @Model.Name </span>
+                </a>
+            }
+            else if (!string.IsNullOrEmpty(Model.Url))
+            {
+                <a href="@Model.Url" class="side-nav-link">
+                    <span class="menu-icon">
+                        <i class="@(Model.Icon ?? "ri-file-line")"></i>
+                    </span>
+                    <span class="menu-text"> @Model.Name </span>
+                </a>
+            }
+            else
+            {
+                <a href="javascript:void(0);" class="side-nav-link">
+                    <span class="menu-icon">
+                        <i class="@(Model.Icon ?? "ri-file-line")"></i>
+                    </span>
+                    <span class="menu-text"> @Model.Name </span>
+                </a>
+            }
+        }
+    </li>
+}

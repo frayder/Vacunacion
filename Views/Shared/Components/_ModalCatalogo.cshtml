@@ -1,0 +1,84 @@
+@{
+    var controllerName = ViewBag.ControllerName ?? "Catalogo";
+    var labelSingular = ViewBag.LabelSingular ?? "Elemento";
+    var modalId = ViewBag.ModalId ?? "showModal";
+    var formId = ViewBag.FormId ?? "catalogoForm";
+}
+
+<!-- Modal para Crear/Editar -->
+<div class="modal fade" id="@modalId" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-light p-3">
+                <h5 class="modal-title" id="exampleModalLabel">@labelSingular</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="close-modal"></button>
+            </div>
+            <form class="tablelist-form" id="@formId" action="#" method="post" autocomplete="off">
+                @Html.AntiForgeryToken()
+                <div class="modal-body">
+                    <input type="hidden" id="itemId" name="Id" value="0" />
+                    
+                    <div class="mb-3">
+                        <label for="codigo-field" class="form-label">Código <span class="text-danger">*</span></label>
+                        <input type="text" id="codigo-field" name="Codigo" class="form-control" placeholder="Ingrese el código" required maxlength="10" />
+                        <div class="invalid-feedback">
+                            Por favor ingrese un código válido.
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="nombre-field" class="form-label">Nombre <span class="text-danger">*</span></label>
+                        <input type="text" id="nombre-field" name="Nombre" class="form-control" placeholder="Ingrese el nombre" required maxlength="255" />
+                        <div class="invalid-feedback">
+                            Por favor ingrese un nombre válido.
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="descripcion-field" class="form-label">Descripción</label>
+                        <textarea id="descripcion-field" name="Descripcion" class="form-control" placeholder="Ingrese la descripción" rows="3" maxlength="500"></textarea>
+                    </div>
+
+                    <div>
+                        <label for="estado-field" class="form-label">Estado</label>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="estado-field" name="Estado" checked>
+                            <label class="form-check-label" for="estado-field">Activo</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <div class="hstack gap-2 justify-content-end">
+                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cerrar</button>
+                        <button type="submit" class="btn btn-success" id="add-btn">Agregar @labelSingular</button>
+                        <button type="button" class="btn btn-success" id="edit-btn" style="display: none;">Actualizar @labelSingular</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Confirmación para Eliminar -->
+<div class="modal fade zoomIn" id="deleteRecordModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="btn-close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mt-2 text-center">
+                    <lord-icon src="https://cdn.lordicon.com/gsqxdxog.json" trigger="loop" colors="primary:#f7b84b,secondary:#f06548" style="width:100px;height:100px"></lord-icon>
+                    <div class="mt-4 pt-2 fs-15 mx-4 mx-sm-5">
+                        <h4>¿Está seguro?</h4>
+                        <p class="text-muted mx-4 mb-0">¿Está seguro de que desea eliminar este @labelSingular.ToLower()?</p>
+                    </div>
+                </div>
+                <div class="d-flex gap-2 justify-content-center mt-4 mb-2">
+                    <button type="button" class="btn w-sm btn-light" data-bs-dismiss="modal">Cerrar</button>
+                    <button type="button" class="btn w-sm btn-danger" id="delete-record">Sí, eliminar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

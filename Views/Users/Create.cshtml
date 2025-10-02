@@ -1,0 +1,57 @@
+@{
+    ViewBag.Title = "Crear Usuario";
+    Layout = "~/Views/Shared/_VerticalLayout.cshtml";
+}
+
+@model Highdmin.Models.User
+
+<div class="row">
+    <div class="col-12">
+        <div class="page-title-box">
+            <h4 class="page-title">Crear Nuevo Usuario</h4>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Información del Usuario</h5>
+            </div>
+            <div class="card-body">
+                <form asp-action="Create">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="UserName" class="form-label">Nombre de Usuario</label>
+                                <input asp-for="UserName" class="form-control" placeholder="Ingrese el nombre de usuario" required />
+                                <span asp-validation-for="UserName" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="Email" class="form-label">Email</label>
+                                <input asp-for="Email" class="form-control" type="email" placeholder="usuario@ejemplo.com" required />
+                                <span asp-validation-for="Email" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="ri-save-line me-1"></i> Crear Usuario
+                        </button>
+                        <a asp-action="Index" class="btn btn-secondary ms-2">
+                            <i class="ri-arrow-left-line me-1"></i> Cancelar
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
