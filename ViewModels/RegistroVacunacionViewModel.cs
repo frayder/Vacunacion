@@ -72,5 +72,8 @@ namespace Highdmin.ViewModels
         
         [Display(Name = "Observaciones")]
         public string Observaciones { get; set; } = string.Empty;
+        
+        [Display(Name = "Condición Usuario/a")]
+        public int? CondicionUsuariaId { get; set; }
     }
 }

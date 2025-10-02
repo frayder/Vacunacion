@@ -153,5 +153,24 @@ namespace Highdmin.Controllers
                 return Json(new { error = "Error al cargar centros de atención: " + ex.Message });
             }
         }
+
+        [HttpGet]
+        public async Task<IActionResult> GetCondicionesUsuarias()
+        {
+            try
+            {
+                var condiciones = await _context.CondicionesUsuarias
+                    .Where(c => c.Estado)
+                    .OrderBy(c => c.Nombre)
+                    .Select(c => new { value = c.Id, text = c.Nombre })
+                    .ToListAsync();
+
+                return Json(condiciones);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { error = "Error al cargar condiciones usuarias: " + ex.Message });
+            }
+        }
     }
 }

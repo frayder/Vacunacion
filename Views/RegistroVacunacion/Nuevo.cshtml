@@ -299,7 +299,14 @@
                 setTimeout(() => {
                     initializeAntecedentesLogic();
                     restoreAntecedentes();
-                }, 200);
+                }, 100);
+            }
+
+            // Cargar datos específicos para el paso 4 (Condición Usuario/a)
+            if (currentStep === 4) {
+                setTimeout(() => {
+                    loadCondicionesUsuarias();
+                }, 100);
             }
         }
 
@@ -640,6 +647,61 @@
                     });
                 }
             }
+        }
+
+        // Función para cargar condiciones usuarias en el paso 4
+        function loadCondicionesUsuarias() {
+            console.log('Cargando condiciones usuarias...'); // Debug log
+            
+            fetch('@Url.Action("GetCondicionesUsuarias", "RegistroVacunacion")')
+                .then(response => {
+                    console.log('Response status:', response.status); // Debug log
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Data received:', data); // Debug log
+                    
+                    const select = document.getElementById('condicionUsuariaSelect');
+                    if (!select) {
+                        console.error('Select element not found');
+                        return;
+                    }
+                    
+                    const currentValue = select.value; // Preservar valor actual
+                    
+                    if (data.error) {
+                        console.error('Error from server:', data.error);
+                        return;
+                    }
+                    
+                    // Limpiar opciones existentes (excepto la primera)
+                    select.innerHTML = '<option value="">Seleccionar...</option>';
+                    
+                    // Agregar las opciones de condiciones usuarias
+                    if (Array.isArray(data) && data.length > 0) {
+                        data.forEach(condicion => {
+                            const option = document.createElement('option');
+                            option.value = condicion.value;
+                            option.textContent = condicion.text;
+                            
+                            // Mantener la selección si existía
+                            if (condicion.value == currentValue) {
+                                option.selected = true;
+                            }
+                            
+                            select.appendChild(option);
+                        });
+                        console.log(`Added ${data.length} options to select`); // Debug log
+                    } else {
+                        console.warn('No data received or empty array');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error al cargar condiciones usuarias:', error);
+                });
         }
 
         // Hacer las funciones globalmente accesibles
