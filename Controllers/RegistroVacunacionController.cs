@@ -76,5 +76,82 @@ namespace Highdmin.Controllers
             TempData["Info"] = "Funcionalidad de descarga en desarrollo";
             return RedirectToAction(nameof(Index));
         }
+
+        // API endpoints para cargar datos de los dropdowns
+        [HttpGet]
+        public async Task<IActionResult> GetAseguradoras()
+        {
+            try
+            {
+                var aseguradoras = await _context.Aseguradoras
+                    .Where(a => a.Estado)
+                    .OrderBy(a => a.Nombre)
+                    .Select(a => new { value = a.Id, text = a.Nombre })
+                    .ToListAsync();
+
+                return Json(aseguradoras);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { error = "Error al cargar aseguradoras: " + ex.Message });
+            }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetRegimenesAfiliacion()
+        {
+            try
+            {
+                var regimenes = await _context.RegimenesAfiliacion
+                    .Where(r => r.Estado)
+                    .OrderBy(r => r.Nombre)
+                    .Select(r => new { value = r.Id, text = r.Nombre })
+                    .ToListAsync();
+
+                return Json(regimenes);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { error = "Error al cargar regímenes de afiliación: " + ex.Message });
+            }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetPertenenciasEtnicas()
+        {
+            try
+            {
+                var pertenencias = await _context.PertenenciasEtnicas
+                    .Where(p => p.Estado)
+                    .OrderBy(p => p.Nombre)
+                    .Select(p => new { value = p.Id, text = p.Nombre })
+                    .ToListAsync();
+
+                return Json(pertenencias);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { error = "Error al cargar pertenencias étnicas: " + ex.Message });
+            }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetCentrosAtencion()
+        {
+            try
+            {
+                var centros = await _context.CentrosAtencion
+                    .Where(c => c.Estado)
+                    .OrderBy(c => c.Nombre)
+                    .Select(c => new { value = c.Id, text = c.Nombre })
+                    .ToListAsync();
+
+                return Json(centros);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { error = "Error al cargar centros de atención: " + ex.Message });
+            }
+        }
     }
 }

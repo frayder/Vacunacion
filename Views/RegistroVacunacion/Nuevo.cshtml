@@ -245,6 +245,95 @@
                     }
                 }
             });
+
+            // Ejecutar lógica específica del paso actual
+            executeStepSpecificLogic();
+        }
+
+        // Función para ejecutar lógica específica de cada paso
+        function executeStepSpecificLogic() {
+            // Ejecutar función específica del paso si existe
+            if (window.loadStepData && window.loadStepData[`step${currentStep}`]) {
+                try {
+                    window.loadStepData[`step${currentStep}`]();
+                } catch (error) {
+                    console.error(`Error ejecutando lógica del paso ${currentStep}:`, error);
+                }
+            }
+
+            // Cargar datos específicos para el paso 2 (Datos Complementarios)
+            if (currentStep === 2) {
+                loadDatosComplementarios();
+            }
+        }
+
+        // Función para cargar datos de los dropdowns del paso 2
+        async function loadDatosComplementarios() {
+            try {
+                console.log('Cargando datos complementarios...');
+                
+                // Cargar Aseguradoras
+                const aseguradorasResponse = await fetch('/RegistroVacunacion/GetAseguradoras');
+                if (aseguradorasResponse.ok) {
+                    const aseguradoras = await aseguradorasResponse.json();
+                    populateSelect('Aseguradora', aseguradoras, 'Seleccione aseguradora');
+                }
+
+                // Cargar Regímenes de Afiliación
+                const regimenesResponse = await fetch('/RegistroVacunacion/GetRegimenesAfiliacion');
+                if (regimenesResponse.ok) {
+                    const regimenes = await regimenesResponse.json();
+                    populateSelect('RegimenAfiliacion', regimenes, 'Seleccione régimen');
+                }
+
+                // Cargar Pertenencias Étnicas
+                const pertenenciasResponse = await fetch('/RegistroVacunacion/GetPertenenciasEtnicas');
+                if (pertenenciasResponse.ok) {
+                    const pertenencias = await pertenenciasResponse.json();
+                    populateSelect('PertenenciaEtnica', pertenencias, 'Seleccione pertenencia étnica');
+                }
+
+                // Cargar Centros de Atención
+                const centrosResponse = await fetch('/RegistroVacunacion/GetCentrosAtencion');
+                if (centrosResponse.ok) {
+                    const centros = await centrosResponse.json();
+                    populateSelect('CentroSalud', centros, 'Sistema Central');
+                }
+
+                console.log('Datos complementarios cargados exitosamente');
+            } catch (error) {
+                console.error('Error al cargar datos complementarios:', error);
+            }
+        }
+
+        // Función para llenar un select con datos
+        function populateSelect(selectName, data, defaultText) {
+            const select = document.querySelector(`select[name="${selectName}"]`);
+            if (select && data && !data.error && Array.isArray(data)) {
+                // Limpiar opciones existentes excepto la primera
+                while (select.children.length > 1) {
+                    select.removeChild(select.lastChild);
+                }
+                
+                // Actualizar texto de la opción por defecto
+                if (select.children.length > 0) {
+                    select.children[0].textContent = defaultText;
+                }
+
+                // Agregar nuevas opciones
+                data.forEach(item => {
+                    const option = document.createElement('option');
+                    option.value = item.value;
+                    option.textContent = item.text;
+                    select.appendChild(option);
+                });
+                
+                console.log(`Select ${selectName} poblado con ${data.length} opciones`);
+            } else if (data && data.error) {
+                console.error(`Error al cargar ${selectName}:`, data.error);
+            } else {
+                console.warn(`No se pudo poblar el select ${selectName}:`, { select, data });
+            }
         }
         
         // Función para limpiar los datos guardados

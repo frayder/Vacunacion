@@ -44,11 +44,12 @@
             <div class="col-md-6">
                 <div class="mb-3">
                     <label class="form-label">Orientación sexual</label>
-                    <select class="form-select">
-                        <option value="">Seleccione</option>
+                    <select class="form-select" name="OrientacionSexual">
+                        <option value="">Seleccione orientación sexual</option>
                         <option value="HETEROSEXUAL">HETEROSEXUAL</option>
                         <option value="HOMOSEXUAL">HOMOSEXUAL</option>
                         <option value="INTERSEXUAL">INTERSEXUAL</option>
+                        <option value="NO SABE / NO APLICA">NO SABE / NO APLICA</option>
                     </select>
                 </div>
             </div>
@@ -63,38 +64,227 @@
             <div class="col-md-6">
                 <div class="mb-3">
                     <label class="form-label">Peso del infante (kg)</label>
-                    <input type="number" step="0.1" class="form-control" name="PesoInfante" placeholder="0.0">
+                    <input type="number" step="0.1" class="form-control" name="PesoInfante" placeholder="5.3">
                 </div>
             </div>
             <div class="col-md-6">
                 <div class="mb-3">
                     <label class="form-label">País de nacimiento</label>
-                    <input type="text" class="form-control" name="PaisNacimiento" placeholder="Seleccione país">
+                    <select class="form-select" name="PaisNacimiento">
+                        <option value="">Seleccione país</option>
+                        <option value="Colombia" selected>Colombia</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Cuarta fila -->
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label class="form-label">Lugar de atención del parto</label>
+                    <select class="form-select" name="LugarAtencionParto">
+                        <option value="">Seleccione hospital</option>
+                        <!-- Opciones se cargarán dinámicamente -->
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label class="form-label">Estatus Migratorio</label>
+                    <select class="form-select" name="EstatusMigratorio">
+                        <option value="">Estatus migratorio</option>
+                        <!-- Opciones se cargarán dinámicamente -->
+                    </select>
+                </div>
+            </div>
+
+            <!-- Quinta fila -->
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label class="form-label">Régimen de afiliación</label>
+                    <select class="form-select" name="RegimenAfiliacion">
+                        <option value="">Seleccione régimen</option>
+                        <!-- Opciones se cargarán dinámicamente -->
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label class="form-label">Aseguradora</label>
+                    <select class="form-select" name="Aseguradora">
+                        <option value="">Seleccione aseguradora</option>
+                        <!-- Opciones se cargarán dinámicamente -->
+                    </select>
+                </div>
+            </div>
+
+            <!-- Sexta fila -->
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label class="form-label">Pertenencia étnica</label>
+                    <select class="form-select" name="PertenenciaEtnica">
+                        <option value="">Seleccione pertenencia étnica</option>
+                        <!-- Opciones se cargarán dinámicamente -->
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label class="form-label">Centro de Salud</label>
+                    <select class="form-select" name="CentroSalud">
+                        <option value="">Sistema Central</option>
+                        <!-- Opciones se cargarán dinámicamente -->
+                    </select>
+                    <small class="form-text text-muted">Este campo se completa automáticamente según el usuario autenticado.</small>
+                </div>
+            </div>
+
+            <!-- Séptima fila - Checkboxes -->
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label class="form-label">Desplazado</label>
+                    <div class="d-flex gap-3 mt-2">
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="Desplazado" id="desplazadoSi" value="SI">
+                            <label class="form-check-label" for="desplazadoSi">SÍ</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="Desplazado" id="desplazadoNo" value="NO">
+                            <label class="form-check-label" for="desplazadoNo">NO</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label class="form-label">Discapacitado</label>
+                    <div class="d-flex gap-3 mt-2">
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="Discapacitado" id="discapacitadoSi" value="SI">
+                            <label class="form-check-label" for="discapacitadoSi">SÍ</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="Discapacitado" id="discapacitadoNo" value="NO">
+                            <label class="form-check-label" for="discapacitadoNo">NO</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Octava fila - Checkboxes -->
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label class="form-label">Fallecido</label>
+                    <div class="d-flex gap-3 mt-2">
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="Fallecido" id="fallecidoSi" value="SI">
+                            <label class="form-check-label" for="fallecidoSi">SÍ</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="Fallecido" id="fallecidoNo" value="NO">
+                            <label class="form-check-label" for="fallecidoNo">NO</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label class="form-label">Víctima del conflicto armado</label>
+                    <div class="d-flex gap-3 mt-2">
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="VictimaConflicto" id="victimaConflictoSi" value="SI">
+                            <label class="form-check-label" for="victimaConflictoSi">SÍ</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="VictimaConflicto" id="victimaConflictoNo" value="NO">
+                            <label class="form-check-label" for="victimaConflictoNo">NO</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Novena fila -->
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label class="form-label">Estudia actualmente</label>
+                    <div class="d-flex gap-3 mt-2">
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="EstudiaActualmente" id="estudiaActualmenteSi" value="SI">
+                            <label class="form-check-label" for="estudiaActualmenteSi">SÍ</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="EstudiaActualmente" id="estudiaActualmenteNo" value="NO">
+                            <label class="form-check-label" for="estudiaActualmenteNo">NO</label>
+                        </div>
+                    </div>
                 </div>
             </div>
 
             <!-- Datos de Residencia -->
             <div class="col-md-12">
-                <h6 class="text-warning mb-3">
+                <h6 class="text-danger mb-3 mt-4">
                     <i class="ri-home-line me-1"></i> Datos de Residencia
                 </h6>
             </div>
             <div class="col-md-6">
                 <div class="mb-3">
-                    <label class="form-label">Departamento de residencia</label>
-                    <input type="text" class="form-control" name="DepartamentoResidencia" placeholder="Seleccione departamento">
+                    <label class="form-label">País de residencia</label>
+                    <select class="form-select" name="PaisResidencia">
+                        <option value="">Seleccione país</option>
+                        <option value="Colombia" selected>Colombia</option>
+                    </select>
                 </div>
             </div>
             <div class="col-md-6">
                 <div class="mb-3">
+                    <label class="form-label">Departamento de residencia</label>
+                    <select class="form-select" name="DepartamentoResidencia">
+                        <option value="">Seleccione departamento</option>
+                        <!-- Opciones se cargarán dinámicamente -->
+                    </select>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="mb-3">
                     <label class="form-label">Municipio de residencia</label>
-                    <input type="text" class="form-control" name="MunicipioResidencia" placeholder="Seleccione municipio">
+                    <select class="form-select" name="MunicipioResidencia">
+                        <option value="">Seleccione municipio</option>
+                        <!-- Opciones se cargarán dinámicamente -->
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label class="form-label">Comuna/Localidad</label>
+                    <input type="text" class="form-control" name="ComunaLocalidad" placeholder="Comuna o localidad">
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label class="form-label">Área</label>
+                    <div class="d-flex gap-3 mt-2">
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="Area" id="areaRural" value="RURAL">
+                            <label class="form-check-label" for="areaRural">RURAL</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="Area" id="areaUrbana" value="URBANA">
+                            <label class="form-check-label" for="areaUrbana">URBANA</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label class="form-label">Dirección con nomenclatura</label>
+                    <input type="text" class="form-control" name="DireccionNomenclatura" placeholder="Dirección completa">
                 </div>
             </div>
 
             <!-- Datos de Contacto -->
             <div class="col-md-12">
-                <h6 class="text-primary mb-3">
+                <h6 class="text-primary mb-3 mt-4">
                     <i class="ri-phone-line me-1"></i> Datos de Contacto
                 </h6>
             </div>
@@ -109,8 +299,46 @@
             </div>
             <div class="col-md-6">
                 <div class="mb-3">
+                    <label class="form-label">Celular</label>
+                    <input type="text" class="form-control" name="Celular" placeholder="300 1234567">
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="mb-3">
                     <label class="form-label">Email</label>
                     <input type="email" class="form-control" name="Email" placeholder="correo@ejemplo.com">
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label class="form-label">¿Autoriza llamadas telefónicas?</label>
+                    <div class="d-flex gap-3 mt-2">
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="AutorizaLlamadas" id="autorizaLlamadasSi" value="SI">
+                            <label class="form-check-label" for="autorizaLlamadasSi">SÍ</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="AutorizaLlamadas" id="autorizaLlamadasNo" value="NO">
+                            <label class="form-check-label" for="autorizaLlamadasNo">NO</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label class="form-label">¿Autoriza envío de correo?</label>
+                    <div class="d-flex gap-3 mt-2">
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="AutorizaCorreo" id="autorizaCorreoSi" value="SI">
+                            <label class="form-check-label" for="autorizaCorreoSi">SÍ</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="AutorizaCorreo" id="autorizaCorreoNo" value="NO">
+                            <label class="form-check-label" for="autorizaCorreoNo">NO</label>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
