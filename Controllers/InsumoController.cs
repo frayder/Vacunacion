@@ -86,7 +86,7 @@ namespace Highdmin.Controllers
         // GET: Insumo/Create
         public IActionResult Create()
         {
-            return View();
+            return View(new InsumoCreateViewModel());
         }
 
         // POST: Insumo/Create

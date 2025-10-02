@@ -82,7 +82,7 @@ namespace Highdmin.Controllers
         // GET: PertenenciaEtnica/Create
         public IActionResult Create()
         {
-            return View();
+            return View(new PertenenciaEtnicaCreateViewModel());
         }
 
         // POST: PertenenciaEtnica/Create

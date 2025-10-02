@@ -94,8 +94,7 @@ function onload(event) {
     });
 
     document.querySelector('#rater6-button').addEventListener("click", function () {
-        starRating6.clear();
-        console.log(starRating6.getRating());
+        starRating6.clear(); 
     }, false);
 
     var starRating7 = raterJs({

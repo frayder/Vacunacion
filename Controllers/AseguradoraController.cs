@@ -82,7 +82,7 @@ namespace Highdmin.Controllers
         // GET: Aseguradora/Create
         public IActionResult Create()
         {
-            return View();
+            return View( new AseguradoraCreateViewModel());  
         }
 
         // POST: Aseguradora/Create

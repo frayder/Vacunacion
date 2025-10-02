@@ -82,7 +82,7 @@ namespace Highdmin.Controllers
         // GET: CentroAtencion/Create
         public IActionResult Create()
         {
-            return View();
+            return View(new CentroAtencionCreateViewModel());
         }
 
         // POST: CentroAtencion/Create

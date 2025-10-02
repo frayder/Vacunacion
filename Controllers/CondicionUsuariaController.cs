@@ -82,7 +82,7 @@ namespace Highdmin.Controllers
         // GET: CondicionUsuaria/Create
         public IActionResult Create()
         {
-            return View();
+            return View(new CondicionUsuariaCreateViewModel());
         }
 
         // POST: CondicionUsuaria/Create

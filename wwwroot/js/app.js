@@ -787,7 +787,6 @@ const customJS = () => {
 
     const initDropdownHover = () => {
         const dropdowns = document.querySelectorAll('[data-bs-toggle=dropdown][data-bs-trigger=hover]');
-        console.info(dropdowns)
         dropdowns.forEach(dropdown => {
             dropdown.addEventListener('mouseenter', (e) => {
                 const dropdownContent = dropdown.nextElementSibling;
@@ -817,8 +816,7 @@ const customJS = () => {
             // element.classList.remove('show');
         }
 
-        const toggleToggler = (toggleOn, toggleOff, toggleStatus) => {
-            console.info(toggleOn, toggleOff, toggleStatus);
+        const toggleToggler = (toggleOn, toggleOff, toggleStatus) => { 
             if (toggleOn && toggleOff) {
                 if (toggleStatus) {
                     showToggler(toggleOn);

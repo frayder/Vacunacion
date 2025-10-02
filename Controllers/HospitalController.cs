@@ -82,7 +82,7 @@ namespace Highdmin.Controllers
         // GET: Hospital/Create
         public IActionResult Create()
         {
-            return View();
+            return View(new HospitalCreateViewModel());
         }
 
         // POST: Hospital/Create

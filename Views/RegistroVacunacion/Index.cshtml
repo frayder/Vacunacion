@@ -1,19 +1,9 @@
 @model RegistroVacunacionViewModel
 @{
     ViewData["Title"] = "Registro de Vacunación";
+    ViewData["SubTitle"] = "Gestione los registros de vacunación de pacientes";
     Layout = "~/Views/Shared/_VerticalLayout.cshtml";
-}
-
-<!-- Page Header -->
-<div class="page-title-box d-sm-flex align-items-center justify-content-between">
-    <h4 class="mb-sm-0">Registro de Vacunación</h4>
-    <div class="page-title-right">
-        <ol class="breadcrumb m-0">
-            <li class="breadcrumb-item"><a href="javascript: void(0);">Highdmin</a></li>
-            <li class="breadcrumb-item active">Registro de Vacunación</li>
-        </ol>
-    </div>
-</div>
+} 
 
 <!-- Info Card -->
 <div class="card mb-4">
@@ -30,10 +20,10 @@
                 <h5 class="mb-1">Sistema de Datos por Centro de Atención</h5>
                 <p class="text-muted mb-1">Como administrador, puede acceder a todos los centros o trabajar con un centro específico. Los datos (pacientes, registros de vacunación) están separados por centro de atención.</p>
                 <ul class="text-muted mb-0" style="font-size: 0.875rem;">
-                    <li>• Cada centro maneja su propia base de datos de pacientes</li>
-                    <li>• Los registros de vacunación son independientes por centro</li>
-                    <li>• Sólo los usuarios asignados pueden acceder a los datos de su centro</li>
-                    <li>• Como admin, puede ver y gestionar todos los centros</li>
+                    <li>Cada centro maneja su propia base de datos de pacientes</li>
+                    <li>Los registros de vacunación son independientes por centro</li>
+                    <li>Sólo los usuarios asignados pueden acceder a los datos de su centro</li>
+                    <li>Como admin, puede ver y gestionar todos los centros</li>
                 </ul>
             </div>
         </div>

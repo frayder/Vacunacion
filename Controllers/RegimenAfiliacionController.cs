@@ -82,7 +82,7 @@ namespace Highdmin.Controllers
         // GET: RegimenAfiliacion/Create
         public IActionResult Create()
         {
-            return View();
+            return View(new RegimenAfiliacionCreateViewModel());
         }
 
         // POST: RegimenAfiliacion/Create
