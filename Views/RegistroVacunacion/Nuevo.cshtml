@@ -315,6 +315,13 @@
                     loadDatosMedicoCuidador();
                 }, 100);
             }
+
+            // Cargar datos específicos para el paso 6 (Esquema Vacunación)
+            if (currentStep === 6) {
+                setTimeout(() => {
+                    loadTiposCarnet();
+                }, 100);
+            }
         }
 
         // Función para cargar datos de los dropdowns del paso 2
@@ -774,6 +781,79 @@
                 console.error(`Error al cargar ${selectId}:`, data.error);
             } else {
                 console.warn(`No se pudo poblar el select ${selectId}:`, { select, data });
+            }
+        }
+
+        // Función para cargar tipos de carnet en el paso 6
+        async function loadTiposCarnet() {
+            try {
+                console.log('Cargando tipos de carnet...');
+                
+                const response = await fetch('/RegistroVacunacion/GetTiposCarnet');
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                
+                if (data.error) {
+                    console.error('Error al cargar tipos de carnet:', data.error);
+                    return;
+                }
+                
+                // Buscar el select de tipo de carnet
+                const select = document.getElementById('tipoCarnet');
+                if (!select) {
+                    console.error('Select tipoCarnet no encontrado');
+                    return;
+                }
+                
+                // Ocultar indicador de carga si existe
+                const loading = document.getElementById('tipoCarnetLoading');
+                if (loading) {
+                    loading.style.display = 'none';
+                }
+                
+                // Preservar valor actual
+                const currentValue = select.value;
+                
+                // Limpiar opciones existentes excepto la primera
+                select.innerHTML = '<option value="">Seleccione tipo de carnét</option>';
+                
+                // Agregar las opciones desde la base de datos
+                if (Array.isArray(data) && data.length > 0) {
+                    data.forEach(tipoCarnet => {
+                        const option = document.createElement('option');
+                        option.value = tipoCarnet.value;
+                        option.textContent = tipoCarnet.text;
+                        option.setAttribute('data-codigo', tipoCarnet.codigo);
+                        
+                        // Mantener la selección si existía
+                        if (tipoCarnet.value == currentValue) {
+                            option.selected = true;
+                        }
+                        
+                        select.appendChild(option);
+                    });
+                    console.log(`Tipos de carnet cargados: ${data.length} opciones`);
+                } else {
+                    console.warn('No se recibieron tipos de carnet');
+                }
+                
+            } catch (error) {
+                console.error('Error al cargar tipos de carnet:', error);
+                
+                // Mostrar error en el select
+                const select = document.getElementById('tipoCarnet');
+                if (select) {
+                    select.innerHTML = '<option value="">Error al cargar tipos de carnet</option>';
+                }
+                
+                // Ocultar indicador de carga
+                const loading = document.getElementById('tipoCarnetLoading');
+                if (loading) {
+                    loading.style.display = 'none';
+                }
             }
         }
 

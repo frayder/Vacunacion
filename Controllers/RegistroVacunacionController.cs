@@ -172,5 +172,24 @@ namespace Highdmin.Controllers
                 return Json(new { error = "Error al cargar condiciones usuarias: " + ex.Message });
             }
         }
+
+        [HttpGet]
+        public async Task<IActionResult> GetTiposCarnet()
+        {
+            try
+            {
+                var tiposCarnet = await _context.TiposCarnet
+                    .Where(t => t.Estado)
+                    .OrderBy(t => t.Nombre)
+                    .Select(t => new { value = t.Id, text = t.Nombre, codigo = t.Codigo })
+                    .ToListAsync();
+
+                return Json(tiposCarnet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { error = "Error al cargar tipos de carnet: " + ex.Message });
+            }
+        }
     }
 }

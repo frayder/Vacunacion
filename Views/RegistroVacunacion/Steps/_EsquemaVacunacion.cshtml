@@ -14,13 +14,11 @@
                     <label class="form-label">Tipo de carnét</label>
                     <select class="form-select" name="TipoCarnet" id="tipoCarnet">
                         <option value="">Seleccione tipo de carnét</option>
-                        <option value="PAI">PAI (Programa Ampliado de Inmunizaciones)</option>
-                        <option value="COVID19">COVID-19</option>
-                        <option value="FIEBRE_AMARILLA">Fiebre Amarilla</option>
-                        <option value="INTERNACIONAL">Certificado Internacional</option>
-                        <option value="ESPECIAL">Esquema Especial</option>
-                        <option value="OTRO">Otro</option>
+                        <!-- Las opciones se cargarán dinámicamente desde la base de datos -->
                     </select>
+                    <div id="tipoCarnetLoading" class="text-muted small mt-1" style="display: none;">
+                        <i class="ri-loader-2-line"></i> Cargando tipos de carnet...
+                    </div>
                 </div>
             </div>
         </div>
