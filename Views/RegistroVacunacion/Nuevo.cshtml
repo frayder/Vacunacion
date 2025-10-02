@@ -161,6 +161,15 @@
             margin-top: 2px;
         }
         
+        .is-invalid {
+            border-color: #dc3545 !important;
+            box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25) !important;
+        }
+        
+        .validation-message {
+            margin-top: 2px;
+        }
+        
         .card.bg-light {
             border: 1px solid #dee2e6;
         }
@@ -186,18 +195,89 @@
     <script> 
         let currentStep = 1;
         const totalSteps = 7;
+        let formData = {}; // Objeto para almacenar los datos del formulario
+        
+        // Cargar datos guardados del localStorage al inicializar
+        function loadStoredData() {
+            const stored = localStorage.getItem('vacunacionFormData');
+            if (stored) {
+                try {
+                    formData = JSON.parse(stored);
+                } catch (e) {
+                    formData = {};
+                }
+            }
+        }
+
+        // Función para guardar los datos del paso actual
+        function saveCurrentStepData() {
+            const stepContainer = document.getElementById('step-container');
+            if (!stepContainer) return;
+
+            const inputs = stepContainer.querySelectorAll('input, select, textarea');
+            inputs.forEach(input => {
+                if (input.type === 'radio' || input.type === 'checkbox') {
+                    if (input.checked) {
+                        formData[input.name] = input.value;
+                    }
+                } else {
+                    formData[input.name || input.id] = input.value;
+                }
+            });
+            
+            // Guardar en localStorage
+            localStorage.setItem('vacunacionFormData', JSON.stringify(formData));
+        }
+
+        // Función para restaurar los datos del paso actual
+        function restoreCurrentStepData() {
+            const stepContainer = document.getElementById('step-container');
+            if (!stepContainer) return;
+
+            const inputs = stepContainer.querySelectorAll('input, select, textarea');
+            inputs.forEach(input => {
+                const key = input.name || input.id;
+                if (formData[key] !== undefined) {
+                    if (input.type === 'radio' || input.type === 'checkbox') {
+                        input.checked = (input.value === formData[key]);
+                    } else {
+                        input.value = formData[key];
+                    }
+                }
+            });
+        }
+        
+        // Función para limpiar los datos guardados
+        function clearStoredData() {
+            formData = {};
+            localStorage.removeItem('vacunacionFormData');
+        }
+        
+        // Hacer las funciones globalmente accesibles
+        window.saveCurrentStepData = saveCurrentStepData;
+        window.restoreCurrentStepData = restoreCurrentStepData;
+        window.clearStoredData = clearStoredData;
 
         // Define functions first
         async function nextStep() {
+            // Guardar los datos del paso actual
+            saveCurrentStepData();
+            
+            // Validar el paso actual antes de continuar
+            if (currentStep === 1) {
+                // Validar datos básicos
+                if (typeof window.validateDatosBasicos === 'function') {
+                    if (!window.validateDatosBasicos()) {
+                        return; // No continuar si la validación falla
+                    }
+                }
+            }
+            
             if (currentStep < totalSteps) {
                 currentStep++;
                 try {
                     const url = '/RegistroVacunacion/LoadStep?step=' + currentStep;
                     const response = await fetch(url);
-
-                    const html = await response.text();
-
-                    const stepContainer = document.getElementById('step-container');
                     
                     if (!response.ok) {
                         throw new Error(`HTTP error! status: ${response.status}`);
@@ -208,6 +288,12 @@
                     const stepContainer = document.getElementById('step-container');
                     if (stepContainer) {
                         stepContainer.innerHTML = html; 
+                        
+                        // Restaurar los datos después de cargar el nuevo contenido
+                        setTimeout(() => {
+                            restoreCurrentStepData();
+                        }, 100);
+                        
                         updateButtons();
                         updateStepIndicators();
                     } else {
@@ -221,12 +307,21 @@
         
         function prevStep() { 
             if (currentStep > 1) {
+                // Guardar los datos del paso actual
+                saveCurrentStepData();
+                
                 currentStep--; 
                 
                 fetch('/RegistroVacunacion/LoadStep?step=' + currentStep)
                     .then(response => response.text())
                     .then(html => {
                         document.getElementById('step-container').innerHTML = html;
+                        
+                        // Restaurar los datos después de cargar el nuevo contenido
+                        setTimeout(() => {
+                            restoreCurrentStepData();
+                        }, 100);
+                        
                         updateButtons();
                         updateStepIndicators();
                     });
@@ -274,6 +369,9 @@
 
         // Initialize when DOM is ready
         document.addEventListener('DOMContentLoaded', function() { 
+            // Cargar datos guardados
+            loadStoredData();
+            
             const nextBtn = document.getElementById('nextBtn');
             const prevBtn = document.getElementById('prevBtn'); 
             
@@ -292,6 +390,38 @@
                 prevBtn.addEventListener('click', function(e) {
                     e.preventDefault(); 
                     prevStep();
+                });
+            }
+            
+            // Restaurar datos del paso inicial si existen
+            setTimeout(() => {
+                restoreCurrentStepData();
+            }, 100);
+            
+            // Agregar listeners para guardar datos automáticamente cuando cambian
+            const stepContainer = document.getElementById('step-container');
+            if (stepContainer) {
+                stepContainer.addEventListener('change', function(e) {
+                    if (e.target.matches('input, select, textarea')) {
+                        saveCurrentStepData();
+                    }
+                });
+                
+                stepContainer.addEventListener('input', function(e) {
+                    if (e.target.matches('input, textarea')) {
+                        saveCurrentStepData();
+                    }
+                });
+            }
+            
+            // Agregar listener al formulario para limpiar datos al enviar
+            const form = document.getElementById('vacunacionForm');
+            if (form) {
+                form.addEventListener('submit', function(e) {
+                    // Guardar los datos del paso final antes de enviar
+                    saveCurrentStepData();
+                    // Nota: Los datos se limpiarán después de un envío exitoso
+                    // Esto se puede manejar desde el servidor o con una confirmación
                 });
             }
         });

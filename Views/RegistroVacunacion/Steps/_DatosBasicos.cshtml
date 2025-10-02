@@ -48,21 +48,21 @@
                         <option value="PA">Pasaporte</option>
                         <option value="CE">Cédula de Extranjería</option>
                     </select>
-                    <div class="text-danger small">Este campo es obligatorio</div>
+                    <div class="text-danger small validation-message" style="display: none;">Este campo es obligatorio</div>
                 </div>
             </div>
             <div class="col-md-6">
                 <div class="mb-3">
                     <label asp-for="Documento" class="form-label">Número de identificación <span class="text-danger">*</span></label>
                     <input asp-for="Documento" class="form-control" placeholder="Número de documento" required>
-                    <div class="text-danger small">Este campo es obligatorio</div>
+                    <div class="text-danger small validation-message" style="display: none;">Este campo es obligatorio</div>
                 </div>
             </div>
             <div class="col-md-6">
                 <div class="mb-3">
                     <label for="primerNombre" class="form-label">Primer nombre <span class="text-danger">*</span></label>
                     <input type="text" id="primerNombre" name="PrimerNombre" class="form-control" placeholder="Primer nombre" required>
-                    <div class="text-danger small">Este campo es obligatorio</div>
+                    <div class="text-danger small validation-message" style="display: none;">Este campo es obligatorio</div>
                 </div>
             </div>
             <div class="col-md-6">
@@ -75,7 +75,7 @@
                 <div class="mb-3">
                     <label for="primerApellido" class="form-label">Primer apellido <span class="text-danger">*</span></label>
                     <input type="text" id="primerApellido" name="PrimerApellido" class="form-control" placeholder="Primer apellido" required>
-                    <div class="text-danger small">Este campo es obligatorio</div>
+                    <div class="text-danger small validation-message" style="display: none;">Este campo es obligatorio</div>
                 </div>
             </div>
             <div class="col-md-6">
@@ -90,7 +90,7 @@
                         <i class="ri-calendar-line me-1"></i> Fecha de nacimiento <span class="text-danger">*</span>
                     </label>
                     <input asp-for="FechaNacimiento" type="date" class="form-control" pattern="[0-9]{2}/[0-9]{2}/[0-9]{4}" required>
-                    <div class="text-danger small">Este campo es obligatorio</div>
+                    <div class="text-danger small validation-message" style="display: none;">Este campo es obligatorio</div>
                 </div>
             </div>
             <div class="col-md-6">
@@ -111,3 +111,76 @@
         </div>
     </div>
 </div>
+
+<script>
+    // Variable global para saber si ya se intentó validar
+    window.datosBasicosValidated = window.datosBasicosValidated || false;
+    
+    // Función para validar el paso de datos básicos
+    window.validateDatosBasicos = function() {
+        // Guardar los datos antes de validar
+        if (typeof window.saveCurrentStepData === 'function') {
+            window.saveCurrentStepData();
+        }
+        
+        window.datosBasicosValidated = true;
+        let isValid = true;
+        
+        // Obtener todos los campos obligatorios
+        const requiredFields = [
+            { selector: 'select[name="TipoDocumento"]', name: 'Tipo de documento' },
+            { selector: 'input[name="Documento"]', name: 'Número de identificación' },
+            { selector: 'input[name="PrimerNombre"]', name: 'Primer nombre' },
+            { selector: 'input[name="PrimerApellido"]', name: 'Primer apellido' },
+            { selector: 'input[name="FechaNacimiento"]', name: 'Fecha de nacimiento' }
+        ];
+        
+        // Validar cada campo
+        requiredFields.forEach(field => {
+            const element = document.querySelector(field.selector);
+            const validationMessage = element?.parentElement.querySelector('.validation-message');
+            
+            if (element && (!element.value || element.value.trim() === '')) {
+                isValid = false;
+                if (validationMessage) {
+                    validationMessage.style.display = 'block';
+                }
+                element.classList.add('is-invalid');
+            } else if (element) {
+                if (validationMessage) {
+                    validationMessage.style.display = 'none';
+                }
+                element.classList.remove('is-invalid');
+            }
+        });
+        
+        return isValid;
+    };
+    
+    // Escuchar cambios en los campos para ocultar mensajes de error cuando se corrijan
+    document.addEventListener('DOMContentLoaded', function() {
+        const requiredFields = document.querySelectorAll('select[required], input[required]');
+        
+        requiredFields.forEach(field => {
+            field.addEventListener('input', function() {
+                if (window.datosBasicosValidated && this.value && this.value.trim() !== '') {
+                    const validationMessage = this.parentElement.querySelector('.validation-message');
+                    if (validationMessage) {
+                        validationMessage.style.display = 'none';
+                    }
+                    this.classList.remove('is-invalid');
+                }
+            });
+            
+            field.addEventListener('change', function() {
+                if (window.datosBasicosValidated && this.value && this.value.trim() !== '') {
+                    const validationMessage = this.parentElement.querySelector('.validation-message');
+                    if (validationMessage) {
+                        validationMessage.style.display = 'none';
+                    }
+                    this.classList.remove('is-invalid');
+                }
+            });
+        });
+    });
+</script>
