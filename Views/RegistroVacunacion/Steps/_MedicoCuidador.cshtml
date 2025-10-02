@@ -153,28 +153,16 @@
                 <div class="col-md-6">
                     <div class="mb-3">
                         <label class="form-label">Régimen de afiliación</label>
-                        <select class="form-select" name="RegimenMadre">
+                        <select class="form-select" name="RegimenMadre" id="RegimenMadre">
                             <option value="">Seleccione régimen</option>
-                            <option value="contributivo">Contributivo</option>
-                            <option value="subsidiado">Subsidiado</option>
-                            <option value="especial">Especial</option>
-                            <option value="no_afiliado">No afiliado</option>
                         </select>
                     </div>
                 </div>
                 <div class="col-md-6">
                     <div class="mb-3">
                         <label class="form-label">Pertenencia étnica</label>
-                        <select class="form-select" name="EtniaMadre">
+                        <select class="form-select" name="EtniaMadre" id="EtniaMadre">
                             <option value="">Seleccione pertenencia étnica</option>
-                            <option value="indigena">Indígena</option>
-                            <option value="rom">Rom (gitano)</option>
-                            <option value="raizal">Raizal</option>
-                            <option value="palenquero">Palenquero</option>
-                            <option value="negro">Negro(a)</option>
-                            <option value="afrocolombiano">Afrocolombiano(a)</option>
-                            <option value="afrodescendiente">Afrodescendiente</option>
-                            <option value="ninguna">Ninguna</option>
                         </select>
                     </div>
                 </div>
@@ -277,6 +265,44 @@
                     <div class="mb-3">
                         <label class="form-label">Celular</label>
                         <input type="text" class="form-control" name="CelularCuidador" placeholder="300 1234567">
+                    </div>
+                </div>
+            </div>
+
+            <h6 class="fw-bold mb-3">Información adicional</h6>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label class="form-label">Régimen de afiliación</label>
+                        <select class="form-select" name="RegimenCuidador" id="RegimenCuidador">
+                            <option value="">Seleccione régimen</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label class="form-label">Pertenencia étnica</label>
+                        <select class="form-select" name="EtniaCuidador" id="EtniaCuidador">
+                            <option value="">Seleccione pertenencia étnica</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="mb-3">
+                        <label class="form-label">Desplazado</label>
+                        <div class="mt-2">
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="DesplazadoCuidador" id="desplazadoCuidadorSi" value="Si">
+                                <label class="form-check-label" for="desplazadoCuidadorSi">Sí</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="DesplazadoCuidador" id="desplazadoCuidadorNo" value="No">
+                                <label class="form-check-label" for="desplazadoCuidadorNo">NO</label>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

@@ -308,6 +308,13 @@
                     loadCondicionesUsuarias();
                 }, 100);
             }
+
+            // Cargar datos específicos para el paso 5 (Médico/Cuidador)
+            if (currentStep === 5) {
+                setTimeout(() => {
+                    loadDatosMedicoCuidador();
+                }, 100);
+            }
         }
 
         // Función para cargar datos de los dropdowns del paso 2
@@ -702,6 +709,72 @@
                 .catch(error => {
                     console.error('Error al cargar condiciones usuarias:', error);
                 });
+        }
+
+        // Función para cargar datos de médico/cuidador en el paso 5
+        async function loadDatosMedicoCuidador() {
+            try {
+                console.log('Cargando datos de médico/cuidador...');
+                
+                // Cargar Regímenes de Afiliación para la madre
+                const regimenesResponse = await fetch('/RegistroVacunacion/GetRegimenesAfiliacion');
+                if (regimenesResponse.ok) {
+                    const regimenes = await regimenesResponse.json();
+                    populateSelectById('RegimenMadre', regimenes, 'Seleccione régimen');
+                    populateSelectById('RegimenCuidador', regimenes, 'Seleccione régimen');
+                }
+
+                // Cargar Pertenencias Étnicas para la madre y cuidador
+                const pertenenciasResponse = await fetch('/RegistroVacunacion/GetPertenenciasEtnicas');
+                if (pertenenciasResponse.ok) {
+                    const pertenencias = await pertenenciasResponse.json();
+                    populateSelectById('EtniaMadre', pertenencias, 'Seleccione pertenencia étnica');
+                    populateSelectById('EtniaCuidador', pertenencias, 'Seleccione pertenencia étnica');
+                }
+
+                console.log('Datos de médico/cuidador cargados exitosamente');
+            } catch (error) {
+                console.error('Error al cargar datos de médico/cuidador:', error);
+            }
+        }
+
+        // Función para llenar un select por ID con datos
+        function populateSelectById(selectId, data, defaultText) {
+            const select = document.getElementById(selectId);
+            if (select && data && !data.error && Array.isArray(data)) {
+                // Preservar valor actual
+                const currentValue = select.value;
+                
+                // Limpiar opciones existentes excepto la primera
+                while (select.children.length > 1) {
+                    select.removeChild(select.lastChild);
+                }
+                
+                // Actualizar texto de la opción por defecto
+                if (select.children.length > 0) {
+                    select.children[0].textContent = defaultText;
+                }
+
+                // Agregar nuevas opciones
+                data.forEach(item => {
+                    const option = document.createElement('option');
+                    option.value = item.value;
+                    option.textContent = item.text;
+                    
+                    // Mantener la selección si existía
+                    if (item.value == currentValue) {
+                        option.selected = true;
+                    }
+                    
+                    select.appendChild(option);
+                });
+                
+                console.log(`Select ${selectId} poblado con ${data.length} opciones`);
+            } else if (data && data.error) {
+                console.error(`Error al cargar ${selectId}:`, data.error);
+            } else {
+                console.warn(`No se pudo poblar el select ${selectId}:`, { select, data });
+            }
         }
 
         // Hacer las funciones globalmente accesibles
