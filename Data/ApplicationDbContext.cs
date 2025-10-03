@@ -26,6 +26,7 @@ namespace Highdmin.Data
         public DbSet<CentroAtencion> CentrosAtencion { get; set; }
         public DbSet<Insumo> Insumos { get; set; }
         public DbSet<Entrada> Entradas { get; set; }
+        public DbSet<RegistroVacunacion> RegistrosVacunacion { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -167,6 +168,74 @@ namespace Highdmin.Data
                 entity.Property(e => e.Nombre).IsRequired().HasMaxLength(255);
                 entity.Property(e => e.Tipo).HasMaxLength(500);
                 entity.HasIndex(t => t.Codigo).IsUnique();
+            });
+
+            // Configuración de RegistroVacunacion
+            modelBuilder.Entity<RegistroVacunacion>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Consecutivo).IsRequired().HasMaxLength(20);
+                entity.Property(e => e.NombresApellidos).IsRequired().HasMaxLength(255);
+                entity.Property(e => e.TipoDocumento).IsRequired().HasMaxLength(10);
+                entity.Property(e => e.NumeroDocumento).IsRequired().HasMaxLength(20);
+                entity.Property(e => e.Genero).IsRequired().HasMaxLength(10);
+                entity.Property(e => e.Telefono).HasMaxLength(15);
+                entity.Property(e => e.Direccion).HasMaxLength(500);
+                entity.Property(e => e.Vacuna).IsRequired().HasMaxLength(100);
+                entity.Property(e => e.NumeroDosis).IsRequired().HasMaxLength(20);
+                entity.Property(e => e.Lote).HasMaxLength(50);
+                entity.Property(e => e.Laboratorio).HasMaxLength(100);
+                entity.Property(e => e.ViaAdministracion).HasMaxLength(50);
+                entity.Property(e => e.SitioAplicacion).HasMaxLength(50);
+                entity.Property(e => e.Vacunador).HasMaxLength(255);
+                entity.Property(e => e.RegistroProfesional).HasMaxLength(50);
+                entity.Property(e => e.Observaciones).HasMaxLength(1000);
+                entity.Property(e => e.NotasFinales).HasMaxLength(1000);
+
+                // Índices únicos
+                entity.HasIndex(r => r.Consecutivo).IsUnique();
+                entity.HasIndex(r => new { r.TipoDocumento, r.NumeroDocumento });
+
+                // Relaciones opcionales
+                entity.HasOne(r => r.Aseguradora)
+                      .WithMany()
+                      .HasForeignKey(r => r.AseguradoraId)
+                      .OnDelete(DeleteBehavior.SetNull);
+
+                entity.HasOne(r => r.RegimenAfiliacion)
+                      .WithMany()
+                      .HasForeignKey(r => r.RegimenAfiliacionId)
+                      .OnDelete(DeleteBehavior.SetNull);
+
+                entity.HasOne(r => r.PertenenciaEtnica)
+                      .WithMany()
+                      .HasForeignKey(r => r.PertenenciaEtnicaId)
+                      .OnDelete(DeleteBehavior.SetNull);
+
+                entity.HasOne(r => r.CentroAtencion)
+                      .WithMany()
+                      .HasForeignKey(r => r.CentroAtencionId)
+                      .OnDelete(DeleteBehavior.SetNull);
+
+                entity.HasOne(r => r.CondicionUsuaria)
+                      .WithMany()
+                      .HasForeignKey(r => r.CondicionUsuariaId)
+                      .OnDelete(DeleteBehavior.SetNull);
+
+                entity.HasOne(r => r.TipoCarnet)
+                      .WithMany()
+                      .HasForeignKey(r => r.TipoCarnetId)
+                      .OnDelete(DeleteBehavior.SetNull);
+
+                entity.HasOne(r => r.UsuarioCreador)
+                      .WithMany()
+                      .HasForeignKey(r => r.UsuarioCreadorId)
+                      .OnDelete(DeleteBehavior.SetNull);
+
+                entity.HasOne(r => r.UsuarioModificador)
+                      .WithMany()
+                      .HasForeignKey(r => r.UsuarioModificadorId)
+                      .OnDelete(DeleteBehavior.SetNull);
             });
         }
     }

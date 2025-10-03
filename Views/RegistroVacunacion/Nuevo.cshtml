@@ -68,6 +68,9 @@
                             <i class="ri-arrow-left-line me-1"></i> Anterior
                         </button>
                         <div class="ms-auto">
+                            <button type="button" class="btn btn-info me-2" id="debugBtn" onclick="debugStoredData()" title="Ver datos almacenados en consola">
+                                <i class="ri-bug-line me-1"></i> Debug
+                            </button>
                             <button type="button" class="btn btn-primary" id="nextBtn">
                                 Siguiente <i class="ri-arrow-right-line ms-1"></i>
                             </button>
@@ -216,6 +219,22 @@
             background-color: #dc3545;
             color: white;
         }
+        
+        .spinner {
+            animation: spin 1s linear infinite;
+            -webkit-animation: spin 1s linear infinite;
+        }
+        
+        @@keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        @@-webkit-keyframes spin {
+            0% { -webkit-transform: rotate(0deg); }
+            100% { -webkit-transform: rotate(360deg); }
+        }
+        
     </style>
 }
 
@@ -242,19 +261,31 @@
             const stepContainer = document.getElementById('step-container');
             if (!stepContainer) return;
 
+            const currentStepData = {};
             const inputs = stepContainer.querySelectorAll('input, select, textarea');
+            
             inputs.forEach(input => {
-                if (input.type === 'radio' || input.type === 'checkbox') {
-                    if (input.checked) {
-                        formData[input.name] = input.value;
+                const key = input.name || input.id;
+                if (key) {
+                    if (input.type === 'radio' || input.type === 'checkbox') {
+                        if (input.checked) {
+                            currentStepData[key] = input.value;
+                            formData[key] = input.value; // También actualizar formData global
+                        }
+                    } else if (input.value && input.value.trim() !== '') {
+                        currentStepData[key] = input.value;
+                        formData[key] = input.value; // También actualizar formData global
                     }
-                } else {
-                    formData[input.name || input.id] = input.value;
                 }
             });
             
-            // Guardar en localStorage
+            // Guardar datos del paso actual
+            localStorage.setItem(`stepData_${currentStep}`, JSON.stringify(currentStepData));
+            
+            // Guardar formData global actualizado
             localStorage.setItem('vacunacionFormData', JSON.stringify(formData));
+            
+            console.log(`Datos guardados para el paso ${currentStep}:`, currentStepData);
         }
 
         // Función para restaurar los datos del paso actual
@@ -262,14 +293,31 @@
             const stepContainer = document.getElementById('step-container');
             if (!stepContainer) return;
 
+            // Cargar datos del paso específico
+            const stepDataStr = localStorage.getItem(`stepData_${currentStep}`);
+            let stepData = {};
+            
+            if (stepDataStr) {
+                try {
+                    stepData = JSON.parse(stepDataStr);
+                    console.log(`Restaurando datos del paso ${currentStep}:`, stepData);
+                } catch (e) {
+                    console.error(`Error al parsear datos del paso ${currentStep}:`, e);
+                }
+            }
+
             const inputs = stepContainer.querySelectorAll('input, select, textarea');
             inputs.forEach(input => {
                 const key = input.name || input.id;
-                if (formData[key] !== undefined) {
+                
+                // Usar primero datos del paso específico, luego formData global
+                let value = stepData[key] !== undefined ? stepData[key] : formData[key];
+                
+                if (value !== undefined && value !== null && value !== '') {
                     if (input.type === 'radio' || input.type === 'checkbox') {
-                        input.checked = (input.value === formData[key]);
+                        input.checked = (input.value === value);
                     } else {
-                        input.value = formData[key];
+                        input.value = value;
                     }
                 }
             });
@@ -399,10 +447,34 @@
             localStorage.removeItem('vacunacionFormData');
         }
         
+        // Función para mostrar debug de datos almacenados
+        function debugStoredData() {
+            console.log('=== DEBUG DE DATOS ALMACENADOS ===');
+            console.log('Paso actual:', currentStep);
+            
+            for (let step = 1; step <= totalSteps; step++) {
+                const stepData = localStorage.getItem(`stepData_${step}`);
+                if (stepData) {
+                    console.log(`Paso ${step}:`, JSON.parse(stepData));
+                } else {
+                    console.log(`Paso ${step}: Sin datos`);
+                }
+            }
+            
+            const globalData = localStorage.getItem('vacunacionFormData');
+            if (globalData) {
+                console.log('Datos globales:', JSON.parse(globalData));
+            } else {
+                console.log('Datos globales: Sin datos');
+            }
+            console.log('=== FIN DEBUG ===');
+        }
+
         // Hacer las funciones globalmente accesibles
         window.saveCurrentStepData = saveCurrentStepData;
         window.restoreCurrentStepData = restoreCurrentStepData;
         window.clearStoredData = clearStoredData;
+        window.debugStoredData = debugStoredData;
 
         // Define functions first
         async function nextStep() {
@@ -414,6 +486,13 @@
                 // Validar datos básicos
                 if (typeof window.validateDatosBasicos === 'function') {
                     if (!window.validateDatosBasicos()) {
+                        return; // No continuar si la validación falla
+                    }
+                }
+            } else if (currentStep === 6) {
+                // Validar esquema de vacunación
+                if (typeof window.validateEsquemaVacunacion === 'function') {
+                    if (!window.validateEsquemaVacunacion()) {
                         return; // No continuar si la validación falla
                     }
                 }
@@ -907,14 +986,119 @@
                 });
             }
             
-            // Agregar listener al formulario para limpiar datos al enviar
+            // Agregar listener al formulario para manejar el envío
             const form = document.getElementById('vacunacionForm');
             if (form) {
                 form.addEventListener('submit', function(e) {
+                    e.preventDefault(); // Prevenir el envío por defecto
+                    
                     // Guardar los datos del paso final antes de enviar
                     saveCurrentStepData();
-                    // Nota: Los datos se limpiarán después de un envío exitoso
-                    // Esto se puede manejar desde el servidor o con una confirmación
+                    
+                    // Recopilar todos los datos almacenados
+                    const todosLosDatos = {};
+                    let totalCampos = 0;
+                    
+                    // Obtener datos de todos los pasos
+                    for (let step = 1; step <= totalSteps; step++) {
+                        const stepData = localStorage.getItem(`stepData_${step}`);
+                        console.log(`Datos del paso ${step}:`, stepData);
+                        if (stepData) {
+                            try {
+                                const parsedData = JSON.parse(stepData);
+                                Object.assign(todosLosDatos, parsedData);
+                                totalCampos += Object.keys(parsedData).length;
+                            } catch (e) {
+                                console.error(`Error al parsear datos del paso ${step}:`, e);
+                            }
+                        }
+                    }
+                    
+                    // También obtener datos directamente del formulario actual
+                    const currentForm = document.getElementById('vacunacionForm');
+                    if (currentForm) {
+                        const currentFormData = new FormData(currentForm);
+                        for (let [key, value] of currentFormData.entries()) {
+                            if (value && value.trim() !== '') {
+                                todosLosDatos[key] = value;
+                                totalCampos++;
+                            }
+                        }
+                    }
+                    
+                    // También obtener del objeto formData global
+                    if (formData && typeof formData === 'object') {
+                        Object.keys(formData).forEach(key => {
+                            if (formData[key] && formData[key].toString().trim() !== '') {
+                                todosLosDatos[key] = formData[key];
+                                totalCampos++;
+                            }
+                        });
+                    }
+                    
+                    console.log('Total de campos recopilados:', totalCampos);
+                    console.log('Enviando datos completos:', todosLosDatos);
+                    
+                    // Validar que hay datos para enviar
+                    if (Object.keys(todosLosDatos).length === 0) {
+                        alert('No hay datos para guardar. Por favor complete al menos algunos campos.');
+                        return;
+                    }
+                    
+                    // Crear FormData con todos los datos
+                    const finalFormData = new FormData();
+                    let camposEnviados = 0;
+                    
+                    for (const [key, value] of Object.entries(todosLosDatos)) {
+                        if (value !== null && value !== undefined && value !== '') {
+                            finalFormData.append(key, value);
+                            camposEnviados++;
+                        }
+                    }
+                    
+                    console.log(`Enviando ${camposEnviados} campos al servidor`);
+                    
+                    // Log de todos los campos que se van a enviar
+                    for (let [key, value] of finalFormData.entries()) {
+                        console.log(`${key}: ${value}`);
+                    }
+                    
+                    // Mostrar indicador de carga
+                    const submitBtn = document.getElementById('submitBtn');
+                    if (submitBtn) {
+                        submitBtn.disabled = true;
+                        submitBtn.innerHTML = '<i class="ri-loader-2-line spinner me-1"></i> Guardando...';
+                    }
+                    
+                    // Enviar datos al servidor
+                    fetch('/RegistroVacunacion/GuardarRegistroCompleto', {
+                        method: 'POST',
+                        body: finalFormData
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            // Limpiar datos almacenados
+                            clearStoredData();
+                            
+                            // Mostrar mensaje de éxito y redirigir
+                            alert('Registro guardado exitosamente');
+                            window.location.href = '/RegistroVacunacion/Index';
+                        } else {
+                            alert('Error al guardar: ' + data.message);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('Error al enviar los datos: ' + error.message);
+                    })
+                    .finally(() => {
+                        // Restaurar botón
+                        if (submitBtn) {
+                            submitBtn.disabled = false;
+                            submitBtn.innerHTML = '<i class="ri-save-line me-1"></i> Guardar Registro';
+                        }
+                    });
                 });
             }
         });

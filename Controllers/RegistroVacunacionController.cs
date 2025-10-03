@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Highdmin.Data;
 using Highdmin.ViewModels;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Data.SqlClient;
 
 namespace Highdmin.Controllers
 {
@@ -37,15 +38,266 @@ namespace Highdmin.Controllers
         [HttpPost]
         public async Task<IActionResult> Nuevo(RegistroVacunacionItemViewModel modelo)
         {
+            // Lógica temporal - solo mostrar que se recibieron los datos
             if (ModelState.IsValid)
             {
-                // Aquí implementarías la lógica para guardar el registro
-                // Por ahora solo redirigimos
-                TempData["Success"] = "Registro de vacunación creado exitosamente";
+                TempData["Success"] = "Registro recibido correctamente - implementar lógica de guardado";
                 return RedirectToAction(nameof(Index));
             }
 
             return View(modelo);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> GuardarRegistroCompleto()
+        {
+            try
+            {
+                // Log inicial para debugging
+                System.Diagnostics.Debug.WriteLine("=== INICIO GuardarRegistroCompleto ===");
+                
+                // Obtener todos los datos del formulario paso a paso desde el Request
+                var form = Request.Form;
+                System.Diagnostics.Debug.WriteLine($"Form.Count: {form.Count}");
+                
+                if (!form.Any())
+                {
+                    System.Diagnostics.Debug.WriteLine("No se encontraron datos en el formulario");
+                    return Json(new { 
+                        success = false, 
+                        message = "No se recibieron datos del formulario"
+                    });
+                }
+
+                // Helper para extraer valores de forma segura
+                string GetFormValue(string key) 
+                {
+                    return form.ContainsKey(key) ? form[key].ToString().Trim() : string.Empty;
+                }
+                
+                int? GetFormInt(string key) 
+                {
+                    var value = GetFormValue(key);
+                    return int.TryParse(value, out int result) && result > 0 ? result : null;
+                }
+                
+                DateTime? GetFormDate(string key) 
+                {
+                    var value = GetFormValue(key);
+                    return DateTime.TryParse(value, out DateTime result) ? result : null;
+                }
+
+                // Log de todos los datos recibidos para debugging
+                var todosLosCampos = new Dictionary<string, string>();
+                foreach (var key in form.Keys)
+                {
+                    var valor = form[key].ToString();
+                    todosLosCampos[key] = valor;
+                    System.Diagnostics.Debug.WriteLine($"Campo recibido: {key} = {valor}");
+                }
+
+                // Crear el registro mapeando correctamente los campos del formulario
+                var primerNombre = GetFormValue("PrimerNombre");
+                var segundoNombre = GetFormValue("SegundoNombre");
+                var primerApellido = GetFormValue("PrimerApellido");
+                var segundoApellido = GetFormValue("SegundoApellido");
+                
+                // Construir nombre completo
+                var nombresCompletos = $"{primerNombre} {segundoNombre}".Trim();
+                var apellidosCompletos = $"{primerApellido} {segundoApellido}".Trim();
+                var nombreCompleto = $"{nombresCompletos} {apellidosCompletos}".Trim();
+                
+                var registro = new
+                {
+                    // Generar consecutivo automático
+                    Consecutivo = await GenerarConsecutivoAsync(),
+                    
+                    // Datos básicos del paciente (mapear desde los campos reales del formulario)
+                    NombresApellidos = nombreCompleto,
+                    TipoDocumento = GetFormValue("TipoDocumento"),
+                    NumeroDocumento = GetFormValue("Documento"),
+                    FechaNacimiento = GetFormDate("FechaNacimiento") ?? DateTime.Now.AddYears(-20),
+                    Genero = GetFormValue("Genero"),
+                    Telefono = GetFormValue("Telefono"),
+                    Direccion = GetFormValue("Direccion"),
+                    
+                    // Datos de afiliación (usar nombres exactos de los campos del formulario)
+                    AseguradoraId = GetFormInt("AseguradoraId"),
+                    RegimenAfiliacionId = GetFormInt("RegimenAfiliacionId"),
+                    PertenenciaEtnicaId = GetFormInt("PertenenciaEtnicaId"),
+                    
+                    // Datos de atención
+                    CentroAtencionId = GetFormInt("CentroAtencionId"),
+                    CondicionUsuariaId = GetFormInt("CondicionUsuariaId"),
+                    TipoCarnetId = GetFormInt("TipoCarnetId"),
+                    
+                    // Datos de la vacuna (mapear desde los campos correctos del formulario)
+                    Vacuna = GetFormValue("VacunaSeleccionada") ?? GetFormValue("Vacuna") ?? GetFormValue("TipoVacuna"),
+                    NumeroDosis = GetFormValue("NumeroDosis") ?? GetFormValue("Dosis"),
+                    FechaAplicacion = GetFormDate("FechaAplicacion") ?? GetFormDate("FechaRegistro") ?? DateTime.Now,
+                    Lote = GetFormValue("LoteVacuna") ?? GetFormValue("Lote"),
+                    Laboratorio = GetFormValue("Laboratorio"),
+                    ViaAdministracion = GetFormValue("ViaAdministracion"),
+                    SitioAplicacion = GetFormValue("SitioAplicacion"),
+                    
+                    // Datos del responsable
+                    Vacunador = GetFormValue("Vacunador"),
+                    RegistroProfesional = GetFormValue("RegistroProfesional"),
+                    
+                    // Observaciones (mapear desde diferentes posibles campos)
+                    Observaciones = GetFormValue("ObservacionesVacuna") ?? GetFormValue("Observaciones"),
+                    NotasFinales = GetFormValue("NotasFinales"),
+                    
+                    // Campos de auditoría
+                    Estado = true,
+                    FechaCreacion = DateTime.Now
+                };
+
+                // Validar campos obligatorios antes de insertar
+                var errores = new List<string>();
+                var debug = new List<string>();
+                
+                // Validar y debuggear cada campo obligatorio
+                if (string.IsNullOrWhiteSpace(registro.NombresApellidos))
+                {
+                    errores.Add("Nombres y Apellidos");
+                    debug.Add($"NombresApellidos vacío. PrimerNombre={primerNombre}, SegundoNombre={segundoNombre}, PrimerApellido={primerApellido}, SegundoApellido={segundoApellido}");
+                }
+                if (string.IsNullOrWhiteSpace(registro.TipoDocumento))
+                {
+                    errores.Add("Tipo de Documento");
+                    debug.Add($"TipoDocumento vacío. Valor recibido: '{registro.TipoDocumento}'");
+                }
+                if (string.IsNullOrWhiteSpace(registro.NumeroDocumento))
+                {
+                    errores.Add("Número de Documento");
+                    debug.Add($"NumeroDocumento vacío. Valor recibido: '{registro.NumeroDocumento}'");
+                }
+                if (string.IsNullOrWhiteSpace(registro.Genero))
+                {
+                    errores.Add("Género");
+                    debug.Add($"Genero vacío. Valor recibido: '{registro.Genero}'");
+                }
+                if (string.IsNullOrWhiteSpace(registro.Vacuna))
+                {
+                    errores.Add("Vacuna");
+                    debug.Add($"Vacuna vacía. VacunaSeleccionada='{GetFormValue("VacunaSeleccionada")}', Vacuna='{GetFormValue("Vacuna")}', TipoVacuna='{GetFormValue("TipoVacuna")}'");
+                }
+                if (string.IsNullOrWhiteSpace(registro.NumeroDosis))
+                {
+                    errores.Add("Número de Dosis");
+                    debug.Add($"NumeroDosis vacío. Valor recibido: '{registro.NumeroDosis}'");
+                }
+
+                if (errores.Any())
+                {
+                    var debugInfo = string.Join("; ", debug);
+                    System.Diagnostics.Debug.WriteLine($"Validación fallida: {debugInfo}");
+                    
+                    return Json(new { 
+                        success = false, 
+                        message = $"Campos obligatorios faltantes: {string.Join(", ", errores)}",
+                        debug = debugInfo,
+                        camposRecibidos = todosLosCampos.Keys.ToArray()
+                    });
+                }
+
+                // Usar SqlParameter para evitar problemas con DBNull
+                var parameters = new[]
+                {
+                    new SqlParameter("@Consecutivo", registro.Consecutivo ?? ""),
+                    new SqlParameter("@NombresApellidos", registro.NombresApellidos ?? ""),
+                    new SqlParameter("@TipoDocumento", registro.TipoDocumento ?? ""),
+                    new SqlParameter("@NumeroDocumento", registro.NumeroDocumento ?? ""),
+                    new SqlParameter("@FechaNacimiento", registro.FechaNacimiento),
+                    new SqlParameter("@Genero", registro.Genero ?? ""),
+                    new SqlParameter("@Telefono", (object?)registro.Telefono ?? DBNull.Value),
+                    new SqlParameter("@Direccion", (object?)registro.Direccion ?? DBNull.Value),
+                    new SqlParameter("@AseguradoraId", (object?)registro.AseguradoraId ?? DBNull.Value),
+                    new SqlParameter("@RegimenAfiliacionId", (object?)registro.RegimenAfiliacionId ?? DBNull.Value),
+                    new SqlParameter("@PertenenciaEtnicaId", (object?)registro.PertenenciaEtnicaId ?? DBNull.Value),
+                    new SqlParameter("@CentroAtencionId", (object?)registro.CentroAtencionId ?? DBNull.Value),
+                    new SqlParameter("@CondicionUsuariaId", (object?)registro.CondicionUsuariaId ?? DBNull.Value),
+                    new SqlParameter("@TipoCarnetId", (object?)registro.TipoCarnetId ?? DBNull.Value),
+                    new SqlParameter("@Vacuna", registro.Vacuna ?? ""),
+                    new SqlParameter("@NumeroDosis", registro.NumeroDosis ?? ""),
+                    new SqlParameter("@FechaAplicacion", registro.FechaAplicacion),
+                    new SqlParameter("@Lote", (object?)registro.Lote ?? DBNull.Value),
+                    new SqlParameter("@Laboratorio", (object?)registro.Laboratorio ?? DBNull.Value),
+                    new SqlParameter("@ViaAdministracion", (object?)registro.ViaAdministracion ?? DBNull.Value),
+                    new SqlParameter("@SitioAplicacion", (object?)registro.SitioAplicacion ?? DBNull.Value),
+                    new SqlParameter("@Vacunador", (object?)registro.Vacunador ?? DBNull.Value),
+                    new SqlParameter("@RegistroProfesional", (object?)registro.RegistroProfesional ?? DBNull.Value),
+                    new SqlParameter("@Observaciones", (object?)registro.Observaciones ?? DBNull.Value),
+                    new SqlParameter("@NotasFinales", (object?)registro.NotasFinales ?? DBNull.Value),
+                    new SqlParameter("@Estado", registro.Estado),
+                    new SqlParameter("@FechaCreacion", registro.FechaCreacion)
+                };
+
+                var sql = @"
+                    INSERT INTO RegistroVacunacion 
+                    (Consecutivo, NombresApellidos, TipoDocumento, NumeroDocumento, FechaNacimiento, Genero, 
+                     Telefono, Direccion, AseguradoraId, RegimenAfiliacionId, PertenenciaEtnicaId, 
+                     CentroAtencionId, CondicionUsuariaId, TipoCarnetId, Vacuna, NumeroDosis, FechaAplicacion, 
+                     Lote, Laboratorio, ViaAdministracion, SitioAplicacion, Vacunador, RegistroProfesional, 
+                     Observaciones, NotasFinales, Estado, FechaCreacion)
+                    VALUES 
+                    (@Consecutivo, @NombresApellidos, @TipoDocumento, @NumeroDocumento, @FechaNacimiento, @Genero,
+                     @Telefono, @Direccion, @AseguradoraId, @RegimenAfiliacionId, @PertenenciaEtnicaId,
+                     @CentroAtencionId, @CondicionUsuariaId, @TipoCarnetId, @Vacuna, @NumeroDosis, @FechaAplicacion,
+                     @Lote, @Laboratorio, @ViaAdministracion, @SitioAplicacion, @Vacunador, @RegistroProfesional,
+                     @Observaciones, @NotasFinales, @Estado, @FechaCreacion)";
+
+                // Ejecutar el INSERT con parámetros nombrados
+                var result = await _context.Database.ExecuteSqlRawAsync(sql, parameters);
+
+                System.Diagnostics.Debug.WriteLine($"Registro guardado con consecutivo: {registro.Consecutivo}");
+                System.Diagnostics.Debug.WriteLine("=== FIN GuardarRegistroCompleto ===");
+
+                return Json(new { 
+                    success = true, 
+                    message = "Registro de vacunación guardado exitosamente en la base de datos",
+                    consecutivo = registro.Consecutivo,
+                    datosGuardados = form.Count
+                });
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error en GuardarRegistroCompleto: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"StackTrace: {ex.StackTrace}");
+                
+                return Json(new { 
+                    success = false, 
+                    message = "Error al guardar el registro: " + ex.Message,
+                    details = ex.InnerException?.Message
+                });
+            }
+        }
+
+        // Método auxiliar para generar consecutivo
+        private async Task<string> GenerarConsecutivoAsync()
+        {
+            try
+            {
+                // Usar una consulta SQL directa para obtener el último ID
+                var sql = "SELECT TOP 1 Id FROM RegistroVacunacion ORDER BY Id DESC";
+                using (var command = _context.Database.GetDbConnection().CreateCommand())
+                {
+                    command.CommandText = sql;
+                    await _context.Database.OpenConnectionAsync();
+                    var result = await command.ExecuteScalarAsync();
+                    await _context.Database.CloseConnectionAsync();
+                    
+                    var ultimoId = result != null ? Convert.ToInt32(result) : 0;
+                    var siguienteNumero = ultimoId + 1;
+                    return $"VAC-{DateTime.Now.Year}-{siguienteNumero:D6}";
+                }
+            }
+            catch
+            {
+                // Si hay error o no hay registros, empezar desde 1
+                return $"VAC-{DateTime.Now.Year}-{1:D6}";
+            }
         }
 
         [HttpGet]

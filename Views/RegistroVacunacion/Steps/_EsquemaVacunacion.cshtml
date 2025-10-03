@@ -3,10 +3,39 @@
 <div class="card border-0">
     <div class="card-header bg-primary text-white">
         <h6 class="mb-0 text-white">
-            <i class="ri-vaccine-line me-1"></i> Esquema de Vacunación
+            <i class="ri-vaccine-line me-1"></i> Esquema        function mostrarOcultarDetasetInterval(function() {
+         // Observer simple como respaldo
+        let lastValue = vacunaSelect.value;
+        setInterval(function() {
+            if (vacunaSelect.value !== lastValue) {
+                console.log('🔍 OBSERVER DETECTÓ CAMBIO:', lastValue, '→', vacunaSelect.value);
+                lastValue = vacunaSelect.value;
+                mostrarOcultarDetalles();
+            }
+        }, 100);  if (vacunaSelect.value !== lastValue) {
+                console.log('🔍 OBSERVER DETECTÓ CAMBIO:', lastValue, '→', vacunaSelect.value);
+                lastValue = vacunaSelect.value;
+                mostrarOcultarDetalles();
+            }
+        }, 100);         const valor = vacunaSelect.value;
+            console.log('Verificando valor:', valor);
+            
+            if (valor && valor !== '') {
+                // Usar la misma técnica del SUPER TEST que sabemos que funciona
+                detallesVacuna.style.display = 'block';
+                detallesVacuna.style.visibility = 'visible';
+                detallesVacuna.style.setProperty('display', 'block', 'important');
+                console.log('✅ Detalles mostrados');
+            } else {
+                detallesVacuna.style.setProperty('display', 'none', 'important');
+                console.log('❌ Detalles ocultados');
+            }
+        }n
         </h6>
     </div>
     <div class="card-body">
+
+
         <!-- Tipo de carnét -->
         <div class="row">
             <div class="col-md-12">
@@ -35,8 +64,8 @@
                 <div class="row">
                     <div class="col-md-12">
                         <div class="mb-3">
-                            <label class="form-label">Seleccionar Vacuna</label>
-                            <select class="form-select" name="VacunaSeleccionada" id="vacunaSeleccionada">
+                            <label class="form-label">Seleccionar Vacunas <span class="text-danger">*</span></label>
+                            <select class="form-select" name="VacunaSeleccionada" id="VacunaSeleccionada" required onchange="document.getElementById('detallesVacuna').style.display = this.value ? 'block' : 'none'">
                                 <option value="">Seleccione la vacuna aplicada</option>
                                 <optgroup label="Vacunas del PAI">
                                     <option value="BCG">BCG (Bacilo de Calmette y Guérin)</option>
@@ -74,11 +103,15 @@
 
                 <!-- Campos adicionales que aparecen al seleccionar una vacuna -->
                 <div id="detallesVacuna" style="display: none;">
+                    <div class="alert alert-info">
+                        <i class="ri-information-line me-1"></i>
+                        <strong>Información de la Vacuna:</strong> Complete los siguientes datos de la vacuna seleccionada.
+                    </div>
                     <div class="row">
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label class="form-label">Número de dosis</label>
-                                <select class="form-select" name="NumeroDosis">
+                                <label class="form-label">Número de dosis <span class="text-danger">*</span></label>
+                                <select class="form-select" name="NumeroDosis" required>
                                     <option value="">Seleccione...</option>
                                     <option value="1">Primera dosis</option>
                                     <option value="2">Segunda dosis</option>
@@ -91,8 +124,8 @@
                         </div>
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label class="form-label">Fecha de aplicación</label>
-                                <input type="date" class="form-control" name="FechaAplicacion">
+                                <label class="form-label">Fecha de aplicación <span class="text-danger">*</span></label>
+                                <input type="date" class="form-control" name="FechaAplicacion" required>
                             </div>
                         </div>
                         <div class="col-md-6">
@@ -143,7 +176,7 @@
                     </div>
 
                     <div class="d-flex justify-content-end">
-                        <button type="button" class="btn btn-primary" onclick="agregarVacuna()">
+                        <button type="button" class="btn btn-primary" onclick="agregarVacuna()" id="btnAgregarVacuna">
                             <i class="ri-add-line me-1"></i> Agregar Vacuna
                         </button>
                     </div>
@@ -178,25 +211,275 @@
 </div>
 
 <script>
-document.getElementById('vacunaSeleccionada').addEventListener('change', function() {
+// SOLUCIÓN DIRECTA CON JAVASCRIPT NATIVO - Más confiable
+function configurarEventosVacuna() {
+    console.log('🚀 CONFIGURANDO EVENTOS DE VACUNA...');
+    
+    const vacunaSelect = document.getElementById('VacunaSeleccionada');
     const detallesVacuna = document.getElementById('detallesVacuna');
-    if (this.value) {
-        detallesVacuna.style.display = 'block';
+    
+    console.log('📋 Elementos encontrados:');
+    console.log('  - vacunaSelect:', vacunaSelect);
+    console.log('  - detallesVacuna:', detallesVacuna);
+    
+    if (vacunaSelect && detallesVacuna) {
+        console.log('✅ ELEMENTOS ENCONTRADOS - Configurando eventos...');
+        
+        // Función principal para mostrar/ocultar
+        function toggleDetalles() {
+            const valor = vacunaSelect.value;
+            console.log('🎯 EVENTO CHANGE - Valor seleccionado:', valor);
+            
+            if (valor && valor.trim() !== '') {
+                console.log('✅ MOSTRANDO detalles para:', valor);
+                detallesVacuna.style.display = 'block';
+                detallesVacuna.style.visibility = 'visible';
+                detallesVacuna.classList.remove('d-none');
+                
+                // Forzar el display
+                detallesVacuna.removeAttribute('hidden');
+                detallesVacuna.style.setProperty('display', 'block', 'important');
+                
+                console.log('📊 Estado final display:', window.getComputedStyle(detallesVacuna).display);
+            } else {
+                console.log('❌ OCULTANDO detalles');
+                detallesVacuna.style.display = 'none';
+                detallesVacuna.style.visibility = 'hidden';
+                detallesVacuna.classList.add('d-none');
+            }
+        }
+        
+        // Limpiar cualquier event listener previo
+        vacunaSelect.onchange = null;
+        vacunaSelect.oninput = null;
+        
+        // Asignar eventos múltiples
+        vacunaSelect.addEventListener('change', toggleDetalles);
+        vacunaSelect.addEventListener('input', toggleDetalles);
+        vacunaSelect.onchange = toggleDetalles;
+        
+        // Observer como respaldo MEJORADO
+        let ultimoValor = vacunaSelect.value;
+        setInterval(function() {
+            if (vacunaSelect.value !== ultimoValor) {
+                console.log('🔍 OBSERVER: Cambio detectado', ultimoValor, '→', vacunaSelect.value);
+                ultimoValor = vacunaSelect.value;
+                toggleDetalles();
+            }
+        }, 50); // Más frecuente
+        
+        // Verificar estado inicial
+        if (vacunaSelect.value && vacunaSelect.value.trim() !== '') {
+            console.log('� ESTADO INICIAL - Valor preseleccionado:', vacunaSelect.value);
+            toggleDetalles();
+        }
+        
+        console.log('✅ EVENTOS CONFIGURADOS CORRECTAMENTE');
+        
+        // Función de prueba global
+        window.probarVacunaManual = function(valor) {
+            vacunaSelect.value = valor || 'BCG';
+            toggleDetalles();
+            console.log('🎯 PRUEBA MANUAL EJECUTADA');
+        };
+        
     } else {
-        detallesVacuna.style.display = 'none';
+        console.error('❌ ERROR: No se encontraron los elementos necesarios');
+        console.log('Buscando elementos alternativos...');
+        
+        // Buscar por otros selectores
+        const alternativo1 = document.querySelector('select[name="VacunaSeleccionada"]');
+        const alternativo2 = document.querySelector('#detallesVacuna');
+        
+        console.log('Elementos alternativos:');
+        console.log('  - Por name:', alternativo1);
+        console.log('  - Por ID detalles:', alternativo2);
     }
-});
+}
+
+// Ejecutar inmediatamente y con múltiples estrategias
+configurarEventosVacuna();
+
+// Ejecutar después de un delay
+setTimeout(configurarEventosVacuna, 100);
+setTimeout(configurarEventosVacuna, 500);
+
+// Si hay jQuery disponible, usarlo también
+if (typeof $ !== 'undefined') {
+    $(document).ready(function() {
+        console.log('🔄 RESPALDO JQUERY - Configurando...');
+        setTimeout(configurarEventosVacuna, 100);
+    });
+}
+
+// RESPALDO: Función que inicializa los event listeners (JavaScript nativo)
+function inicializarEventListenersNativo() {
+    console.log('🔄 RESPALDO - Inicializando con JavaScript nativo...');
+    
+    const vacunaSelect = document.getElementById('VacunaSeleccionada');
+    const detallesVacuna = document.getElementById('detallesVacuna');
+    
+    console.log('📋 Elementos encontrados:');
+    console.log('  - vacunaSelect:', vacunaSelect);
+    console.log('  - detallesVacuna:', detallesVacuna);
+    if (vacunaSelect && detallesVacuna) {
+        console.log('✅ ELEMENTOS ENCONTRADOS (Nativo) - Configurando event listeners...');
+        console.log('  - vacunaSelect.id:', vacunaSelect.id);
+        console.log('  - detallesVacuna.id:', detallesVacuna.id);
+        
+        // Función para mostrar/ocultar detalles (ahora global)
+        window.toggleDetallesVacuna = function() {
+            const select = document.getElementById('VacunaSeleccionada');
+            const detalles = document.getElementById('detallesVacuna');
+            
+            if (!select || !detalles) {
+                console.error('No se encontraron los elementos necesarios');
+                return;
+            }
+            
+            const valor = select.value;
+            console.log('Vacuna seleccionada:', valor);
+            
+            if (valor && valor !== '') {
+                detalles.style.setProperty('display', 'block', 'important');
+                detalles.style.setProperty('visibility', 'visible', 'important');
+                console.log('Mostrando detalles de vacuna');
+            } else {
+                detalles.style.setProperty('display', 'none', 'important');
+                console.log('Ocultando detalles de vacuna');
+            }
+        };
+        
+        // Event listener SÚPER SIMPLE
+        function handleVacunaChange() {
+            console.log('� EVENTO DISPARADO - Valor actual:', vacunaSelect.value);
+            
+            if (vacunaSelect.value) {
+                console.log('✅ Hay valor, mostrando detalles...');
+                detallesVacuna.style.display = 'block';
+            } else {
+                console.log('❌ No hay valor, ocultando detalles...');
+                detallesVacuna.style.display = 'none';
+            }
+            
+            console.log('📊 Display final:', detallesVacuna.style.display);
+        }
+        
+        // Función principal para mostrar/ocultar detalles
+        function mostrarOcultarDetalles() {
+            const valor = vacunaSelect.value;
+            console.log('🔍 mostrarOcultarDetalles - Valor:', valor);
+            
+            if (valor && valor !== '') {
+                console.log('✅ MOSTRANDO detalles');
+                detallesVacuna.style.display = 'block';
+                detallesVacuna.classList.remove('d-none');
+            } else {
+                console.log('❌ OCULTANDO detalles');
+                detallesVacuna.style.display = 'none';
+                detallesVacuna.classList.add('d-none');
+            }
+        }
+        
+        // Event listeners múltiples
+        console.log('🔧 Asignando event listeners...');
+        
+        vacunaSelect.onchange = function() {
+            console.log('🎯 ONCHANGE DISPARADO - Valor:', this.value);
+            mostrarOcultarDetalles();
+        };
+        
+        vacunaSelect.addEventListener('change', function() {
+            console.log('🎯 ADDEVENTLISTENER CHANGE - Valor:', this.value);
+            mostrarOcultarDetalles();
+        });
+        
+        vacunaSelect.addEventListener('input', function() {
+            console.log('🎯 ADDEVENTLISTENER INPUT - Valor:', this.value);
+            mostrarOcultarDetalles();
+        });
+        
+        // Observer simple como respaldo
+        let lastValue = vacunaSelect.value;
+        setInterval(function() {
+            if (vacunaSelect.value !== lastValue) {
+                console.log('� OBSERVER DETECTÓ CAMBIO:', lastValue, '→', vacunaSelect.value);
+                lastValue = vacunaSelect.value;
+                handleVacunaChange();
+            }
+        }, 200);
+        
+        // Verificar estado inicial
+        if (vacunaSelect.value) {
+            detallesVacuna.style.setProperty('display', 'block', 'important');
+            console.log('Vacuna preseleccionada, mostrando detalles');
+        }
+        
+    } else {
+        console.error('❌ No se encontraron los elementos necesarios:', {
+            vacunaSelect: !!vacunaSelect,
+            detallesVacuna: !!detallesVacuna,
+            vacunaSelectId: vacunaSelect ? vacunaSelect.id : 'null',
+            detallesVacunaId: detallesVacuna ? detallesVacuna.id : 'null'
+        });
+    }
+    
+    // Verificar elementos del DOM
+    console.log('Elementos DOM cargados correctamente');
+    
+    // Función global para testing manual
+    window.testVacunaToggle = function() {
+        const detalles = document.getElementById('detallesVacuna');
+        const currentDisplay = window.getComputedStyle(detalles).display;
+        console.log('Display actual:', currentDisplay);
+        
+        if (currentDisplay === 'none') {
+            detalles.style.setProperty('display', 'block', 'important');
+            alert('Intentando mostrar detalles');
+        } else {
+            detalles.style.setProperty('display', 'none', 'important');
+            alert('Intentando ocultar detalles');
+        }
+    };
+    
+    // Event listener adicional para el botón
+    const btnAgregar = document.getElementById('btnAgregarVacuna');
+    if (btnAgregar) {
+        btnAgregar.addEventListener('click', function(e) {
+            e.preventDefault();
+            agregarVacuna();
+        });
+    }
+}
+
+console.log('🎯 PASO 6 - ESQUEMA VACUNACIÓN INICIALIZADO');
 
 let contadorVacunas = 0;
 
-function agregarVacuna() {
-    const vacuna = document.querySelector('[name="VacunaSeleccionada"]').value;
-    const vacunaTexto = document.querySelector('[name="VacunaSeleccionada"] option:checked').text;
-    const dosis = document.querySelector('[name="NumeroDosis"]').value;
-    const dosisTexto = document.querySelector('[name="NumeroDosis"] option:checked').text;
-    const fecha = document.querySelector('[name="FechaAplicacion"]').value;
-    const lote = document.querySelector('[name="LoteVacuna"]').value;
-    const laboratorio = document.querySelector('[name="Laboratorio"]').value;
+// Hacer la función global
+window.agregarVacuna = function() {
+    console.log('Agregando vacuna...');
+    
+    try {
+        const vacunaSelect = document.querySelector('[name="VacunaSeleccionada"]');
+        const dosisSelect = document.querySelector('[name="NumeroDosis"]');
+        const fechaInput = document.querySelector('[name="FechaAplicacion"]');
+        const loteInput = document.querySelector('[name="LoteVacuna"]');
+        const laboratorioInput = document.querySelector('[name="Laboratorio"]');
+        
+        if (!vacunaSelect || !dosisSelect || !fechaInput) {
+            console.error('No se encontraron todos los elementos del formulario');
+            alert('Error: No se pudieron encontrar los elementos del formulario');
+            return;
+        }
+    
+    const vacuna = vacunaSelect.value;
+    const vacunaTexto = vacunaSelect.options[vacunaSelect.selectedIndex].text;
+    const dosis = dosisSelect.value;
+    const dosisTexto = dosisSelect.options[dosisSelect.selectedIndex].text;
+    const fecha = fechaInput.value;
+    const lote = loteInput ? loteInput.value : '';
+    const laboratorio = laboratorioInput ? laboratorioInput.value : '';
     
     if (!vacuna || !dosis || !fecha) {
         alert('Por favor complete los campos obligatorios: Vacuna, Dosis y Fecha');
@@ -204,6 +487,11 @@ function agregarVacuna() {
     }
     
     const tablaVacunas = document.getElementById('tablaVacunas');
+    if (!tablaVacunas) {
+        console.error('No se encontró la tabla de vacunas');
+        return;
+    }
+    
     const nuevaFila = document.createElement('tr');
     nuevaFila.innerHTML = `
         <td>${vacunaTexto}</td>
@@ -221,25 +509,57 @@ function agregarVacuna() {
     tablaVacunas.appendChild(nuevaFila);
     
     // Mostrar la tabla de vacunas aplicadas
-    document.getElementById('vacunasAplicadas').style.display = 'block';
+    const vacunasAplicadas = document.getElementById('vacunasAplicadas');
+    if (vacunasAplicadas) {
+        vacunasAplicadas.style.display = 'block';
+    }
     
-    // Limpiar el formulario
-    document.querySelector('[name="VacunaSeleccionada"]').value = '';
-    document.querySelector('[name="NumeroDosis"]').value = '';
-    document.querySelector('[name="FechaAplicacion"]').value = '';
-    document.querySelector('[name="LoteVacuna"]').value = '';
-    document.querySelector('[name="Laboratorio"]').value = '';
-    document.querySelector('[name="ViaAdministracion"]').value = '';
-    document.querySelector('[name="SitioAplicacion"]').value = '';
-    document.querySelector('[name="ObservacionesVacuna"]').value = '';
-    
-    // Ocultar los detalles de vacuna
-    document.getElementById('detallesVacuna').style.display = 'none';
+    // Limpiar el formulario usando jQuery si está disponible
+    if (typeof jQuery !== 'undefined') {
+        console.log('🧹 Limpiando formulario con jQuery...');
+        $('#VacunaSeleccionada').val('').trigger('change');
+        $('[name="NumeroDosis"]').val('');
+        $('[name="FechaAplicacion"]').val('');
+        $('[name="LoteVacuna"]').val('');
+        $('[name="Laboratorio"]').val('');
+        $('[name="ViaAdministracion"]').val('');
+        $('[name="SitioAplicacion"]').val('');
+        $('[name="ObservacionesVacuna"]').val('');
+        
+        // Los detalles se ocultarán automáticamente por el trigger('change')
+    } else {
+        // Fallback JavaScript nativo
+        vacunaSelect.value = '';
+        dosisSelect.value = '';
+        fechaInput.value = '';
+        if (loteInput) loteInput.value = '';
+        if (laboratorioInput) laboratorioInput.value = '';
+        
+        const viaSelect = document.querySelector('[name="ViaAdministracion"]');
+        const sitioSelect = document.querySelector('[name="SitioAplicacion"]');
+        const observacionesTextarea = document.querySelector('[name="ObservacionesVacuna"]');
+        
+        if (viaSelect) viaSelect.value = '';
+        if (sitioSelect) sitioSelect.value = '';
+        if (observacionesTextarea) observacionesTextarea.value = '';
+        
+        // Ocultar los detalles
+        const detallesVacuna = document.getElementById('detallesVacuna');
+        if (detallesVacuna) {
+            detallesVacuna.style.display = 'none';
+        }
+    }
     
     contadorVacunas++;
+    console.log('Vacuna agregada exitosamente, total:', contadorVacunas);
+    
+    } catch (error) {
+        console.error('Error en agregarVacuna:', error);
+        alert('Error al agregar vacuna: ' + error.message);
+    }
 }
 
-function eliminarVacuna(boton) {
+window.eliminarVacuna = function(boton) {
     if (confirm('¿Está seguro de que desea eliminar esta vacuna?')) {
         const fila = boton.closest('tr');
         fila.remove();
@@ -251,4 +571,29 @@ function eliminarVacuna(boton) {
         }
     }
 }
+
+// Función de validación para este paso
+function validateEsquemaVacunacion() {
+    let isValid = true;
+    let errors = [];
+
+    // Validar que al menos hay una vacuna registrada
+    const tablaVacunas = document.getElementById('tablaVacunas');
+    const filasVacunas = tablaVacunas.children.length;
+
+    if (filasVacunas === 0) {
+        isValid = false;
+        errors.push('Debe registrar al menos una vacuna');
+    }
+
+    // Mostrar errores si los hay
+    if (!isValid) {
+        alert('Por favor complete los siguientes campos:\n\n' + errors.join('\n'));
+    }
+
+    return isValid;
+}
+
+// Exponer la función globalmente para el validador de pasos
+window.validateEsquemaVacunacion = validateEsquemaVacunacion;
 </script>
