@@ -50,14 +50,14 @@ namespace Highdmin.ViewModels
         public string NombreCompleto => $"{PrimerNombre} {SegundoNombre} {PrimerApellido} {SegundoApellido}";
 
         [Display(Name = "Edad")]
-        public int Edad => DateTime.Now.Year - FechaNacimiento.Year - 
+        public int Edad => DateTime.Now.Year - FechaNacimiento.Year -
                           (DateTime.Now.DayOfYear < FechaNacimiento.DayOfYear ? 1 : 0);
 
         [Display(Name = "Estado")]
         public bool Estado { get; set; }
 
         [Display(Name = "Fecha de Creación")]
-        public DateTime FechaCreacion { get; set; }
+        public DateTime FechaCreacion { get; set; } 
     }
 
     public class PacienteCreateViewModel
@@ -217,5 +217,7 @@ namespace Highdmin.ViewModels
         [Display(Name = "EPS")]
         [StringLength(100)]
         public string? EpsFilter { get; set; }
+
+        public List<PacienteItemViewModel>? PacientesCargados { get; set; }
     }
 }

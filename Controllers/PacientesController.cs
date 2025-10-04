@@ -8,6 +8,7 @@ using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Spreadsheet;
 using System.Text;
+using System.Globalization; // 👈 ESTA LÍNEA ES LA CLAVE
 
 namespace Highdmin.Controllers
 {
@@ -427,6 +428,67 @@ namespace Highdmin.Controllers
                 return RedirectToAction(nameof(Index));
             }
         }
+
+        [HttpPost]
+        [ActionName("ImportarPlantilla")]
+      public IActionResult ImportarPlantilla(ImportarPacientesViewModel model)
+{
+    if (model.ArchivoExcel == null || model.ArchivoExcel.Length == 0)
+    {
+        ModelState.AddModelError("ArchivoExcel", "Debe seleccionar un archivo Excel válido.");
+        return View(model);
+    }
+
+    try
+    {
+        using var stream = model.ArchivoExcel.OpenReadStream();
+        using var document = SpreadsheetDocument.Open(stream, false);
+        var workbookPart = document.WorkbookPart;
+        var sheet = workbookPart.Workbook.Sheets.GetFirstChild<Sheet>();
+        var worksheetPart = (WorksheetPart)workbookPart.GetPartById(sheet.Id);
+        var sheetData = worksheetPart.Worksheet.GetFirstChild<SheetData>();
+
+        var pacientes = new List<PacienteItemViewModel>();
+
+        // Saltamos la primera fila (encabezados)
+        foreach (var row in sheetData.Elements<Row>().Skip(1))
+        {
+            var cells = row.Elements<Cell>().ToList();
+
+            var paciente = new PacienteItemViewModel
+            {
+                TipoIdentificacion = GetCellValue(workbookPart, cells.ElementAtOrDefault(0)),
+                Identificacion = GetCellValue(workbookPart, cells.ElementAtOrDefault(1)),
+                PrimerNombre = GetCellValue(workbookPart, cells.ElementAtOrDefault(2)),
+                SegundoNombre = GetCellValue(workbookPart, cells.ElementAtOrDefault(3)),
+                PrimerApellido = GetCellValue(workbookPart, cells.ElementAtOrDefault(4)),
+                SegundoApellido = GetCellValue(workbookPart, cells.ElementAtOrDefault(5)),
+                FechaNacimiento = ParseDate(GetCellValue(workbookPart, cells.ElementAtOrDefault(6))) ?? DateTime.MinValue,
+                Sexo = GetCellValue(workbookPart, cells.ElementAtOrDefault(7)),
+                Eps = GetCellValue(workbookPart, cells.ElementAtOrDefault(8))
+            };
+
+            // Si se definió filtro por EPS
+            if (!string.IsNullOrWhiteSpace(model.EpsFilter) &&
+                !paciente.Eps?.Contains(model.EpsFilter, StringComparison.OrdinalIgnoreCase) == true)
+                continue;
+
+            pacientes.Add(paciente);
+        }
+
+        model.PacientesCargados = pacientes;
+
+        TempData["Success"] = $"Se importaron {pacientes.Count} pacientes correctamente.";
+        return View(model);
+    }
+    catch (Exception ex)
+    {
+        _logger.LogError(ex, "Error al importar la plantilla de pacientes");
+        TempData["Error"] = "Error al procesar el archivo Excel.";
+        return View(model);
+    }
+}
+
         private bool PacienteExists(int id)
         {
             return _context.Pacientes.Any(e => e.Id == id);
@@ -439,6 +501,28 @@ namespace Highdmin.Controllers
                 DataType = CellValues.String,
                 CellValue = new CellValue(text)
             };
+        }
+
+        private static string GetCellValue(WorkbookPart workbookPart, Cell cell)
+        {
+            if (cell == null) return string.Empty;
+
+            string value = cell.InnerText;
+            if (cell.DataType != null && cell.DataType.Value == CellValues.SharedString)
+            {
+                var stringTable = workbookPart.SharedStringTablePart.SharedStringTable;
+                value = stringTable.ElementAt(int.Parse(value)).InnerText;
+            }
+            return value.Trim();
+        }
+
+        private static DateTime? ParseDate(string value)
+        {
+            if (DateTime.TryParseExact(value, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out var date))
+                return date;
+            if (DateTime.TryParse(value, out var date2))
+                return date2;
+            return null;
         }
 
         private static string GetExcelColumnName(int columnNumber)
