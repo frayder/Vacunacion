@@ -1,17 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.Cookies;
-using OfficeOpenXml;
-
-// Configurar EPPlus para uso no comercial con manejo de errores para compatibilidad
-try
-{
-    ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
-}
-catch (Exception)
-{
-    // Para EPPlus 8+, puede requerir un enfoque diferente
-    // Ignorar el error por ahora - la aplicación manejará esto por instancia
-}
+  
+// Configurar licencia EPPlus antes de usar ExcelPackage  
 
 var builder = WebApplication.CreateBuilder(args);
 

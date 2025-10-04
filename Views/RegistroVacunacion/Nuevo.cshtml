@@ -285,7 +285,7 @@
             // Guardar formData global actualizado
             localStorage.setItem('vacunacionFormData', JSON.stringify(formData));
             
-            console.log(`Datos guardados para el paso ${currentStep}:`, currentStepData);
+            // Datos guardados exitosamente
         }
 
         // Función para restaurar los datos del paso actual
@@ -300,9 +300,7 @@
             if (stepDataStr) {
                 try {
                     stepData = JSON.parse(stepDataStr);
-                    console.log(`Restaurando datos del paso ${currentStep}:`, stepData);
                 } catch (e) {
-                    console.error(`Error al parsear datos del paso ${currentStep}:`, e);
                 }
             }
 
@@ -333,7 +331,7 @@
                 try {
                     window.loadStepData[`step${currentStep}`]();
                 } catch (error) {
-                    console.error(`Error ejecutando lógica del paso ${currentStep}:`, error);
+                    // Error silenciado intencionalmente
                 }
             }
 
@@ -375,8 +373,6 @@
         // Función para cargar datos de los dropdowns del paso 2
         async function loadDatosComplementarios() {
             try {
-                console.log('Cargando datos complementarios...');
-                
                 // Cargar Aseguradoras
                 const aseguradorasResponse = await fetch('/RegistroVacunacion/GetAseguradoras');
                 if (aseguradorasResponse.ok) {
@@ -405,9 +401,8 @@
                     populateSelect('CentroSalud', centros, 'Sistema Central');
                 }
 
-                console.log('Datos complementarios cargados exitosamente');
             } catch (error) {
-                console.error('Error al cargar datos complementarios:', error);
+                // Error silenciado intencionalmente
             }
         }
 
@@ -432,12 +427,6 @@
                     option.textContent = item.text;
                     select.appendChild(option);
                 });
-                
-                console.log(`Select ${selectName} poblado con ${data.length} opciones`);
-            } else if (data && data.error) {
-                console.error(`Error al cargar ${selectName}:`, data.error);
-            } else {
-                console.warn(`No se pudo poblar el select ${selectName}:`, { select, data });
             }
         }
         
@@ -447,27 +436,10 @@
             localStorage.removeItem('vacunacionFormData');
         }
         
-        // Función para mostrar debug de datos almacenados
+        // Función para obtener datos almacenados
         function debugStoredData() {
-            console.log('=== DEBUG DE DATOS ALMACENADOS ===');
-            console.log('Paso actual:', currentStep);
-            
-            for (let step = 1; step <= totalSteps; step++) {
-                const stepData = localStorage.getItem(`stepData_${step}`);
-                if (stepData) {
-                    console.log(`Paso ${step}:`, JSON.parse(stepData));
-                } else {
-                    console.log(`Paso ${step}: Sin datos`);
-                }
-            }
-            
-            const globalData = localStorage.getItem('vacunacionFormData');
-            if (globalData) {
-                console.log('Datos globales:', JSON.parse(globalData));
-            } else {
-                console.log('Datos globales: Sin datos');
-            }
-            console.log('=== FIN DEBUG ===');
+            // Esta función ha sido deshabilitada intencionalmente
+            return;
         }
 
         // Hacer las funciones globalmente accesibles
@@ -522,7 +494,7 @@
                         updateButtons();
                         updateStepIndicators();
                     } else {
-                        console.error('step-container element not found!');
+                        // Container not found
                     }
                 } catch (error) { 
                     alert('Error al cargar el paso: ' + error.message);
@@ -674,7 +646,7 @@
                 formData.antecedentes.push(antecedente);
                 localStorage.setItem('vacunacionFormData', JSON.stringify(formData));
 
-                console.log('Antecedente agregado:', antecedente);
+                // Antecedente procesado exitosamente
             }
         }
 
@@ -744,29 +716,23 @@
 
         // Función para cargar condiciones usuarias en el paso 4
         function loadCondicionesUsuarias() {
-            console.log('Cargando condiciones usuarias...'); // Debug log
-            
             fetch('@Url.Action("GetCondicionesUsuarias", "RegistroVacunacion")')
                 .then(response => {
-                    console.log('Response status:', response.status); // Debug log
                     if (!response.ok) {
                         throw new Error(`HTTP error! status: ${response.status}`);
                     }
                     return response.json();
                 })
                 .then(data => {
-                    console.log('Data received:', data); // Debug log
                     
                     const select = document.getElementById('condicionUsuariaSelect');
                     if (!select) {
-                        console.error('Select element not found');
                         return;
                     }
                     
                     const currentValue = select.value; // Preservar valor actual
                     
                     if (data.error) {
-                        console.error('Error from server:', data.error);
                         return;
                     }
                     
@@ -787,13 +753,12 @@
                             
                             select.appendChild(option);
                         });
-                        console.log(`Added ${data.length} options to select`); // Debug log
-                    } else {
-                        console.warn('No data received or empty array');
+                        // Options added successfully
+                    }
                     }
                 })
                 .catch(error => {
-                    console.error('Error al cargar condiciones usuarias:', error);
+                    // Error handled silently
                 });
         }
 
@@ -855,11 +820,10 @@
                     select.appendChild(option);
                 });
                 
-                console.log(`Select ${selectId} poblado con ${data.length} opciones`);
+                // Select populated successfully
             } else if (data && data.error) {
-                console.error(`Error al cargar ${selectId}:`, data.error);
-            } else {
-                console.warn(`No se pudo poblar el select ${selectId}:`, { select, data });
+                // Error handled silently
+            }
             }
         }
 

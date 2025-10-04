@@ -213,25 +213,15 @@
 <script>
 // SOLUCIÓN DIRECTA CON JAVASCRIPT NATIVO - Más confiable
 function configurarEventosVacuna() {
-    console.log('🚀 CONFIGURANDO EVENTOS DE VACUNA...');
-    
     const vacunaSelect = document.getElementById('VacunaSeleccionada');
     const detallesVacuna = document.getElementById('detallesVacuna');
     
-    console.log('📋 Elementos encontrados:');
-    console.log('  - vacunaSelect:', vacunaSelect);
-    console.log('  - detallesVacuna:', detallesVacuna);
-    
     if (vacunaSelect && detallesVacuna) {
-        console.log('✅ ELEMENTOS ENCONTRADOS - Configurando eventos...');
-        
         // Función principal para mostrar/ocultar
         function toggleDetalles() {
             const valor = vacunaSelect.value;
-            console.log('🎯 EVENTO CHANGE - Valor seleccionado:', valor);
             
             if (valor && valor.trim() !== '') {
-                console.log('✅ MOSTRANDO detalles para:', valor);
                 detallesVacuna.style.display = 'block';
                 detallesVacuna.style.visibility = 'visible';
                 detallesVacuna.classList.remove('d-none');
@@ -239,10 +229,7 @@ function configurarEventosVacuna() {
                 // Forzar el display
                 detallesVacuna.removeAttribute('hidden');
                 detallesVacuna.style.setProperty('display', 'block', 'important');
-                
-                console.log('📊 Estado final display:', window.getComputedStyle(detallesVacuna).display);
             } else {
-                console.log('❌ OCULTANDO detalles');
                 detallesVacuna.style.display = 'none';
                 detallesVacuna.style.visibility = 'hidden';
                 detallesVacuna.classList.add('d-none');
@@ -262,7 +249,6 @@ function configurarEventosVacuna() {
         let ultimoValor = vacunaSelect.value;
         setInterval(function() {
             if (vacunaSelect.value !== ultimoValor) {
-                console.log('🔍 OBSERVER: Cambio detectado', ultimoValor, '→', vacunaSelect.value);
                 ultimoValor = vacunaSelect.value;
                 toggleDetalles();
             }
@@ -270,30 +256,19 @@ function configurarEventosVacuna() {
         
         // Verificar estado inicial
         if (vacunaSelect.value && vacunaSelect.value.trim() !== '') {
-            console.log('� ESTADO INICIAL - Valor preseleccionado:', vacunaSelect.value);
             toggleDetalles();
         }
-        
-        console.log('✅ EVENTOS CONFIGURADOS CORRECTAMENTE');
         
         // Función de prueba global
         window.probarVacunaManual = function(valor) {
             vacunaSelect.value = valor || 'BCG';
             toggleDetalles();
-            console.log('🎯 PRUEBA MANUAL EJECUTADA');
         };
         
     } else {
-        console.error('❌ ERROR: No se encontraron los elementos necesarios');
-        console.log('Buscando elementos alternativos...');
-        
-        // Buscar por otros selectores
+        // Buscar por otros selectores como respaldo
         const alternativo1 = document.querySelector('select[name="VacunaSeleccionada"]');
         const alternativo2 = document.querySelector('#detallesVacuna');
-        
-        console.log('Elementos alternativos:');
-        console.log('  - Por name:', alternativo1);
-        console.log('  - Por ID detalles:', alternativo2);
     }
 }
 
