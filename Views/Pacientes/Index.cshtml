@@ -1,0 +1,328 @@
+@model PacienteViewModel
+@{
+    ViewData["Title"] = "Base de Datos de Pacientes";
+    Layout = "~/Views/Shared/_VerticalLayout.cshtml";
+}
+
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h4 class="page-title mb-0">Base de Datos de Pacientes</h4>
+            <p class="text-muted mb-0">Administre las bases de datos de pacientes por EPS</p>
+        </div>
+        <div>
+            <a href="@Url.Action("DescargarPlantilla")" class="btn btn-outline-primary me-2">
+                <i class="ri-download-line me-1"></i> Descargar Plantilla
+            </a>
+            <a href="@Url.Action("ImportarPlantilla")" class="btn btn-primary">
+                <i class="ri-upload-line me-1"></i> Cargar Base de Datos
+            </a>
+        </div>
+    </div>
+
+    <!-- Estadísticas -->
+    <div class="row mb-4">
+        <div class="col-xl-4 col-md-6">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <div class="avatar-sm rounded-circle bg-primary-subtle d-flex align-items-center justify-content-center">
+                                <i class="ri-user-line text-primary fs-18"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h4 class="mb-0 text-primary">@Model.TotalPacientes</h4>
+                            <p class="text-muted mb-0">Total Pacientes</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-4 col-md-6">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <div class="avatar-sm rounded-circle bg-success-subtle d-flex align-items-center justify-content-center">
+                                <i class="ri-file-list-line text-success fs-18"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h4 class="mb-0 text-success">@Model.PacientesConDatos</h4>
+                            <p class="text-muted mb-0">EPS con Datos</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-4 col-md-6">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <div class="avatar-sm rounded-circle bg-info-subtle d-flex align-items-center justify-content-center">
+                                <i class="ri-upload-cloud-line text-info fs-18"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h4 class="mb-0 text-info">@Model.CargasRealizadas</h4>
+                            <p class="text-muted mb-0">Cargas Realizadas</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Historial de Cargas -->
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-transparent">
+            <div class="d-flex align-items-center">
+                <i class="ri-history-line me-2"></i>
+                <h6 class="mb-0">Historial de Cargas</h6>
+            </div>
+        </div>
+        <div class="card-body">
+            @if (Model.HistorialCargas.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>EPS</th>
+                                <th>Archivo</th>
+                                <th>Fecha de Carga</th>
+                                <th>Registros</th>
+                                <th>Estado</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var carga in Model.HistorialCargas)
+                            {
+                                <tr>
+                                    <td>@carga.Eps</td>
+                                    <td>@carga.Archivo</td>
+                                    <td>@carga.FechaCarga.ToString("dd/MM/yyyy HH:mm")</td>
+                                    <td>@carga.Registros</td>
+                                    <td>
+                                        <span class="badge bg-@(carga.Estado == "Exitoso" ? "success" : "warning")">
+                                            @carga.Estado
+                                        </span>
+                                    </td>
+                                    <td>@carga.Acciones</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="text-center py-5">
+                    <i class="ri-file-list-line fs-48 text-muted"></i>
+                    <p class="text-muted mt-2 mb-0">No hay cargas de datos registradas</p>
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- Pacientes Registrados -->
+    <div class="card border-0 shadow-sm">
+        <div class="card-header bg-transparent">
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="d-flex align-items-center">
+                    <i class="ri-user-3-line me-2"></i>
+                    <h6 class="mb-0">Pacientes Registrados</h6>
+                </div>
+                <div class="d-flex align-items-center">
+                    <!-- Filtro por EPS -->
+                    <div class="me-3">
+                        <select class="form-select form-select-sm" style="width: 200px;" id="epsFilter">
+                            <option value="">Filtrar por EPS</option>
+                            @foreach (var eps in Model.Pacientes.Select(p => p.Eps).Distinct().OrderBy(e => e))
+                            {
+                                <option value="@eps">@eps</option>
+                            }
+                        </select>
+                    </div>
+                    <!-- Buscador -->
+                    <div class="input-group" style="width: 300px;">
+                        <input type="text" class="form-control form-control-sm" 
+                               placeholder="Buscar por ID o nombre..." id="searchInput">
+                        <button class="btn btn-outline-secondary btn-sm" type="button" id="searchButton">
+                            <i class="ri-search-line"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            @if (Model.Pacientes.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover" id="pacientesTable">
+                        <thead class="table-light">
+                            <tr>
+                                <th>EPS</th>
+                                <th>Identificación</th>
+                                <th>Nombre Completo</th> 
+                                <th>Fecha Nacimiento</th>
+                                <th>Sexo</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var paciente in Model.Pacientes)
+                            {
+                                <tr>
+                                    <td>@paciente.Eps</td>
+                                    <td>@paciente.Identificacion</td>
+                                    <td>@paciente.NombreCompleto</td> 
+                                    <td>@paciente.FechaNacimiento.ToString("dd/MM/yyyy")</td>
+                                    <td>@paciente.Sexo</td>
+                                    <td>
+                                        <div class="btn-group" role="group">
+                                            <a href="@Url.Action("Details", new { id = paciente.Id })" 
+                                               class="btn btn-sm btn-outline-info" title="Ver detalles">
+                                                <i class="ri-eye-line"></i>
+                                            </a>
+                                            <a href="@Url.Action("Edit", new { id = paciente.Id })" 
+                                               class="btn btn-sm btn-outline-primary" title="Editar">
+                                                <i class="ri-edit-line"></i>
+                                            </a>
+                                            <button type="button" class="btn btn-sm btn-outline-danger" 
+                                                    onclick="confirmarEliminacion(@paciente.Id, '@paciente.NombreCompleto')" 
+                                                    title="Eliminar">
+                                                <i class="ri-delete-bin-line"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="text-center py-5">
+                    <i class="ri-user-3-line fs-48 text-muted"></i>
+                    <p class="text-muted mt-2 mb-0">No se encontraron pacientes con los filtros aplicados</p>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- Modal de confirmación de eliminación -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel">Confirmar Eliminación</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                ¿Está seguro que desea eliminar el paciente <strong id="pacienteNombre"></strong>?
+                <br><small class="text-muted">Esta acción no se puede deshacer.</small>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <form id="deleteForm" method="post" style="display: inline;">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="btn btn-danger">Eliminar</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Función para confirmar eliminación
+        function confirmarEliminacion(id, nombre) {
+            document.getElementById('pacienteNombre').textContent = nombre;
+            document.getElementById('deleteForm').action = '@Url.Action("Delete")/' + id;
+            new bootstrap.Modal(document.getElementById('deleteModal')).show();
+        }
+
+        // Filtro y búsqueda
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.getElementById('searchInput');
+            const epsFilter = document.getElementById('epsFilter');
+            const table = document.getElementById('pacientesTable');
+            const tbody = table ? table.querySelector('tbody') : null;
+
+            if (!tbody) return;
+
+            const rows = Array.from(tbody.querySelectorAll('tr'));
+
+            function filterTable() {
+                const searchTerm = searchInput.value.toLowerCase();
+                const selectedEps = epsFilter.value.toLowerCase();
+
+                rows.forEach(row => {
+                    const cells = row.cells;
+                    const eps = cells[0].textContent.toLowerCase();
+                    const identificacion = cells[1].textContent.toLowerCase();
+                    const nombres = cells[2].textContent.toLowerCase();
+                    const apellidos = cells[3].textContent.toLowerCase();
+
+                    const matchesSearch = searchTerm === '' || 
+                                        identificacion.includes(searchTerm) ||
+                                        nombres.includes(searchTerm) ||
+                                        apellidos.includes(searchTerm);
+                    
+                    const matchesEps = selectedEps === '' || eps.includes(selectedEps);
+
+                    row.style.display = matchesSearch && matchesEps ? '' : 'none';
+                });
+            }
+
+            searchInput.addEventListener('input', filterTable);
+            epsFilter.addEventListener('change', filterTable);
+            document.getElementById('searchButton').addEventListener('click', filterTable);
+        });
+    </script>
+}
+
+@section Styles {
+    <style>
+        .page-title {
+            color: #495057;
+            font-weight: 600;
+        }
+        
+        .avatar-sm {
+            width: 40px;
+            height: 40px;
+        }
+        
+        .card {
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1) !important;
+        }
+        
+        .table th {
+            font-weight: 600;
+            color: #495057;
+            border-top: none;
+        }
+        
+        .btn-group .btn {
+            border-radius: 6px !important;
+        }
+        
+        .btn-group .btn:not(:last-child) {
+            margin-right: 4px;
+        }
+    </style>
+}

@@ -27,6 +27,7 @@ namespace Highdmin.Data
         public DbSet<Insumo> Insumos { get; set; }
         public DbSet<Entrada> Entradas { get; set; }
         public DbSet<RegistroVacunacion> RegistrosVacunacion { get; set; }
+        public DbSet<Paciente> Pacientes { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -236,6 +237,25 @@ namespace Highdmin.Data
                       .WithMany()
                       .HasForeignKey(r => r.UsuarioModificadorId)
                       .OnDelete(DeleteBehavior.SetNull);
+            });
+
+            // Configuración de la entidad Paciente
+            modelBuilder.Entity<Paciente>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Eps).IsRequired().HasMaxLength(100);
+                entity.Property(e => e.Identificacion).IsRequired().HasMaxLength(20);
+                entity.Property(e => e.TipoIdentificacion).IsRequired().HasMaxLength(10);
+                entity.Property(e => e.PrimerNombre).IsRequired().HasMaxLength(100);
+                entity.Property(e => e.SegundoNombre).HasMaxLength(100);
+                entity.Property(e => e.PrimerApellido).IsRequired().HasMaxLength(100);
+                entity.Property(e => e.SegundoApellido).HasMaxLength(100);
+                entity.Property(e => e.Sexo).IsRequired().HasMaxLength(10);
+                entity.Property(e => e.Genero).IsRequired().HasMaxLength(10);
+                entity.Property(e => e.Telefono).HasMaxLength(15);
+                entity.Property(e => e.Email).HasMaxLength(255); 
+                entity.HasIndex(e => e.Identificacion).IsUnique();
+                entity.HasIndex(e => e.Email).IsUnique();
             });
         }
     }

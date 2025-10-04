@@ -1,0 +1,216 @@
+@model ImportarPacientesViewModel
+@{
+    ViewData["Title"] = "Importar Pacientes";
+    Layout = "~/Views/Shared/_VerticalLayout.cshtml";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="page-title-box d-sm-flex align-items-center justify-content-between">
+                <div>
+                    <h4 class="mb-sm-0">Importar Pacientes</h4>
+                    <div class="page-title-right">
+                        <ol class="breadcrumb m-0">
+                            <li class="breadcrumb-item"><a href="@Url.Action("Index")">Pacientes</a></li>
+                            <li class="breadcrumb-item active">Importar</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-xl-8 col-lg-10 mx-auto">
+            <!-- Instrucciones -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="ri-information-line me-2"></i>Instrucciones de Importación
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        <h6 class="alert-heading">Antes de importar:</h6>
+                        <ul class="mb-0">
+                            <li>Descargue la plantilla de Excel desde el botón "Descargar Plantilla"</li>
+                            <li>Complete la información de los pacientes en las columnas correspondientes</li>
+                            <li>Los campos obligatorios son: Tipo Identificación, Identificación, PrimerNombre, PrimerApellido, Fecha de Nacimiento, Sexo y Género</li>
+                            <li>La fecha de nacimiento debe estar en formato YYYY-MM-DD</li>
+                            <li>El sexo debe ser 'M' para Masculino o 'F' para Femenino</li>
+                        </ul>
+                    </div>
+
+                    <div class="text-center mb-3">
+                        <a href="@Url.Action("DescargarPlantilla")" class="btn btn-outline-primary">
+                            <i class="ri-download-line me-1"></i>Descargar Plantilla Excel
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Formulario de importación -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="ri-upload-cloud-line me-2"></i>Cargar Archivo
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form asp-action="ImportarPlantilla" method="post" enctype="multipart/form-data">
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+                        
+                        <div class="mb-4">
+                            <label asp-for="ArchivoExcel" class="form-label">Archivo Excel <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <input asp-for="ArchivoExcel" type="file" class="form-control" accept=".xlsx,.xls" required>
+                                <span class="input-group-text">
+                                    <i class="ri-file-excel-line"></i>
+                                </span>
+                            </div>
+                            <div class="form-text">Seleccione un archivo Excel (.xlsx o .xls)</div>
+                            <span asp-validation-for="ArchivoExcel" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-4">
+                            <label asp-for="EpsFilter" class="form-label">Filtrar por EPS (Opcional)</label>
+                            <input asp-for="EpsFilter" class="form-control" placeholder="Ingrese el nombre de la EPS para filtrar">
+                            <div class="form-text">Si especifica una EPS, solo se importarán los pacientes de esa EPS</div>
+                            <span asp-validation-for="EpsFilter" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-4">
+                            <div class="form-check">
+                                <input asp-for="SobrescribirDatos" class="form-check-input" type="checkbox">
+                                <label asp-for="SobrescribirDatos" class="form-check-label">
+                                    Sobrescribir datos existentes
+                                </label>
+                                <div class="form-text">
+                                    Si está marcado, los pacientes existentes (por identificación) serán actualizados.
+                                    Si no está marcado, se omitirán los pacientes duplicados.
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="progress mb-4" id="uploadProgress" style="display: none;">
+                            <div class="progress-bar progress-bar-striped progress-bar-animated" 
+                                 role="progressbar" style="width: 0%"></div>
+                        </div>
+
+                        <div class="text-end">
+                            <a href="@Url.Action("Index")" class="btn btn-secondary me-2">
+                                <i class="ri-arrow-left-line me-1"></i>Cancelar
+                            </a>
+                            <button type="submit" class="btn btn-primary" id="importButton">
+                                <i class="ri-upload-line me-1"></i>Importar Pacientes
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.querySelector('form');
+            const importButton = document.getElementById('importButton');
+            const uploadProgress = document.getElementById('uploadProgress');
+            const progressBar = uploadProgress.querySelector('.progress-bar');
+
+            form.addEventListener('submit', function(e) {
+                const fileInput = document.querySelector('input[type="file"]');
+                
+                if (!fileInput.files.length) {
+                    e.preventDefault();
+                    alert('Por favor seleccione un archivo Excel.');
+                    return;
+                }
+
+                // Mostrar progreso
+                importButton.disabled = true;
+                importButton.innerHTML = '<i class="ri-loader-line me-1 spin"></i>Importando...';
+                uploadProgress.style.display = 'block';
+                
+                // Simular progreso
+                let progress = 0;
+                const interval = setInterval(function() {
+                    progress += Math.random() * 30;
+                    if (progress > 90) progress = 90;
+                    progressBar.style.width = progress + '%';
+                }, 200);
+
+                // Limpiar intervalo después de 10 segundos (máximo)
+                setTimeout(function() {
+                    clearInterval(interval);
+                    progressBar.style.width = '100%';
+                }, 10000);
+            });
+
+            // Validar tipo de archivo
+            const fileInput = document.querySelector('input[type="file"]');
+            fileInput.addEventListener('change', function() {
+                const file = this.files[0];
+                if (file) {
+                    const validTypes = [
+                        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', // .xlsx
+                        'application/vnd.ms-excel' // .xls
+                    ];
+                    
+                    if (!validTypes.includes(file.type)) {
+                        alert('Por favor seleccione un archivo Excel válido (.xlsx o .xls)');
+                        this.value = '';
+                        return;
+                    }
+                    
+                    if (file.size > 10 * 1024 * 1024) { // 10MB
+                        alert('El archivo es demasiado grande. El tamaño máximo es 10MB.');
+                        this.value = '';
+                        return;
+                    }
+                }
+            });
+        });
+    </script>
+
+    <style>
+        .spin {
+            animation: spin 1s linear infinite;
+        }
+        
+        @@keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+}
+
+@section Styles {
+    <style>
+        .alert-info {
+            background-color: #e7f3ff;
+            border-color: #b3d9ff;
+            color: #004085;
+        }
+        
+        .form-text {
+            color: #6c757d;
+            font-size: 0.875rem;
+        }
+        
+        .progress {
+            height: 8px;
+            border-radius: 4px;
+        }
+        
+        .input-group-text {
+            background-color: #f8f9fa;
+            border-color: #ced4da;
+        }
+    </style>
+}

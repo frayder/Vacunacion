@@ -1,0 +1,135 @@
+@model PacienteEditViewModel
+@{
+    ViewData["Title"] = "Editar Paciente";
+    Layout = "~/Views/Shared/_VerticalLayout.cshtml";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="page-title-box d-sm-flex align-items-center justify-content-between">
+                <div>
+                    <h4 class="mb-sm-0">Editar Paciente</h4>
+                    <div class="page-title-right">
+                        <ol class="breadcrumb m-0">
+                            <li class="breadcrumb-item"><a href="@Url.Action("Index")">Pacientes</a></li>
+                            <li class="breadcrumb-item active">Editar</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-xl-8 col-lg-10 mx-auto">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="ri-user-settings-line me-2"></i>Editar Información del Paciente
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Edit" method="post">
+                        <input asp-for="Id" type="hidden">
+                        <input asp-for="FechaCreacion" type="hidden">
+                        
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Eps" class="form-label">EPS <span class="text-danger">*</span></label>
+                                <input asp-for="Eps" class="form-control" placeholder="Ingrese la EPS">
+                                <span asp-validation-for="Eps" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Identificacion" class="form-label">Identificación <span class="text-danger">*</span></label>
+                                <input asp-for="Identificacion" class="form-control" placeholder="Número de identificación">
+                                <span asp-validation-for="Identificacion" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        @* <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Nombres" class="form-label">Nombres <span class="text-danger">*</span></label>
+                                <input asp-for="Nombres" class="form-control" placeholder="Nombres del paciente">
+                                <span asp-validation-for="Nombres" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Apellidos" class="form-label">Apellidos <span class="text-danger">*</span></label>
+                                <input asp-for="Apellidos" class="form-control" placeholder="Apellidos del paciente">
+                                <span asp-validation-for="Apellidos" class="text-danger"></span>
+                            </div>
+                        </div> *@
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="FechaNacimiento" class="form-label">Fecha de Nacimiento <span class="text-danger">*</span></label>
+                                <input asp-for="FechaNacimiento" type="date" class="form-control">
+                                <span asp-validation-for="FechaNacimiento" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Sexo" class="form-label">Sexo <span class="text-danger">*</span></label>
+                                <select asp-for="Sexo" class="form-select">
+                                    <option value="">Seleccione el sexo</option>
+                                    <option value="M">Masculino</option>
+                                    <option value="F">Femenino</option>
+                                </select>
+                                <span asp-validation-for="Sexo" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Telefono" class="form-label">Teléfono</label>
+                                <input asp-for="Telefono" class="form-control" placeholder="Número de teléfono">
+                                <span asp-validation-for="Telefono" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Email" class="form-label">Email</label>
+                                <input asp-for="Email" type="email" class="form-control" placeholder="Correo electrónico">
+                                <span asp-validation-for="Email" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-12 mb-3">
+                                <label asp-for="Direccion" class="form-label">Dirección</label>
+                                <textarea asp-for="Direccion" class="form-control" rows="3" placeholder="Dirección completa"></textarea>
+                                <span asp-validation-for="Direccion" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <div class="form-check">
+                                    <input asp-for="Estado" class="form-check-input" type="checkbox">
+                                    <label asp-for="Estado" class="form-check-label">
+                                        Activo
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Fecha de Creación</label>
+                                <input value="@Model.FechaCreacion.ToString("dd/MM/yyyy HH:mm")" class="form-control" readonly>
+                            </div>
+                        </div>
+
+                        <div class="text-end">
+                            <a href="@Url.Action("Index")" class="btn btn-secondary me-2">
+                                <i class="ri-arrow-left-line me-1"></i>Cancelar
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="ri-save-line me-1"></i>Guardar Cambios
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

@@ -1,0 +1,239 @@
+@model Paciente
+@{
+    ViewData["Title"] = "Detalles del Paciente";
+    Layout = "~/Views/Shared/_VerticalLayout.cshtml";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="page-title-box d-sm-flex align-items-center justify-content-between">
+                <div>
+                    <h4 class="mb-sm-0">Detalles del Paciente</h4>
+                    <div class="page-title-right">
+                        <ol class="breadcrumb m-0">
+                            <li class="breadcrumb-item"><a href="@Url.Action("Index")">Pacientes</a></li>
+                            <li class="breadcrumb-item active">Detalles</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-xl-8 col-lg-10 mx-auto">
+            <!-- Información del Paciente -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="card-title mb-0">
+                            <i class="ri-user-line me-2"></i>@Model.NombreCompleto
+                        </h5>
+                        <div>
+                            <span class="badge bg-@(Model.Estado ? "success" : "danger")">
+                                @(Model.Estado ? "Activo" : "Inactivo")
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-4">
+                                <label class="form-label fw-semibold">EPS:</label>
+                                <p class="text-muted mb-0">@Model.Eps</p>
+                            </div>
+                            <div class="mb-4">
+                                <label class="form-label fw-semibold">Tipo Identificación:</label>
+                                <p class="text-muted mb-0">@Model.TipoIdentificacion</p>
+                            </div>
+                            <div class="mb-4">
+                                <label class="form-label fw-semibold">Identificación:</label>
+                                <p class="text-muted mb-0">@Model.Identificacion</p>
+                            </div> 
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">Fecha de Nacimiento:</label>
+                                <p class="text-muted mb-0">@Model.FechaNacimiento.ToString("dd/MM/yyyy")</p>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">Edad:</label>
+                                <p class="text-muted mb-0">@Model.Edad años</p>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">Sexo:</label>
+                                <p class="text-muted mb-0">@(Model.Sexo == "M" ? "Masculino" : "Femenino")</p>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">Teléfono:</label>
+                                <p class="text-muted mb-0">@(string.IsNullOrEmpty(Model.Telefono) ? "No especificado" : Model.Telefono)</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">Email:</label>
+                                <p class="text-muted mb-0">@(string.IsNullOrEmpty(Model.Email) ? "No especificado" : Model.Email)</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">Fecha de Registro:</label>
+                                <p class="text-muted mb-0">@Model.FechaCreacion.ToString("dd/MM/yyyy HH:mm")</p>
+                            </div>
+                        </div>
+                    </div>
+ 
+                    @if (Model.FechaActualizacion.HasValue)
+                    {
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Última Actualización:</label>
+                            <p class="text-muted mb-0">@Model.FechaActualizacion.Value.ToString("dd/MM/yyyy HH:mm")</p>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <!-- Historial de Vacunación -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="ri-medicine-bottle-line me-2"></i>Historial de Vacunación
+                    </h5>
+                </div>
+                <div class="card-body">
+                    @if (Model.RegistrosVacunacion != null && Model.RegistrosVacunacion.Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Consecutivo</th>
+                                        <th>Vacuna</th>
+                                        <th>Dosis</th>
+                                        <th>Fecha Aplicación</th>
+                                        <th>Centro de Atención</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var registro in Model.RegistrosVacunacion.OrderByDescending(r => r.FechaAplicacion))
+                                    {
+                                        <tr>
+                                            <td>@registro.Consecutivo</td>
+                                            <td>@registro.Vacuna</td>
+                                            <td>@registro.NumeroDosis</td>
+                                            <td>@registro.FechaAplicacion.ToString("dd/MM/yyyy")</td>
+                                            <td>@(registro.CentroAtencion?.Nombre ?? "No especificado")</td>
+                                            <td>
+                                                <a href="@Url.Action("Details", "RegistroVacunacion", new { id = registro.Id })" 
+                                                   class="btn btn-sm btn-outline-info" title="Ver detalles">
+                                                    <i class="ri-eye-line"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center py-4">
+                            <i class="ri-medicine-bottle-line fs-48 text-muted"></i>
+                            <p class="text-muted mt-2 mb-0">No hay registros de vacunación para este paciente</p>
+                            <a href="@Url.Action("Create", "RegistroVacunacion", new { pacienteId = Model.Id })" 
+                               class="btn btn-outline-primary btn-sm mt-2">
+                                <i class="ri-add-line me-1"></i>Agregar Registro de Vacunación
+                            </a>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <!-- Acciones -->
+            <div class="text-end mb-4">
+                <a href="@Url.Action("Index")" class="btn btn-secondary me-2">
+                    <i class="ri-arrow-left-line me-1"></i>Volver al Listado
+                </a>
+                <a href="@Url.Action("Edit", new { id = Model.Id })" class="btn btn-primary me-2">
+                    <i class="ri-edit-line me-1"></i>Editar
+                </a>
+                <button type="button" class="btn btn-danger" 
+                        onclick="confirmarEliminacion(@Model.Id, '@Model.NombreCompleto')">
+                    <i class="ri-delete-bin-line me-1"></i>Eliminar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de confirmación de eliminación -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel">Confirmar Eliminación</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                ¿Está seguro que desea eliminar el paciente <strong id="pacienteNombre"></strong>?
+                <br><small class="text-muted">Esta acción no se puede deshacer y eliminará todos los registros asociados.</small>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <form id="deleteForm" method="post" style="display: inline;">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="btn btn-danger">Eliminar</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function confirmarEliminacion(id, nombre) {
+            document.getElementById('pacienteNombre').textContent = nombre;
+            document.getElementById('deleteForm').action = '@Url.Action("Delete")/' + id;
+            new bootstrap.Modal(document.getElementById('deleteModal')).show();
+        }
+    </script>
+}
+
+@section Styles {
+    <style>
+        .fw-semibold {
+            font-weight: 600;
+        }
+        
+        .card {
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+        }
+        
+        .card-header {
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #dee2e6;
+        }
+        
+        .table th {
+            font-weight: 600;
+            color: #495057;
+            border-top: none;
+        }
+        
+        .badge {
+            font-size: 0.75rem;
+            padding: 0.375rem 0.75rem;
+        }
+        
+        .text-muted {
+            color: #6c757d !important;
+        }
+    </style>
+}

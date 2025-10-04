@@ -1,0 +1,164 @@
+@model Paciente
+@{
+    ViewData["Title"] = "Eliminar Paciente";
+    Layout = "~/Views/Shared/_VerticalLayout.cshtml";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="page-title-box d-sm-flex align-items-center justify-content-between">
+                <div>
+                    <h4 class="mb-sm-0">Eliminar Paciente</h4>
+                    <div class="page-title-right">
+                        <ol class="breadcrumb m-0">
+                            <li class="breadcrumb-item"><a href="@Url.Action("Index")">Pacientes</a></li>
+                            <li class="breadcrumb-item active">Eliminar</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-xl-8 col-lg-10 mx-auto">
+            <div class="card border-danger">
+                <div class="card-header bg-danger text-white">
+                    <h5 class="card-title mb-0 text-white">
+                        <i class="ri-alert-line me-2"></i>¿Está seguro que desea eliminar este paciente?
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-danger">
+                        <h6 class="alert-heading">¡Advertencia!</h6>
+                        <p class="mb-0">Esta acción no se puede deshacer. Al eliminar este paciente también se eliminarán todos los registros de vacunación asociados.</p>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">EPS:</label>
+                                <p class="text-muted mb-0">@Model.Eps</p>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">Tipo Identificación:</label>
+                                <p class="text-muted mb-0">@Model.TipoIdentificacion</p>
+                            </div>
+                             <div class="mb-3">
+                                <label class="form-label fw-semibold">Identificación:</label>
+                                <p class="text-muted mb-0">@Model.Identificacion</p>
+                            </div> 
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">Fecha de Nacimiento:</label>
+                                <p class="text-muted mb-0">@Model.FechaNacimiento.ToString("dd/MM/yyyy")</p>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">Edad:</label>
+                                <p class="text-muted mb-0">@Model.Edad años</p>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">Sexo:</label>
+                                <p class="text-muted mb-0">@(Model.Sexo == "M" ? "Masculino" : "Femenino")</p>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">Estado:</label>
+                                <span class="badge bg-@(Model.Estado ? "success" : "danger")">
+                                    @(Model.Estado ? "Activo" : "Inactivo")
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    @if (!string.IsNullOrEmpty(Model.Telefono))
+                    {
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Teléfono:</label>
+                            <p class="text-muted mb-0">@Model.Telefono</p>
+                        </div>
+                    }
+
+                    @if (!string.IsNullOrEmpty(Model.Email))
+                    {
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Email:</label>
+                            <p class="text-muted mb-0">@Model.Email</p>
+                        </div>
+                    }
+ 
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Fecha de Registro:</label>
+                        <p class="text-muted mb-0">@Model.FechaCreacion.ToString("dd/MM/yyyy HH:mm")</p>
+                    </div>
+
+                    <!-- Información de registros asociados -->
+                    @if (Model.RegistrosVacunacion != null && Model.RegistrosVacunacion.Any())
+                    {
+                        <div class="alert alert-warning mt-3">
+                            <h6 class="alert-heading">Registros Asociados</h6>
+                            <p class="mb-0">
+                                Este paciente tiene <strong>@Model.RegistrosVacunacion.Count()</strong> registro(s) de vacunación asociado(s) que también serán eliminados.
+                            </p>
+                        </div>
+                    }
+
+                    <div class="text-end mt-4">
+                        <a href="@Url.Action("Index")" class="btn btn-secondary me-2">
+                            <i class="ri-arrow-left-line me-1"></i>Cancelar
+                        </a>
+                        <a href="@Url.Action("Details", new { id = Model.Id })" class="btn btn-info me-2">
+                            <i class="ri-eye-line me-1"></i>Ver Detalles
+                        </a>
+                        <form asp-action="Delete" method="post" style="display: inline;">
+                            <input asp-for="Id" type="hidden">
+                            <button type="submit" class="btn btn-danger" onclick="return confirmarEliminacion()">
+                                <i class="ri-delete-bin-line me-1"></i>Eliminar Definitivamente
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function confirmarEliminacion() {
+            return confirm('¿Está completamente seguro que desea eliminar este paciente? Esta acción NO se puede deshacer.');
+        }
+    </script>
+}
+
+@section Styles {
+    <style>
+        .fw-semibold {
+            font-weight: 600;
+        }
+        
+        .card {
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+        }
+        
+        .alert-heading {
+            font-weight: 600;
+        }
+        
+        .badge {
+            font-size: 0.75rem;
+            padding: 0.375rem 0.75rem;
+        }
+        
+        .text-muted {
+            color: #6c757d !important;
+        }
+        
+        .border-danger {
+            border-color: #dc3545 !important;
+        }
+    </style>
+}
