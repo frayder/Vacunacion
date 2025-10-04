@@ -21,94 +21,7 @@
             </div>
         </div>
     </div>
-</div>
-
-<!-- Statistics Cards -->
-<div class="row mb-4">
-    <div class="col-xl-4 col-md-6">
-        <div class="card card-animate">
-            <div class="card-body">
-                <div class="d-flex align-items-center">
-                    <div class="flex-grow-1 overflow-hidden">
-                        <p class="text-uppercase fw-medium text-muted text-truncate mb-0">Total Condiciones</p>
-                    </div>
-                    <div class="flex-shrink-0">
-                        <h5 class="text-success fs-14 mb-0">
-                            <i class="ri-arrow-right-up-line fs-13 align-middle"></i>
-                        </h5>
-                    </div>
-                </div>
-                <div class="d-flex align-items-end justify-content-between mt-2">
-                    <div>
-                        <h2 class="fw-semibold ff-secondary mb-0"><span class="counter-value" data-target="@Model.TotalCondiciones">@Model.TotalCondiciones</span></h2>
-                        <a href="#" class="text-decoration-underline">Ver todas</a>
-                    </div>
-                    <div class="avatar-sm flex-shrink-0">
-                        <span class="avatar-title bg-success-subtle rounded fs-3">
-                            <i class="bx bx-list-ul text-success"></i>
-                        </span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-xl-4 col-md-6">
-        <div class="card card-animate">
-            <div class="card-body">
-                <div class="d-flex align-items-center">
-                    <div class="flex-grow-1 overflow-hidden">
-                        <p class="text-uppercase fw-medium text-muted text-truncate mb-0">Activas</p>
-                    </div>
-                    <div class="flex-shrink-0">
-                        <h5 class="text-success fs-14 mb-0">
-                            <i class="ri-arrow-right-up-line fs-13 align-middle"></i>
-                        </h5>
-                    </div>
-                </div>
-                <div class="d-flex align-items-end justify-content-between mt-2">
-                    <div>
-                        <h2 class="fw-semibold ff-secondary mb-0"><span class="counter-value" data-target="@Model.CondicionesActivas">@Model.CondicionesActivas</span></h2>
-                        <a href="#" class="text-decoration-underline">Ver activas</a>
-                    </div>
-                    <div class="avatar-sm flex-shrink-0">
-                        <span class="avatar-title bg-success-subtle rounded fs-3">
-                            <i class="bx bx-check-circle text-success"></i>
-                        </span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-xl-4 col-md-6">
-        <div class="card card-animate">
-            <div class="card-body">
-                <div class="d-flex align-items-center">
-                    <div class="flex-grow-1 overflow-hidden">
-                        <p class="text-uppercase fw-medium text-muted text-truncate mb-0">Inactivas</p>
-                    </div>
-                    <div class="flex-shrink-0">
-                        <h5 class="text-danger fs-14 mb-0">
-                            <i class="ri-arrow-right-down-line fs-13 align-middle"></i>
-                        </h5>
-                    </div>
-                </div>
-                <div class="d-flex align-items-end justify-content-between mt-2">
-                    <div>
-                        <h2 class="fw-semibold ff-secondary mb-0"><span class="counter-value" data-target="@Model.CondicionesInactivas">@Model.CondicionesInactivas</span></h2>
-                        <a href="#" class="text-decoration-underline">Ver inactivas</a>
-                    </div>
-                    <div class="avatar-sm flex-shrink-0">
-                        <span class="avatar-title bg-danger-subtle rounded fs-3">
-                            <i class="bx bx-x-circle text-danger"></i>
-                        </span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+</div> 
 
 <!-- Main Content Card -->
 <div class="card">
@@ -123,7 +36,6 @@
             </div>
             <div class="flex-grow-1 ms-3">
                 <h5 class="card-title mb-1">Condiciones Usuarias (@Model.TotalCondiciones)</h5>
-                <p class="text-muted mb-0">Gestione las condiciones de usuario del sistema de salud</p>
             </div>
         </div>
     </div>
@@ -133,7 +45,6 @@
             <div class="col-xxl-5 col-sm-6">
                 <div class="search-box">
                     <input type="text" class="form-control search" placeholder="Buscar por código o nombre...">
-                    <i class="ri-search-line search-icon"></i>
                 </div>
             </div>
             <div class="col-xxl-2 col-sm-6">
@@ -194,7 +105,7 @@
                         <th class="sort" data-sort="descripcion">Descripción</th>
                         <th class="sort" data-sort="estado">Estado</th>
                         <th class="sort" data-sort="fecha">Fecha Creación</th>
-                        <th class="sort" data-sort="action">Acciones</th>
+                        <th class="sort text-center" data-sort="action">Acciones</th>
                     </tr>
                 </thead>
                 <tbody class="list form-check-all">
@@ -233,7 +144,7 @@
                                 <span class="text-muted">@condicion.FechaCreacion.ToString("dd/MM/yyyy")</span>
                             </td>
                             <td>
-                                <div class="d-flex gap-2">
+                                <div class="d-flex  mx-auto justify-content-center action gap-2">
                                     <div class="edit">
                                         <a asp-action="Edit" asp-route-id="@condicion.Id" class="btn btn-sm btn-success">
                                             <i class="ri-pencil-fill align-bottom"></i>

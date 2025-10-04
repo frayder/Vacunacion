@@ -2,9 +2,9 @@
 
 Write-Host "=== CONFIGURACIÓN AUTOMÁTICA DE IIS ===" -ForegroundColor Cyan
 
-$siteName = "Highdmin"
+$siteName = "Vacunacion"
 $publishPath = "D:\INNOVATIONANALYTICS\Anulacion Facturas\publish"
-$appPoolName = "Highdmin"
+$appPoolName = "Vacunacion"
 $port = 80
 
 # Verificar si estamos ejecutando como administrador
