@@ -1,30 +1,10 @@
 @model EntradaViewModel
 @{
     ViewData["Title"] = "Gestión de Entradas de Biológicos";
+    ViewData["SubTitle"] = "Registre y administre las entradas mensuales de insumos biológicos";
     Layout = "~/Views/Shared/_VerticalLayout.cshtml";
 }
-
-<div class="row">
-    <div class="col-12">
-        <div class="page-title-box d-sm-flex align-items-center justify-content-between">
-            <h4 class="mb-sm-0">
-                <i class="ri-medicine-bottle-line me-2"></i>Gestión de Entradas de Biológicos
-            </h4>
-            <div class="page-title-right">
-                <ol class="breadcrumb m-0">
-                    <li class="breadcrumb-item"><a href="javascript: void(0);">Operativos</a></li>
-                    <li class="breadcrumb-item active">Entradas</li>
-                </ol>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="row">
-    <div class="col-12">
-        <p class="text-muted mb-4">Registre y administre las entradas mensuales de insumos biológicos</p>
-    </div>
-</div>
+ 
 
 <!-- Statistics Cards -->
 <div class="row">
@@ -196,7 +176,6 @@
                     <div class="col-xxl-4 col-sm-6">
                         <div class="search-box">
                             <input type="text" class="form-control search" placeholder="Buscar por insumo, usuario o notas...">
-                            <i class="ri-search-line search-icon"></i>
                         </div>
                     </div>
                     <div class="col-xxl-2 col-sm-3">

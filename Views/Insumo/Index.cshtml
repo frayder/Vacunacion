@@ -25,7 +25,7 @@
 
 <!-- Statistics Cards -->
 <div class="row mb-4">
-    <div class="col-xl-3 col-md-6">
+    <div class="col-xl-2 col-md-6">
         <div class="card card-animate">
             <div class="card-body">
                 <div class="d-flex align-items-center">
@@ -34,30 +34,22 @@
                             <i class="ri-medicine-bottle-line me-1"></i> Vacunas
                         </p>
                     </div>
-                    <div class="flex-shrink-0">
-                        <h5 class="text-success fs-14 mb-0">
-                            <i class="ri-arrow-right-up-line fs-13 align-middle"></i>
-                        </h5>
-                    </div>
-                </div>
-                <div class="d-flex align-items-end justify-content-between mt-2">
-                    <div>
-                        <h2 class="fw-semibold ff-secondary mb-0">
-                            <span class="counter-value" data-target="@Model.Insumos.Count(i => i.Tipo.ToLower() == "vacuna")">@Model.Insumos.Count(i => i.Tipo.ToLower() == "vacuna")</span>
-                        </h2>
-                        <a href="#" class="text-decoration-underline">Ver vacunas</a>
-                    </div>
-                    <div class="avatar-sm flex-shrink-0">
-                        <span class="avatar-title bg-primary-subtle rounded fs-3">
+                    <div class="avatar-sm flex-shrink-0 ">
+                        <span class="avatar-title bg-primary-subtle mt-2 rounded fs-3">
                             <i class="ri-medicine-bottle-line text-primary"></i>
                         </span>
                     </div>
+                </div>
+                <div>
+                    <h2 class="fw-semibold ff-secondary mb-0 mt-2">
+                        <span class="counter-value" data-target="@Model.Insumos.Count(i => i.Tipo.ToLower() == "vacuna")">@Model.Insumos.Count(i => i.Tipo.ToLower() == "vacuna")</span>
+                    </h2> 
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="col-xl-3 col-md-6">
+    <div class="col-xl-2 col-md-6">
         <div class="card card-animate">
             <div class="card-body">
                 <div class="d-flex align-items-center">
@@ -66,30 +58,46 @@
                             <i class="ri-syringe-line me-1"></i> Jeringas
                         </p>
                     </div>
-                    <div class="flex-shrink-0">
-                        <h5 class="text-info fs-14 mb-0">
-                            <i class="ri-arrow-right-up-line fs-13 align-middle"></i>
-                        </h5>
-                    </div>
-                </div>
-                <div class="d-flex align-items-end justify-content-between mt-2">
-                    <div>
-                        <h2 class="fw-semibold ff-secondary mb-0">
-                            <span class="counter-value" data-target="@Model.Insumos.Count(i => i.Tipo.ToLower() == "jeringa")">@Model.Insumos.Count(i => i.Tipo.ToLower() == "jeringa")</span>
-                        </h2>
-                        <a href="#" class="text-decoration-underline">Ver jeringas</a>
-                    </div>
                     <div class="avatar-sm flex-shrink-0">
-                        <span class="avatar-title bg-info-subtle rounded fs-3">
+                        <span class="avatar-title bg-info-subtle mt-2 rounded fs-3">
                             <i class="ri-syringe-line text-info"></i>
                         </span>
                     </div>
+                </div>
+                <div class="mt-2">
+                    <h2 class="fw-semibold ff-secondary mb-0">
+                        <span class="counter-value" data-target="@Model.Insumos.Count(i => i.Tipo.ToLower() == "jeringa")">@Model.Insumos.Count(i => i.Tipo.ToLower() == "jeringa")</span>
+                    </h2>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="col-xl-3 col-md-6">
+    <div class="col-xl-2 col-md-6">
+        <div class="card card-animate">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-grow-1 overflow-hidden">
+                        <p class="text-uppercase fw-medium text-muted text-truncate mb-0">
+                            <i class="ri-drop-line me-1"></i> Diluyentes
+                        </p>
+                    </div>
+                    <div class="avatar-sm flex-shrink-0">
+                        <span class="avatar-title bg-info-subtle mt-2 rounded fs-3">
+                            <i class="ri-drop-line text-info"></i>
+                        </span>
+                    </div>
+                </div>
+                <div class="mt-2">
+                    <h2 class="fw-semibold ff-secondary mb-0">
+                        <span class="counter-value" data-target="@Model.Insumos.Count(i => i.Tipo.ToLower() == "jeringa")">@Model.Insumos.Count(i => i.Tipo.ToLower() == "jeringa")</span>
+                    </h2>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-2 col-md-6">
         <div class="card card-animate">
             <div class="card-body">
                 <div class="d-flex align-items-center">
@@ -98,56 +106,64 @@
                             <i class="ri-drop-line me-1"></i> Goteros
                         </p>
                     </div>
-                    <div class="flex-shrink-0">
-                        <h5 class="text-success fs-14 mb-0">
-                            <i class="ri-arrow-right-up-line fs-13 align-middle"></i>
-                        </h5>
-                    </div>
-                </div>
-                <div class="d-flex align-items-end justify-content-between mt-2">
-                    <div>
-                        <h2 class="fw-semibold ff-secondary mb-0">
-                            <span class="counter-value" data-target="@Model.Insumos.Count(i => i.Tipo.ToLower() == "gotero")">@Model.Insumos.Count(i => i.Tipo.ToLower() == "gotero")</span>
-                        </h2>
-                        <a href="#" class="text-decoration-underline">Ver goteros</a>
-                    </div>
-                    <div class="avatar-sm flex-shrink-0">
+                     <div class="avatar-sm flex-shrink-0">
                         <span class="avatar-title bg-success-subtle rounded fs-3">
                             <i class="ri-drop-line text-success"></i>
                         </span>
                     </div>
                 </div>
+                <div class="mt-2">
+                    <h2 class="fw-semibold ff-secondary mb-0">
+                        <span class="counter-value" data-target="@Model.Insumos.Count(i => i.Tipo.ToLower() == "gotero")">@Model.Insumos.Count(i => i.Tipo.ToLower() == "gotero")</span>
+                    </h2>
+                </div>
             </div>
         </div>
     </div>
 
-    <div class="col-xl-3 col-md-6">
+    <div class="col-xl-2 col-md-6">
         <div class="card card-animate">
             <div class="card-body">
                 <div class="d-flex align-items-center">
                     <div class="flex-grow-1 overflow-hidden">
                         <p class="text-uppercase fw-medium text-muted text-truncate mb-0">
-                            <i class="ri-bookmark-line me-1"></i> Carnets
+                            <i class="ri-id-card-line me-1"></i> Carnet
                         </p>
-                    </div>
-                    <div class="flex-shrink-0">
-                        <h5 class="text-warning fs-14 mb-0">
-                            <i class="ri-arrow-right-up-line fs-13 align-middle"></i>
-                        </h5>
-                    </div>
-                </div>
-                <div class="d-flex align-items-end justify-content-between mt-2">
-                    <div>
-                        <h2 class="fw-semibold ff-secondary mb-0">
-                            <span class="counter-value" data-target="@Model.Insumos.Count(i => i.Tipo.ToLower() == "carnet")">@Model.Insumos.Count(i => i.Tipo.ToLower() == "carnet")</span>
-                        </h2>
-                        <a href="#" class="text-decoration-underline">Ver carnets</a>
                     </div>
                     <div class="avatar-sm flex-shrink-0">
                         <span class="avatar-title bg-warning-subtle rounded fs-3">
-                            <i class="ri-bookmark-line text-warning"></i>
+                            <i class="ri-id-card-line text-warning"></i>
                         </span>
                     </div>
+                </div>
+                <div class="mt-2">
+                    <h2 class="fw-semibold ff-secondary mb-0">
+                        <span class="counter-value" data-target="@Model.Insumos.Count(i => i.Tipo.ToLower() == "carnet")">@Model.Insumos.Count(i => i.Tipo.ToLower() == "carnet")</span>
+                    </h2>
+                </div>
+            </div>
+        </div>
+    </div>
+
+     <div class="col-xl-2 col-md-6">
+        <div class="card card-animate">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-grow-1 overflow-hidden">
+                        <p class="text-uppercase fw-medium text-muted text-truncate mb-0">
+                            <i class="ri-bank-card-line me-1"></i> Tarjeta
+                        </p>
+                    </div>
+                    <div class="avatar-sm flex-shrink-0">
+                        <span class="avatar-title bg-info-subtle rounded fs-3">
+                            <i class="ri-bank-card-line text-info"></i>
+                        </span>
+                    </div>
+                </div>
+                <div class="mt-2">
+                    <h2 class="fw-semibold ff-secondary mb-0">
+                        <span class="counter-value" data-target="@Model.Insumos.Count(i => i.Tipo.ToLower() == "carnet")">@Model.Insumos.Count(i => i.Tipo.ToLower() == "carnet")</span>
+                    </h2>
                 </div>
             </div>
         </div>
@@ -167,7 +183,6 @@
             </div>
             <div class="flex-grow-1 ms-3">
                 <h5 class="card-title mb-1">Insumos (@Model.TotalInsumos)</h5>
-                <p class="text-muted mb-0">Gestione los insumos disponibles en el sistema</p>
             </div>
         </div>
     </div>
@@ -177,7 +192,6 @@
             <div class="col-xxl-4 col-sm-5">
                 <div class="search-box">
                     <input type="text" class="form-control search" placeholder="Buscar por código, nombre o descripción...">
-                    <i class="ri-search-line search-icon"></i>
                 </div>
             </div>
             <div class="col-xxl-2 col-sm-3">
@@ -251,7 +265,7 @@
                         <th class="sort" data-sort="rango_dosis">Rango/Dosis</th>
                         <th class="sort" data-sort="estado">Estado</th>
                         <th class="sort" data-sort="fecha_creacion">Fecha Creación</th>
-                        <th>Acciones</th>
+                        <th class="text-center">Acciones</th>
                     </tr>
                 </thead>
                 <tbody class="list form-check-all">
@@ -289,7 +303,7 @@
                                 <span class="text-muted">@item.FechaCreacion.ToString("yyyy-MM-dd")</span>
                             </td>
                             <td>
-                                <div class="d-flex gap-2">
+                                <div class="d-flex justify-content-center gap-2">
                                     <div class="edit">
                                         <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-success">
                                             <i class="ri-pencil-fill align-bottom"></i>
