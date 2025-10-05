@@ -1,7 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.Cookies;
-  
+
 // Configurar licencia EPPlus antes de usar ExcelPackage  
+ 
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -33,6 +34,10 @@ builder.Services.AddDbContext<Highdmin.Data.ApplicationDbContext>(options =>
 // Registrar servicios personalizados
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<Highdmin.Services.IMenuService, Highdmin.Services.MenuService>();
+
+
+// Habilitar sesiones
+builder.Services.AddSession();
 
 var app = builder.Build();
 
@@ -78,6 +83,10 @@ app.Use(async (context, next) =>
 // Configurar middleware de autenticación y autorización
 app.UseAuthentication();
 app.UseAuthorization();
+
+
+// Habilitar sesión (después del middleware principal)
+app.UseSession();
 
 app.MapStaticAssets();
 

@@ -206,8 +206,7 @@ namespace Highdmin.ViewModels
     }
 
     public class ImportarPacientesViewModel
-    {
-        [Required(ErrorMessage = "Debe seleccionar un archivo")]
+    { 
         [Display(Name = "Archivo Excel")]
         public IFormFile ArchivoExcel { get; set; } = null!;
 

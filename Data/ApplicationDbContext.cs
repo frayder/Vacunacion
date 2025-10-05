@@ -28,6 +28,7 @@ namespace Highdmin.Data
         public DbSet<Entrada> Entradas { get; set; }
         public DbSet<RegistroVacunacion> RegistrosVacunacion { get; set; }
         public DbSet<Paciente> Pacientes { get; set; }
+        public DbSet<HistorialCargaPacientes> HistorialCargas  { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -126,14 +127,14 @@ namespace Highdmin.Data
                 entity.HasIndex(t => t.Codigo).IsUnique();
             });
 
-             modelBuilder.Entity<PertenenciaEtnica>(entity =>
-            {
-                entity.HasKey(e => e.Id);
-                entity.Property(e => e.Codigo).IsRequired().HasMaxLength(10);
-                entity.Property(e => e.Nombre).IsRequired().HasMaxLength(255);
-                entity.Property(e => e.Descripcion).HasMaxLength(500);
-                entity.HasIndex(t => t.Codigo).IsUnique();
-            });
+            modelBuilder.Entity<PertenenciaEtnica>(entity =>
+           {
+               entity.HasKey(e => e.Id);
+               entity.Property(e => e.Codigo).IsRequired().HasMaxLength(10);
+               entity.Property(e => e.Nombre).IsRequired().HasMaxLength(255);
+               entity.Property(e => e.Descripcion).HasMaxLength(500);
+               entity.HasIndex(t => t.Codigo).IsUnique();
+           });
 
             modelBuilder.Entity<Aseguradora>(entity =>
             {
@@ -253,9 +254,20 @@ namespace Highdmin.Data
                 entity.Property(e => e.Sexo).IsRequired().HasMaxLength(10);
                 entity.Property(e => e.Genero).IsRequired().HasMaxLength(10);
                 entity.Property(e => e.Telefono).HasMaxLength(15);
-                entity.Property(e => e.Email).HasMaxLength(255); 
+                entity.Property(e => e.Email).HasMaxLength(255);
                 entity.HasIndex(e => e.Identificacion).IsUnique();
                 entity.HasIndex(e => e.Email).IsUnique();
+            });
+            
+            modelBuilder.Entity<HistorialCargaPacientes>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.FechaCarga).IsRequired();
+                entity.Property(e => e.Usuario).IsRequired().HasMaxLength(100);
+                entity.Property(e => e.TotalCargados).IsRequired();
+                entity.Property(e => e.TotalExistentes).IsRequired();
+                entity.Property(e => e.ArchivoNombre).HasMaxLength(255);
+                entity.Property(e => e.Observaciones).HasMaxLength(1000);
             });
         }
     }

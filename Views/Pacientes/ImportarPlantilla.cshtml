@@ -2,6 +2,8 @@
 @{
     ViewData["Title"] = "Importar Pacientes";
     Layout = "~/Views/Shared/_VerticalLayout.cshtml";
+    bool datosCargados = ViewBag.DatosCargados ?? false;
+
 }
 
 <div class="container-fluid">
@@ -64,7 +66,7 @@
                         <div class="mb-4">
                             <label asp-for="ArchivoExcel" class="form-label">Archivo Excel <span class="text-danger">*</span></label>
                             <div class="input-group">
-                                <input asp-for="ArchivoExcel" type="file" class="form-control" accept=".xlsx,.xls" required>
+                                <input asp-for="ArchivoExcel" type="file" class="form-control" accept=".xlsx,.xls">
                                 <span class="input-group-text">
                                     <i class="ri-file-excel-line"></i>
                                 </span>
@@ -97,48 +99,54 @@
                             <div class="progress-bar progress-bar-striped progress-bar-animated" 
                                  role="progressbar" style="width: 0%"></div>
                         </div>
-@if (Model.PacientesCargados != null && Model.PacientesCargados.Any())
-{
-    <div class="card mt-4">
-        <div class="card-header bg-success text-white">
-            <h5 class="mb-0">Pacientes Importados (@Model.PacientesCargados.Count)</h5>
-        </div>
-        <div class="card-body table-responsive">
-            <table class="table table-bordered table-striped">
-                <thead class="table-light">
-                    <tr>
-                        <th>Tipo ID</th>
-                        <th>Identificación</th>
-                        <th>Nombre Completo</th>
-                        <th>Fecha Nacimiento</th>
-                        <th>Sexo</th>
-                        <th>EPS</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var p in Model.PacientesCargados)
-                    {
-                        <tr>
-                            <td>@p.TipoIdentificacion</td>
-                            <td>@p.Identificacion</td>
-                            <td>@($"{p.PrimerNombre} {p.SegundoNombre} {p.PrimerApellido} {p.SegundoApellido}")</td>
-                            <td>@(p.FechaNacimiento.ToString("yyyy-MM-dd"))</td>
-                            <td>@p.Sexo</td>
-                            <td>@p.Eps</td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
-        </div>
-    </div>
-}
-                        <div class="text-end">
+                        @if (Model.PacientesCargados != null && Model.PacientesCargados.Any())
+                        {
+                            <div class="card mt-4">
+                                <div class="card-header bg-success text-white">
+                                    <h5 class="mb-0">Pacientes Importados (@Model.PacientesCargados.Count)</h5>
+                                </div>
+                                <div class="card-body table-responsive">
+                                    <table class="table table-bordered table-striped">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>Tipo ID</th>
+                                                <th>Identificación</th>
+                                                <th>Nombre Completo</th>
+                                                <th>Fecha Nacimiento</th>
+                                                <th>Sexo</th>
+                                                <th>EPS</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach (var p in Model.PacientesCargados)
+                                            {
+                                                <tr>
+                                                    <td>@p.TipoIdentificacion</td>
+                                                    <td>@p.Identificacion</td>
+                                                    <td>@($"{p.PrimerNombre} {p.SegundoNombre} {p.PrimerApellido} {p.SegundoApellido}")</td>
+                                                    <td>@(p.FechaNacimiento.ToString("yyyy-MM-dd"))</td>
+                                                    <td>@p.Sexo</td>
+                                                    <td>@p.Eps</td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        }
+                        <div class="text-end d-flex justify-content-end">
                             <a href="@Url.Action("Index")" class="btn btn-secondary me-2">
                                 <i class="ri-arrow-left-line me-1"></i>Cancelar
                             </a>
                             <button type="submit" class="btn btn-primary" id="importButton">
                                 <i class="ri-upload-line me-1"></i>Importar Pacientes
-                            </button>
+                            </button>  
+                            @if (Model.PacientesCargados != null && Model.PacientesCargados.Any())
+                            {
+                                <button type="button" class="btn btn-success ms-2" onclick="guardarPacientes()">
+                                Guardar Pacientes
+                                </button> 
+                            } 
                         </div>
                     </form>
                 </div>
@@ -210,6 +218,22 @@
                 }
             });
         });
+
+    function guardarPacientes() {
+        console.log("Guardando pacientes importados...");
+        fetch('@Url.Action("GuardarPacientesImportados", "Pacientes")', {
+            method: 'POST'
+        })
+        .then(response => {
+            if (response.ok) {
+                alert("Pacientes guardados correctamente.");
+                window.location.href = '@Url.Action("Index", "Pacientes")';
+            } else {
+                alert("Error al guardar los pacientes.");
+            }
+        })
+        .catch(error => console.error('Error:', error));
+    }
     </script>
 
     <style>
