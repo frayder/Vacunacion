@@ -21,6 +21,10 @@ namespace Highdmin.Models
         [Display(Name = "Tipo")]
         public string? Tipo { get; set; }
 
+        [StringLength(500, ErrorMessage = "La descripción no puede tener más de 500 caracteres")]
+        [Display(Name = "Descripción")]
+        public string? Descripcion { get; set; }
+
         [Display(Name = "Estado")]
         public bool Estado { get; set; } = true;
 

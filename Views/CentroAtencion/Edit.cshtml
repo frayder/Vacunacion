@@ -16,7 +16,7 @@
                     <input asp-for="FechaCreacion" type="hidden" />
                     
                     <div class="row">
-                        <div class="col-md-6">
+                        <div class="col-md-2">
                             <div class="mb-3">
                                 <label asp-for="Codigo" class="form-label"></label>
                                 <input asp-for="Codigo" class="form-control" placeholder="Ingrese el código" />
@@ -30,12 +30,26 @@
                                 <span asp-validation-for="Nombre" class="text-danger"></span>
                             </div>
                         </div>
+                          <div class="col-md-4">
+                            <div class="mb-3">
+                                <label asp-for="Tipo" class="form-label"></label>
+                                <select asp-for="Tipo" class="form-control" data-choices data-choices-search-false>
+                                    <option value="">Seleccionar tipo</option>
+                                    <option value="Hospital">Hospital</option>
+                                    <option value="Clinica">Clinica</option>
+                                    <option value="Centro de Salud">Centro de Salud</option>
+                                    <option value="Puesto de Salud">Puesto de Salud</option>
+                                    <option value="IPS">IPS</option> 
+                                </select>
+                                <span asp-validation-for="Tipo" class="text-danger"></span>
+                            </div>
+                        </div>
                     </div>
                     
                     <div class="mb-3">
-                        <label asp-for="Tipo" class="form-label"></label>
-                        <textarea asp-for="Tipo" class="form-control" rows="3" placeholder="Ingrese el tipo de centro de atención"></textarea>
-                        <span asp-validation-for="Tipo" class="text-danger"></span>
+                        <label asp-for="Descripcion" class="form-label"></label>
+                        <textarea asp-for="Descripcion" class="form-control" rows="3" placeholder="Ingrese la descripción del centro de atención"></textarea>
+                        <span asp-validation-for="Descripcion" class="text-danger"></span>
                     </div>
                     
                     <div class="mb-3">

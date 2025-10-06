@@ -134,7 +134,7 @@
                 <div class="d-flex align-items-center">
                     <!-- Filtro por EPS -->
                     <div class="me-3">
-                        <select class="form-select form-select-sm" style="width: 200px;" id="epsFilter">
+                        <select class="form-select form-select-sm" style="width: 200px;" id="EpsFilter">
                             <option value="">Filtrar por EPS</option>
                             @foreach (var eps in Model.Pacientes.Select(p => p.Eps).Distinct().OrderBy(e => e))
                             {

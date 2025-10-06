@@ -210,10 +210,10 @@ namespace Highdmin.ViewModels
         [Display(Name = "Archivo Excel")]
         public IFormFile ArchivoExcel { get; set; } = null!;
 
-        [Display(Name = "Sobrescribir datos existentes")]
-        public bool SobrescribirDatos { get; set; } = false;
+        [Display(Name = "Eps")]
+        public string Eps { get; set; } = string.Empty;
 
-        [Display(Name = "EPS")]
+        [Display(Name = "EpsFilter")]
         [StringLength(100)]
         public string? EpsFilter { get; set; }
 

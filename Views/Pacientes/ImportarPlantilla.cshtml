@@ -41,6 +41,7 @@
                             <li>Los campos obligatorios son: Tipo Identificación, Identificación, Primer Nombre, Primer Apellido, Fecha de Nacimiento, Sexo y Género</li>
                             <li>La fecha de nacimiento debe estar en formato YYYY-MM-DD</li>
                             <li>El sexo debe ser 'M' para Masculino o 'F' para Femenino</li>
+                            <li>los pacientes existentes (por identificación) serán actualizados.</li>
                         </ul>
                     </div>
 
@@ -53,16 +54,26 @@
             </div>
 
             <!-- Formulario de importación -->
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="card-title mb-0">
-                        <i class="ri-upload-cloud-line me-2"></i>Cargar Archivo
-                    </h5>
-                </div>
+            <div class="card"> 
                 <div class="card-body">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="ri-upload-cloud-line me-2"></i>Cargar Archivo
+                        </h5>
+                    </div>
                     <form asp-action="ImportarPlantilla" method="post" enctype="multipart/form-data">
                         <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
-                        
+                         @if (Model.PacientesCargados == null || !Model.PacientesCargados.Any())
+                        {
+                             <div class="mb-4">
+                            <label asp-for="Eps" class="form-label">EPS / Aseguradora <span class="text-danger">*</span></label>
+                            <select asp-for="Eps" class="form-select" asp-items="@ViewBag.Aseguradoras">
+                                <option value="">-- Seleccione una EPS --</option>
+                            </select>
+                            <div class="form-text">Seleccione una EPS</div>
+                            <span asp-validation-for="Eps" class="text-danger"></span>
+                        </div>
+
                         <div class="mb-4">
                             <label asp-for="ArchivoExcel" class="form-label">Archivo Excel <span class="text-danger">*</span></label>
                             <div class="input-group">
@@ -73,32 +84,13 @@
                             </div>
                             <div class="form-text">Seleccione un archivo Excel (.xlsx o .xls)</div>
                             <span asp-validation-for="ArchivoExcel" class="text-danger"></span>
-                        </div>
-
-                        <div class="mb-4">
-                            <label asp-for="EpsFilter" class="form-label">Filtrar por EPS (Opcional)</label>
-                            <input asp-for="EpsFilter" class="form-control" placeholder="Ingrese el nombre de la EPS para filtrar">
-                            <div class="form-text">Si especifica una EPS, solo se importarán los pacientes de esa EPS</div>
-                            <span asp-validation-for="EpsFilter" class="text-danger"></span>
-                        </div>
-
-                        <div class="mb-4">
-                            <div class="form-check">
-                                <input asp-for="SobrescribirDatos" class="form-check-input" type="checkbox">
-                                <label asp-for="SobrescribirDatos" class="form-check-label">
-                                    Sobrescribir datos existentes
-                                </label>
-                                <div class="form-text">
-                                    Si está marcado, los pacientes existentes (por identificación) serán actualizados.
-                                    Si no está marcado, se omitirán los pacientes duplicados.
-                                </div>
-                            </div>
-                        </div>
-
+                        </div> 
                         <div class="progress mb-4" id="uploadProgress" style="display: none;">
                             <div class="progress-bar progress-bar-striped progress-bar-animated" 
                                  role="progressbar" style="width: 0%"></div>
                         </div>
+                        }
+                       
                         @if (Model.PacientesCargados != null && Model.PacientesCargados.Any())
                         {
                             <div class="card mt-4">
@@ -126,7 +118,7 @@
                                                     <td>@($"{p.PrimerNombre} {p.SegundoNombre} {p.PrimerApellido} {p.SegundoApellido}")</td>
                                                     <td>@(p.FechaNacimiento.ToString("yyyy-MM-dd"))</td>
                                                     <td>@p.Sexo</td>
-                                                    <td>@p.Eps</td>
+                                                    <td>@Model.Eps</td>
                                                 </tr>
                                             }
                                         </tbody>
@@ -138,9 +130,12 @@
                             <a href="@Url.Action("Index")" class="btn btn-secondary me-2">
                                 <i class="ri-arrow-left-line me-1"></i>Cancelar
                             </a>
+                             @if (Model.PacientesCargados == null || !Model.PacientesCargados.Any())
+                            {
                             <button type="submit" class="btn btn-primary" id="importButton">
                                 <i class="ri-upload-line me-1"></i>Importar Pacientes
                             </button>  
+                            }
                             @if (Model.PacientesCargados != null && Model.PacientesCargados.Any())
                             {
                                 <button type="button" class="btn btn-success ms-2" onclick="guardarPacientes()">

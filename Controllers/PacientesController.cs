@@ -11,6 +11,7 @@ using System.Text;
 using System.Globalization;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Highdmin.Controllers
 {
@@ -26,25 +27,59 @@ namespace Highdmin.Controllers
             _context = context;
             _logger = logger;
         }
-
-        private static string GetCellValue(WorkbookPart workbookPart, Cell? cell)
+        private static string GetValue(WorkbookPart workbookPart, Cell? cell)
         {
-            if (cell == null) return string.Empty;
+            if (cell == null)
+                return string.Empty;
 
             string value = cell.InnerText ?? string.Empty;
 
-            if (cell.DataType != null && cell.DataType.Value == CellValues.SharedString &&
-                workbookPart.SharedStringTablePart?.SharedStringTable != null)
+            // Si la celda tiene un tipo de dato explícito
+            if (cell.DataType != null)
             {
-                if (int.TryParse(value, out var index))
-                {
-                    var element = workbookPart.SharedStringTablePart.SharedStringTable
-                        .Elements<SharedStringItem>()
-                        .ElementAtOrDefault(index);
+                var dataType = cell.DataType.Value;
 
-                    if (element != null)
+                if (dataType == CellValues.SharedString)
+                {
+                    if (int.TryParse(value, out var sstIndex) &&
+                        workbookPart.SharedStringTablePart?.SharedStringTable != null)
                     {
-                        value = element.InnerText ?? string.Empty;
+                        var sstItem = workbookPart.SharedStringTablePart.SharedStringTable
+                            .Elements<SharedStringItem>()
+                            .ElementAtOrDefault(sstIndex);
+
+                        if (sstItem != null)
+                            value = sstItem.InnerText ?? string.Empty;
+                    }
+                }
+                else if (dataType == CellValues.Boolean)
+                {
+                    value = value == "1" ? "TRUE" : "FALSE";
+                }
+            }
+            else
+            {
+                // Si no tiene tipo explícito, puede ser numérico o fecha
+                if (double.TryParse(value, out double numericValue))
+                {
+                    if (cell.StyleIndex != null)
+                    {
+                        var stylesPart = workbookPart.WorkbookStylesPart;
+                        if (stylesPart != null)
+                        {
+                            var cellFormat = stylesPart.Stylesheet.CellFormats
+                                .ElementAtOrDefault((int)cell.StyleIndex.Value) as CellFormat;
+
+                            // Detectar formato de fecha por su NumberFormatId
+                            if (cellFormat != null && cellFormat.NumberFormatId != null)
+                            {
+                                uint numFmtId = cellFormat.NumberFormatId.Value;
+                                if (numFmtId >= 14 && numFmtId <= 22)
+                                {
+                                    value = DateTime.FromOADate(numericValue).ToString("yyyy-MM-dd");
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -138,7 +173,7 @@ namespace Highdmin.Controllers
                         Eps = h.Eps,
                         Archivo = h.ArchivoNombre ?? "No disponible",
                         FechaCarga = h.FechaCarga,
-                        Registros = h.TotalCargados, 
+                        Registros = h.TotalCargados,
                         Acciones = h.Observaciones ?? string.Empty
                     })
                     .ToListAsync();
@@ -244,20 +279,34 @@ namespace Highdmin.Controllers
         [HttpPost]
         public async Task<IActionResult> GuardarPacientesImportados()
         {
-            var json = HttpContext.Session.GetString("PacientesImportados"); 
+            var json = HttpContext.Session.GetString("PacientesImportados");
 
             if (string.IsNullOrEmpty(json))
                 return Json(new { success = false, message = "No hay pacientes para guardar." });
 
-            var pacientesCargados = JsonConvert.DeserializeObject<List<Paciente>>(json); 
+            var pacientesCargados = JsonConvert.DeserializeObject<List<Paciente>>(json);
             try
             {
-                int nuevos = 0, existentes = 0; 
+                int nuevos = 0, existentes = 0;
                 foreach (var p in pacientesCargados)
                 {
-                    var existe = await _context.Pacientes.AnyAsync(x => x.Identificacion == p.Identificacion);
-                    if (existe)
+                    var pacienteExistente = await _context.Pacientes.FirstOrDefaultAsync(x => x.Identificacion == p.Identificacion);
+                    if (pacienteExistente != null)
                     {
+                        // 🔁 Actualizar información del paciente existente
+                        pacienteExistente.TipoIdentificacion = p.TipoIdentificacion ?? pacienteExistente.TipoIdentificacion;
+                        pacienteExistente.PrimerNombre = p.PrimerNombre ?? pacienteExistente.PrimerNombre;
+                        pacienteExistente.SegundoNombre = p.SegundoNombre ?? pacienteExistente.SegundoNombre;
+                        pacienteExistente.PrimerApellido = p.PrimerApellido ?? pacienteExistente.PrimerApellido;
+                        pacienteExistente.SegundoApellido = p.SegundoApellido ?? pacienteExistente.SegundoApellido;
+                        pacienteExistente.FechaNacimiento = p.FechaNacimiento;
+                        pacienteExistente.Sexo = p.Sexo ?? pacienteExistente.Sexo;
+                        pacienteExistente.Genero = p.Genero ?? pacienteExistente.Genero;
+                        pacienteExistente.Eps = p.Eps ?? pacienteExistente.Eps;
+                        pacienteExistente.Estado = true;
+                        pacienteExistente.FechaActualizacion = DateTime.Now; // Si tienes este campo en tu modelo
+
+                        _context.Pacientes.Update(pacienteExistente);
                         existentes++;
                         continue;
                     }
@@ -284,7 +333,7 @@ namespace Highdmin.Controllers
 
                 await _context.SaveChangesAsync();
 
-                 // Guardar historial de carga
+                // Guardar historial de carga
                 var usuario = User.Identity?.Name ?? "Sistema";
                 var historial = new HistorialCargaPacientes
                 {
@@ -295,7 +344,6 @@ namespace Highdmin.Controllers
                     ArchivoNombre = "Carga desde Excel",
                     Observaciones = $"{nuevos} nuevos, {existentes} ya existían."
                 };
-                Console.WriteLine($"Guardando historial de carga... {historial}");
                 _context.HistorialCargas.Add(historial);
                 await _context.SaveChangesAsync();
 
@@ -466,8 +514,20 @@ namespace Highdmin.Controllers
         }
 
         // GET: Pacientes/ImportarPlantilla
-        public IActionResult ImportarPlantilla()
+        public async Task<IActionResult> ImportarPlantilla()
         {
+            // Obtener la lista de aseguradoras activas ordenadas por nombre
+            var aseguradoras = await _context.Aseguradoras
+                .Where(a => a.Estado)
+                .OrderBy(a => a.Nombre)
+                .Select(a => new SelectListItem
+                {
+                    Value = a.Nombre,
+                    Text = $"{a.Nombre} ({a.Codigo})"
+                })
+                .ToListAsync();
+
+            ViewBag.Aseguradoras = aseguradoras;
             return View(new ImportarPacientesViewModel());
         }
 
@@ -482,17 +542,16 @@ namespace Highdmin.Controllers
 
                 // Definir encabezados y valores de validación
                 var headers = new List<(string Name, string[] ValidationValues)>
-        {
-            ("Tipo Identificación", new[] { "CC", "TI", "CE", "PA", "RC" }),
-            ("Identificación", Array.Empty<string>()),
-            ("Primer Nombre", Array.Empty<string>()),
-            ("Segundo Nombre", Array.Empty<string>()),
-            ("Primer Apellido", Array.Empty<string>()),
-            ("Segundo Apellido", Array.Empty<string>()),
-            ("Fecha Nacimiento", Array.Empty<string>()),
-            ("Sexo", new[] { "Masculino", "Femenino" }),
-            ("EPS", Array.Empty<string>())
-        };
+                {
+                    ("Tipo Identificación", new[] { "CC", "TI", "CE", "PA", "RC" }),
+                    ("Identificación", Array.Empty<string>()),
+                    ("Primer Nombre", Array.Empty<string>()),
+                    ("Segundo Nombre", Array.Empty<string>()),
+                    ("Primer Apellido", Array.Empty<string>()),
+                    ("Segundo Apellido", Array.Empty<string>()),
+                    ("Fecha Nacimiento", Array.Empty<string>()),
+                    ("Sexo", new[] { "Masculino", "Femenino" })
+                };
 
                 using var stream = new MemoryStream();
                 using (var document = SpreadsheetDocument.Create(stream, SpreadsheetDocumentType.Workbook))
@@ -524,9 +583,9 @@ namespace Highdmin.Controllers
                     var exampleRow = new Row();
                     var exampleData = new[]
                     {
-                "CC", "12345678", "Juan", "Carlos", "Pérez", "López",
-                "1990-01-15", "Masculino", "EPS_EJEMPLO"
-            };
+                        "CC", "12345678", "Juan", "Carlos", "Pérez", "López",
+                        "1990-01-15", "Masculino", "EPS_EJEMPLO"
+                    };
                     foreach (var cellValue in exampleData)
                     {
                         exampleRow.Append(CreateTextCell(cellValue));
@@ -580,11 +639,6 @@ namespace Highdmin.Controllers
         [ActionName("ImportarPlantilla")]
         public async Task<IActionResult> ImportarPlantilla(ImportarPacientesViewModel model)
         {
-            if (model.ArchivoExcel == null || model.ArchivoExcel.Length == 0)
-            {
-                ModelState.AddModelError("ArchivoExcel", "Debe seleccionar un archivo Excel válido.");
-                return View(model);
-            }
 
             try
             {
@@ -634,32 +688,37 @@ namespace Highdmin.Controllers
 
                 model.PacientesCargados = new List<PacienteItemViewModel>();
                 var dbPacientes = new List<Paciente>();
-                
+
                 // Saltamos la primera fila (encabezados)
                 foreach (var row in sheetData.Elements<Row>().Skip(1))
                 {
                     var cells = row.Elements<Cell>().ToList();
                     if (!cells.Any()) continue;
 
+                    string tipoIdent = GetValue(workbookPart, GetCell(row, "A"));
+                    string identificacion = GetValue(workbookPart, GetCell(row, "B"));
+                    string primerNombre = GetValue(workbookPart, GetCell(row, "C"));
+                    string segundoNombre = GetValue(workbookPart, GetCell(row, "D"));
+                    string primerApellido = GetValue(workbookPart, GetCell(row, "E"));
+                    string segundoApellido = GetValue(workbookPart, GetCell(row, "F"));
+                    string fechaNacStr = GetValue(workbookPart, GetCell(row, "G"));
+                    string sexo = GetValue(workbookPart, GetCell(row, "H"));
+                    string eps = model.Eps;
+
                     var paciente = new Paciente
                     {
-                        TipoIdentificacion = GetCellValue(workbookPart, cells.ElementAtOrDefault(0)),
-                        Identificacion = GetCellValue(workbookPart, cells.ElementAtOrDefault(1)),
-                        PrimerNombre = GetCellValue(workbookPart, cells.ElementAtOrDefault(2)),
-                        SegundoNombre = GetCellValue(workbookPart, cells.ElementAtOrDefault(3)),
-                        PrimerApellido = GetCellValue(workbookPart, cells.ElementAtOrDefault(4)),
-                        SegundoApellido = GetCellValue(workbookPart, cells.ElementAtOrDefault(5)),
-                        FechaNacimiento = ParseDate(GetCellValue(workbookPart, cells.ElementAtOrDefault(6))) ?? DateTime.MinValue,
-                        Sexo = GetCellValue(workbookPart, cells.ElementAtOrDefault(7)),
-                        Eps = GetCellValue(workbookPart, cells.ElementAtOrDefault(8))
+                        TipoIdentificacion = tipoIdent ?? "CC",
+                        Identificacion = identificacion,
+                        PrimerNombre = primerNombre,
+                        SegundoNombre = segundoNombre,
+                        PrimerApellido = primerApellido,
+                        SegundoApellido = segundoApellido,
+                        FechaNacimiento = ParseDate(fechaNacStr) ?? DateTime.MinValue,
+                        Sexo = sexo,
+                        Eps = eps,
+                        Estado = true,
+                        FechaCreacion = DateTime.Now
                     };
-
-                    // Si se definió filtro por EPS y no coincide, omitir este registro
-                    if (!string.IsNullOrWhiteSpace(model.EpsFilter) &&
-                        !string.Equals(paciente.Eps, model.EpsFilter, StringComparison.OrdinalIgnoreCase))
-                    {
-                        continue;
-                    }
 
                     // Solo agregar si tiene los campos requeridos
                     if (string.IsNullOrWhiteSpace(paciente.Identificacion) ||
@@ -677,9 +736,9 @@ namespace Highdmin.Controllers
                         TipoIdentificacion = paciente.TipoIdentificacion,
                         Identificacion = paciente.Identificacion,
                         PrimerNombre = paciente.PrimerNombre,
-                        SegundoNombre = paciente.SegundoNombre,
+                        SegundoNombre = paciente.SegundoNombre ?? "",
                         PrimerApellido = paciente.PrimerApellido,
-                        SegundoApellido = paciente.SegundoApellido,
+                        SegundoApellido = paciente.SegundoApellido ?? "",
                         FechaNacimiento = paciente.FechaNacimiento,
                         Sexo = paciente.Sexo,
                         Genero = paciente.Genero,
@@ -691,6 +750,7 @@ namespace Highdmin.Controllers
                     ModelState.AddModelError("", "No se encontraron registros válidos en el archivo Excel.");
                     return View(model);
                 }
+                
                 HttpContext.Session.SetString("PacientesImportados", JsonConvert.SerializeObject(model.PacientesCargados));
                 TempData["Success"] = $"Se importaron {model.PacientesCargados.Count} pacientes correctamente.";
                 return View(model);
@@ -701,6 +761,12 @@ namespace Highdmin.Controllers
                 ModelState.AddModelError("", "Error al procesar el archivo Excel. Por favor, verifique el formato del archivo.");
                 return View(model);
             }
+        }
+
+        private static Cell? GetCell(Row row, string columnName)
+        {
+            return row.Elements<Cell>()
+                      .FirstOrDefault(c => c.CellReference?.Value.StartsWith(columnName) == true);
         }
     }
 }

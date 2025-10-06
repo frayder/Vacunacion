@@ -29,6 +29,7 @@ namespace Highdmin.Controllers
                         Nombre = c.Nombre,
                         Tipo = c.Tipo,
                         Estado = c.Estado,
+                        Descripcion = c.Descripcion,
                         FechaCreacion = c.FechaCreacion
                     })
                     .ToListAsync();
@@ -73,6 +74,7 @@ namespace Highdmin.Controllers
                 Nombre = centroAtencion.Nombre,
                 Tipo = centroAtencion.Tipo,
                 Estado = centroAtencion.Estado,
+                Descripcion = centroAtencion.Descripcion,
                 FechaCreacion = centroAtencion.FechaCreacion
             };
 
@@ -110,6 +112,7 @@ namespace Highdmin.Controllers
                         Nombre = viewModel.Nombre,
                         Tipo = viewModel.Tipo,
                         Estado = viewModel.Estado,
+                        Descripcion = viewModel.Descripcion,
                         FechaCreacion = DateTime.Now
                     };
 
@@ -189,6 +192,7 @@ namespace Highdmin.Controllers
                     centroAtencion.Nombre = viewModel.Nombre;
                     centroAtencion.Tipo = viewModel.Tipo;
                     centroAtencion.Estado = viewModel.Estado;
+                    centroAtencion.Descripcion = viewModel.Descripcion;
 
                     _context.Update(centroAtencion);
                     await _context.SaveChangesAsync();
@@ -239,7 +243,8 @@ namespace Highdmin.Controllers
                 Nombre = centroAtencion.Nombre,
                 Tipo = centroAtencion.Tipo,
                 Estado = centroAtencion.Estado,
-                FechaCreacion = centroAtencion.FechaCreacion
+                FechaCreacion = centroAtencion.FechaCreacion,
+                Descripcion = centroAtencion.Descripcion
             };
 
             return View(viewModel);

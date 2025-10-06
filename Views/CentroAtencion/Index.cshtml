@@ -183,6 +183,7 @@
                     <tr>
                         <th class="sort" data-sort="codigo">Código</th>
                         <th class="sort" data-sort="nombre">Nombre</th>
+                        <th class="sort" data-sort="tipo">Tipo</th>
                         <th class="sort" data-sort="descripcion">Descripción</th>
                         <th class="sort" data-sort="estado">Estado</th>
                         <th class="sort" data-sort="fecha">Fecha Creación</th>
@@ -207,6 +208,9 @@
                                         <h6 class="fs-14 mb-0">@centro.Nombre</h6>
                                     </div>
                                 </div>
+                            </td>
+                            <td class="tipo">
+                                <span class="text-muted">@centro.Tipo</span>
                             </td>
                             <td class="descripcion">
                                 <span class="text-muted">@(string.IsNullOrEmpty(centro.Descripcion) ? "Sin descripción" : centro.Descripcion)</span>

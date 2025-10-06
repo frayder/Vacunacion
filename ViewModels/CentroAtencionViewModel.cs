@@ -31,15 +31,13 @@ namespace Highdmin.ViewModels
         [Display(Name = "Estado")]
         public bool Estado { get; set; } = true;
 
-        [Display(Name = "Fecha Creación")]
-        public DateTime FechaCreacion { get; set; } = DateTime.Now;
+        [StringLength(500, ErrorMessage = "La descripción no puede tener más de 500 caracteres")]
+        [Display(Name = "Descripción")]
+        public string? Descripcion { get; set; }
 
-        // Implementación de ICatalogoItem - mapea Tipo a Descripcion para compatibilidad
-        public string? Descripcion 
-        { 
-            get => Tipo; 
-            set => Tipo = value; 
-        }
+
+        [Display(Name = "Fecha Creación")]
+        public DateTime FechaCreacion { get; set; } = DateTime.Now; 
 
         // Propiedades calculadas para mostrar en la vista
         public string EstadoTexto => Estado ? "Activo" : "Inactivo";
@@ -62,6 +60,10 @@ namespace Highdmin.ViewModels
         [Display(Name = "Tipo")]
         public string? Tipo { get; set; }
 
+        [StringLength(500, ErrorMessage = "La descripción no puede tener más de 500 caracteres")]
+        [Display(Name = "Descripción")]
+        public string? Descripcion { get; set; }
+
         [Display(Name = "Estado")]
         public bool Estado { get; set; } = true;
     }
@@ -83,6 +85,10 @@ namespace Highdmin.ViewModels
         [StringLength(500, ErrorMessage = "El tipo no puede tener más de 500 caracteres")]
         [Display(Name = "Tipo")]
         public string? Tipo { get; set; }
+
+        [StringLength(500, ErrorMessage = "La descripción no puede tener más de 500 caracteres")]
+        [Display(Name = "Descripción")] 
+        public string? Descripcion { get; set; }
 
         [Display(Name = "Estado")]
         public bool Estado { get; set; } = true;
