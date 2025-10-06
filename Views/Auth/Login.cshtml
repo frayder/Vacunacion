@@ -1,81 +1,90 @@
-
-
 @{
     Layout = "~/Views/Shared/_BaseLayout.cshtml";
     ViewBag.Title = "Login In";
 }
 
 <div class="auth-bg d-flex min-vh-100 justify-content-center align-items-center">
-        <div class="row g-0 justify-content-center w-100 m-xxl-5 px-xxl-4 m-3">
-            <div class="col-xl-4 col-lg-5 col-md-6">
-                <div class="card overflow-hidden text-center h-100 p-xxl-4 p-3 mb-0">
-                    <a href=@Url.Action("Index", "Dashboard") class="auth-brand mb-4">
-                        <img src="~/images/logo-dark.png" alt="dark logo" height="26" class="logo-dark">
-                        <img src="~/images/logo.png" alt="logo light" height="26" class="logo-light">
-                    </a>
-
-                    <h4 class="fw-semibold mb-2 fs-18">Log in to your account</h4>
-
-                    <p class="text-muted mb-4">Enter your email address and password to access admin panel.</p>
-
-                    <form method="post" asp-action="Login" asp-controller="Auth" class="text-start mb-3">
-                        @Html.AntiForgeryToken()
-                        <div class="mb-3">
-                            <label class="form-label" for="nombreUsuario">Usuario o Email</label>
-                            <input type="text" id="nombreUsuario" name="nombreUsuario" class="form-control" placeholder="Ingrese su usuario o email" required>
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label" for="password">Contraseña</label>
-                            <input type="password" id="password" name="password" class="form-control" placeholder="Ingrese su contraseña" required>
-                        </div>
-
-                        <div class="d-flex justify-content-between mb-3">
-                            <div class="form-check">
-                                <input type="checkbox" class="form-check-input" id="rememberMe" name="rememberMe">
-                                <label class="form-check-label" for="rememberMe">Recordarme</label>
-                            </div>
-
-                            <a href=@Url.Action("RecoverPassword", "Auth") class="text-muted border-bottom border-dashed">¿Olvidaste tu contraseña?</a>
-                        </div>
-
-                        @if (ViewBag.Error != null)
-                        {
-                            <div class="alert alert-danger d-flex align-items-center" role="alert">
-                                <i class="ri-error-warning-line me-2"></i>
-                                <div>
-                                    <strong>Error de conexión</strong><br>
-                                    <small>@ViewBag.Error</small>
-                                </div>
-                            </div>
-                        }
-
-                        <div class="d-grid">
-                            <button class="btn btn-primary fw-semibold" type="submit" id="loginBtn">
-                                <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
-                                Iniciar Sesión
-                            </button>
-                        </div>
-                    </form>
-
-                    <p class="text-muted fs-14 mb-4">Don't have an account? <a href=@Url.Action("Register", "Auth") class="fw-semibold text-danger ms-1">Sign Up !</a></p>
-
-                    <p class="mt-auto mb-0">
-                        <script>document.write(new Date().getFullYear())</script> © Highdmin - By <span class="fw-bold text-decoration-underline text-uppercase text-reset fs-12">I Analitycs</span>
-                    </p>
+    <div class="row g-0 justify-content-center w-100 m-xxl-5 px-xxl-4 m-3">
+        <div class="col-xl-4 col-lg-5 col-md-6">
+            <div class="card overflow-hidden text-center h-100 p-xxl-4 p-3 mb-0">
+                
+                <div  class="avatar-md mx-auto mb-2 mt-3">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                        class="lucide lucide-syringe h-8 w-8 text-[#2E37A4]" aria-hidden="true">
+                        <path d="m18 2 4 4"></path>
+                        <path d="m17 7 3-3"></path>
+                        <path d="M19 9 8.7 19.3c-1 1-2.5 1-3.4 0l-.6-.6c-1-1-1-2.5 0-3.4L15 5"></path>
+                        <path d="m9 11 4 4"></path>
+                        <path d="m5 19-3 3"></path>
+                        <path d="m14 4 6 6"></path>
+                    </svg>
                 </div>
+
+                <h4 class="fw-semibold mb-2 fs-18">Sistema de Gestión de Vacunación</h4>
+
+                <p class="text-muted mb-4">Ingrese sus credenciales para acceder.</p>
+
+                <form method="post" asp-action="Login" asp-controller="Auth" class="text-start mb-3">
+                    @Html.AntiForgeryToken()
+                    <div class="mb-3">
+                        <label class="form-label" for="nombreUsuario">Usuario o Email</label>
+                        <input type="text" id="nombreUsuario" name="nombreUsuario" class="form-control"
+                            placeholder="Ingrese su usuario o email" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label" for="password">Contraseña</label>
+                        <input type="password" id="password" name="password" class="form-control"
+                            placeholder="Ingrese su contraseña" required>
+                    </div>
+
+                    <div class="d-flex justify-content-end mb-3">
+
+                        <a href=@Url.Action("RecoverPassword", "Auth")
+                            class="text-muted border-bottom border-dashed">¿Olvidaste tu contraseña?</a>
+                    </div>
+
+                    @if (ViewBag.Error != null)
+                    {
+                        <div class="alert alert-danger d-flex align-items-center" role="alert">
+                            <i class="ri-error-warning-line me-2"></i>
+                            <div>
+                                <strong>Error de conexión</strong><br>
+                                <small>@ViewBag.Error</small>
+                            </div>
+                        </div>
+                    }
+
+                    <div class="d-grid">
+                        <button class="btn btn-primary fw-semibold" style="background-color: #3b45b9;" type="submit"
+                            id="loginBtn">
+                            <span class="spinner-border spinner-border-sm d-none" role="status"
+                                aria-hidden="true"></span>
+                            Iniciar Sesión
+                        </button>
+                    </div>
+                </form>
+
+                @* <p class="text-muted fs-14 mb-4">Don't have an account? <a href=@Url.Action("Register", "Auth") class="fw-semibold text-danger ms-1">Sign Up !</a></p> *@
+
+                <p class="mt-auto mb-0">
+                    <script>document.write(new Date().getFullYear())</script> © VaccinePro - By <span
+                        class="fw-bold text-decoration-underline text-uppercase text-reset fs-12">I Analitycs</span>
+                </p>
             </div>
         </div>
     </div>
+</div>
 
 @section scripts {
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             const loginForm = document.querySelector('form');
             const loginBtn = document.getElementById('loginBtn');
             const spinner = loginBtn.querySelector('.spinner-border');
 
-            loginForm.addEventListener('submit', function(e) {
+            loginForm.addEventListener('submit', function (e) {
                 // Mostrar spinner y deshabilitar botón
                 spinner.classList.remove('d-none');
                 loginBtn.disabled = true;
@@ -86,16 +95,16 @@
 
             // Si hay un error, restaurar el botón
             @if (ViewBag.Error != null)
-            {
-                <text>
-                spinner.classList.add('d-none');
-                loginBtn.disabled = false;
-                loginBtn.innerHTML = 'Iniciar Sesión';
-                </text>
+                {
+                    <text>
+                        spinner.classList.add('d-none');
+                        loginBtn.disabled = false;
+                        loginBtn.innerHTML = 'Iniciar Sesión';
+                    </text>
             }
 
-            // Auto-enfocar el primer campo vacío
-            const usernameField = document.getElementById('nombreUsuario');
+                // Auto-enfocar el primer campo vacío
+                const usernameField = document.getElementById('nombreUsuario');
             const passwordField = document.getElementById('password');
 
             if (!usernameField.value) {

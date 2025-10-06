@@ -131,14 +131,25 @@ namespace Highdmin.Controllers
 
                 var totalPacientes = await _context.Pacientes.CountAsync();
                 var pacientesConDatos = await _context.Pacientes.CountAsync(p => p.Estado);
+                var historialCargas = await _context.HistorialCargas
+                    .OrderByDescending(h => h.FechaCarga)
+                    .Select(h => new CargaHistorialItem
+                    {
+                        Eps = h.Eps,
+                        Archivo = h.ArchivoNombre ?? "No disponible",
+                        FechaCarga = h.FechaCarga,
+                        Registros = h.TotalCargados, 
+                        Acciones = h.Observaciones ?? string.Empty
+                    })
+                    .ToListAsync();
 
                 var viewModel = new PacienteViewModel
                 {
                     TotalPacientes = totalPacientes,
                     PacientesConDatos = pacientesConDatos,
-                    CargasRealizadas = 0, // TODO: Implementar lógica de cargas
+                    CargasRealizadas = historialCargas.Count,
                     Pacientes = pacientes,
-                    HistorialCargas = new List<CargaHistorialItem>() // TODO: Implementar historial
+                    HistorialCargas = historialCargas
                 };
 
                 return View(viewModel);

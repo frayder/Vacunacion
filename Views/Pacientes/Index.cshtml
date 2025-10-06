@@ -91,27 +91,21 @@
                     <table class="table table-hover">
                         <thead class="table-light">
                             <tr>
+                            <th>Fecha de Carga</th>
                                 <th>EPS</th>
                                 <th>Archivo</th>
-                                <th>Fecha de Carga</th>
-                                <th>Registros</th>
-                                <th>Estado</th>
-                                <th>Acciones</th>
+                                <th>Registros</th> 
+                                <th>Detalle</th>
                             </tr>
                         </thead>
                         <tbody>
                             @foreach (var carga in Model.HistorialCargas)
                             {
                                 <tr>
+                                    <td>@carga.FechaCarga.ToString("dd/MM/yyyy HH:mm")</td>
                                     <td>@carga.Eps</td>
                                     <td>@carga.Archivo</td>
-                                    <td>@carga.FechaCarga.ToString("dd/MM/yyyy HH:mm")</td>
-                                    <td>@carga.Registros</td>
-                                    <td>
-                                        <span class="badge bg-@(carga.Estado == "Exitoso" ? "success" : "warning")">
-                                            @carga.Estado
-                                        </span>
-                                    </td>
+                                    <td>@carga.Registros</td> 
                                     <td>@carga.Acciones</td>
                                 </tr>
                             }

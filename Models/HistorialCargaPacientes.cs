@@ -14,14 +14,20 @@ namespace Highdmin.Models
         public DateTime FechaCarga { get; set; } = DateTime.Now;
 
         [Required]
+        [StringLength(100)]
+        public string Eps { get; set; } = string.Empty;
+
+        [Required]
         public string Usuario { get; set; } = string.Empty;
 
         public int TotalCargados { get; set; }
 
         public int TotalExistentes { get; set; }
 
+        [StringLength(255)]
         public string? ArchivoNombre { get; set; }
 
+        [StringLength(1000)]
         public string? Observaciones { get; set; }
     }
 }

@@ -197,7 +197,7 @@ namespace Highdmin.ViewModels
 
     public class CargaHistorialItem
     {
-        public string Eps { get; set; } = string.Empty;
+        public string? Eps { get; set; } = string.Empty;
         public string Archivo { get; set; } = string.Empty;
         public DateTime FechaCarga { get; set; }
         public int Registros { get; set; }
