@@ -5,6 +5,14 @@
     Layout = "~/Views/Shared/_VerticalLayout.cshtml";
 }
  
+<!-- Info Card -->
+@await Component.InvokeAsync("GradientCard", new { 
+    title = "Gestión de Entradas",
+    description = "Configure y administre las entradas disponibles en el sistema.",
+    icon = "ri-medicine-bottle-line",
+    startColor = "#667eea",
+    endColor = "#764ba2"
+}) 
 
 <!-- Statistics Cards -->
 <div class="row">

@@ -5,23 +5,13 @@
 } 
 
 <!-- Info Card -->
-<div class="card mb-4" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
-    <div class="card-body">
-        <div class="d-flex align-items-center">
-            <div class="flex-shrink-0">
-                <div class="avatar-sm">
-                    <span class="avatar-title bg-white bg-opacity-20 text-white rounded-circle fs-3">
-                        <i class="ri-file-list-3-line"></i>
-                    </span>
-                </div>
-            </div>
-            <div class="flex-grow-1 ms-3">
-                <h5 class="mb-1 text-white">Configuración de Tipos de Carnet</h5>
-                <p class="text-white-50 mb-0">Administre los tipos de carnet disponibles para el registro de vacunación.</p>
-            </div>
-        </div>
-    </div>
-</div> 
+@await Component.InvokeAsync("GradientCard", new { 
+    title = "Configuración de Tipos de Carnet",
+    description = "Administre los tipos de carnet disponibles para el registro de vacunación.",
+    icon = "ri-file-list-3-line",
+    startColor = "#667eea",
+    endColor = "#764ba2"
+})   
 
 <!-- Main Content Card -->
 <div class="card">

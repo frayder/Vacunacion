@@ -5,23 +5,13 @@
 }
 
 <!-- Info Card -->
-<div class="card mb-4" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
-    <div class="card-body">
-        <div class="d-flex align-items-center">
-            <div class="flex-shrink-0">
-                <div class="avatar-sm">
-                    <span class="avatar-title bg-white bg-opacity-20 text-white rounded-circle fs-3">
-                        <i class="ri-medicine-bottle-line"></i>
-                    </span>
-                </div>
-            </div>
-            <div class="flex-grow-1 ms-3">
-                <h5 class="mb-1 text-white">Gestión de Insumos</h5>
-                <p class="text-white-50 mb-0">Configure y administre los insumos disponibles en el sistema.</p>
-            </div>
-        </div>
-    </div>
-</div>
+@await Component.InvokeAsync("GradientCard", new { 
+    title = "Gestión de Insumos",
+    description = "Configure y administre los insumos disponibles en el sistema.",
+    icon = "ri-medicine-bottle-line",
+    startColor = "#667eea",
+    endColor = "#764ba2"
+}) 
 
 <!-- Statistics Cards -->
 <div class="row mb-4">

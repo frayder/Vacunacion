@@ -4,24 +4,13 @@
     Layout = "~/Views/Shared/_VerticalLayout.cshtml";
 } 
 
-<!-- Info Card -->
-<div class="card mb-4" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
-    <div class="card-body">
-        <div class="d-flex align-items-center">
-            <div class="flex-shrink-0">
-                <div class="avatar-sm">
-                    <span class="avatar-title bg-white bg-opacity-20 text-white rounded-circle fs-3">
-                        <i class="ri-user-settings-line"></i>
-                    </span>
-                </div>
-            </div>
-            <div class="flex-grow-1 ms-3">
-                <h5 class="mb-1 text-white">Configuración de Condición Usuaria</h5>
-                <p class="text-white-50 mb-0">Administre las condiciones de usuario del sistema de salud.</p>
-            </div>
-        </div>
-    </div>
-</div> 
+@await Component.InvokeAsync("GradientCard", new { 
+    title = "Configuración de Condición Usuaria",
+    description = "Administre las condiciones de usuario del sistema de salud.",
+    icon = "ri-user-settings-line",
+    startColor = "#667eea",
+    endColor = "#764ba2"
+})    
 
 <!-- Main Content Card -->
 <div class="card">
