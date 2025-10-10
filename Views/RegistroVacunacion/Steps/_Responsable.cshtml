@@ -12,7 +12,7 @@
             <div class="col-md-12">
                 <div class="mb-3">
                     <label class="form-label fw-bold">Responsable (Nombre del vacunador)</label>
-                    <input type="text" class="form-control" name="NombreVacunador" value="Dr. Administrador" placeholder="Nombre del profesional vacunador" oninput="
+                    <input type="text" class="form-control" name="Responsable" value="Dr. Administrador" placeholder="Nombre del profesional vacunador" oninput="
                         document.getElementById('resumenVacunador').textContent = this.value || 'No especificado';
                     ">
                 </div>
@@ -54,7 +54,7 @@
                 <!-- Campo Motivo de no ingreso (aparece solo si se selecciona NO) -->
                 <div id="motivoNoIngreso" class="mt-3" style="display: none;">
                     <label class="form-label fw-bold text-danger">Motivo de no ingreso <span class="text-danger">*</span></label>
-                    <textarea class="form-control" name="MotivoNoIngreso" id="NotasFinales" rows="4" 
+                    <textarea class="form-control" name="MotivoNoIngresoPAIWEB" id="motivoNoIngresoPAIWEB" rows="4" 
                               placeholder="Describa el motivo por el cual las vacunas no fueron ingresadas al sistema PAIWEB (ej: sistema no disponible, falta de conectividad, problemas técnicos, etc.)"
                               oninput="
                                   const resumenElement = document.getElementById('resumenPAIWEB');
@@ -79,9 +79,10 @@
             <div class="col-md-12">
                 <div class="mb-3">
                     <label class="form-label fw-bold">Centro de salud</label>
-                    <input type="text" class="form-control" name="CentroSalud" value="Sistema Central" placeholder="Nombre del centro de salud" oninput="
-                        document.getElementById('resumenCentro').textContent = this.value || 'No especificado';
-                    ">
+                    <select class="form-select" name="CentroSaludResponsable">
+                        <option value="">Sistema Central</option>
+                        <!-- Opciones se cargarán dinámicamente -->
+                    </select> 
                 </div>
             </div>
         </div>

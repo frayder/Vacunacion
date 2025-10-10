@@ -98,17 +98,7 @@ namespace Highdmin.Models
         [Required(ErrorMessage = "El nombre de la vacuna es obligatorio")]
         [StringLength(100, ErrorMessage = "El nombre de la vacuna no puede tener más de 100 caracteres")]
         [Display(Name = "Vacuna")]
-        public string Vacuna { get; set; } = string.Empty; 
- 
-
-        // DATOS DEL RESPONSABLE
-        [StringLength(255, ErrorMessage = "El nombre del vacunador no puede tener más de 255 caracteres")]
-        [Display(Name = "Vacunador")]
-        public string? Vacunador { get; set; }
-
-        [StringLength(50, ErrorMessage = "El registro profesional no puede tener más de 50 caracteres")]
-        [Display(Name = "Registro Profesional")]
-        public string? RegistroProfesional { get; set; }
+        public string Vacuna { get; set; } = string.Empty;  
 
         // OBSERVACIONES Y NOTAS
         [StringLength(1000, ErrorMessage = "Las observaciones no pueden tener más de 1000 caracteres")]
@@ -196,10 +186,10 @@ namespace Highdmin.Models
         public string? ArrayAntecedentes { get; set; }
 
         [Display(Name = "Enfermedad/Contraindicación Vacuna")]
-        public string? EnfermedadContraindicacionVacuna { get; set; }
+        public bool? EnfermedadContraindicacionVacuna { get; set; }
 
         [Display(Name = "Reacción Biológica")]
-        public string? ReaccionBiologico { get; set; }
+        public bool? ReaccionBiologico { get; set; }
 
         [Display(Name = "Madre/Cuidador")]
         public bool? MadreCuidador { get; set; }
@@ -232,10 +222,10 @@ namespace Highdmin.Models
         public string? CelularCuidador { get; set; }
 
         [Display(Name = "Régimen de Afiliación Cuidador")]
-        public string? RegimenAfiliacionCuidador { get; set; }
+        public int? RegimenAfiliacionCuidador { get; set; }
 
         [Display(Name = "Pertenencia Étnica Cuidador")]
-        public string? PertenenciaEtnicaIdCuidador { get; set; }
+        public int? PertenenciaEtnicaIdCuidador { get; set; }
 
         [Display(Name = "Estado Desplazado Cuidador")]
         public bool? EstadoDesplazadoCuidador { get; set; }
@@ -299,5 +289,8 @@ namespace Highdmin.Models
 
         [NotMapped]
         public string VacunaCompleta => $"{Vacuna} - {Dosis}";
+
+        [Display(Name = "Motivo de No Ingreso PAIWEB")]
+        public string? MotivoNoIngresoPAIWEB { get; set; }
     }
 }

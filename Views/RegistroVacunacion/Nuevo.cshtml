@@ -373,15 +373,16 @@
 
                     if (value !== undefined && value !== null && value !== '') {
                         if (input.type === 'radio' || input.type === 'checkbox') {
-                            input.checked = (input.value === value);
+                            const isVisible = input.offsetParent !== null ;
+                            if (input.value === value && isVisible) {
+                                input.checked = true;
+                            }
                         } else {
                             input.value = value;
                         }
                     }
                 });
-
-                // Ejecutar lógica específica del paso actual
-                executeStepSpecificLogic();
+ 
             }
 
             // Función para ejecutar lógica específica de cada paso
@@ -397,7 +398,13 @@
 
                 // Cargar datos específicos para el paso 2 (Datos Complementarios)
                 if (currentStep === 2) {
-                    loadDatosComplementarios();
+                     loadDatosComplementarios().then(() => {
+                        // Restaurar datos después de cargar las opciones
+                        setTimeout(() => {
+                            restoreCurrentStepData();
+                        }, 100);
+                    });
+                    return;
                 }
 
                 // Inicializar lógica específica para el paso 3 (Antecedentes Médicos)
@@ -405,28 +412,67 @@
                     setTimeout(() => {
                         initializeAntecedentesLogic();
                         restoreAntecedentes();
+                        // AGREGAR ESTA LÍNEA FALTANTE:
+                        restoreCurrentStepData();
                     }, 100);
+                    return;
                 }
 
                 // Cargar datos específicos para el paso 4 (Condición Usuario/a)
                 if (currentStep === 4) {
-                    setTimeout(() => {
-                        loadCondicionesUsuarias();
-                    }, 100);
+                    loadCondicionesUsuarias().then(() => {
+                        // Restaurar datos después de cargar las opciones
+                        setTimeout(() => {
+                            restoreCurrentStepData();
+                        }, 100);
+                    });
+                    return;
                 }
 
                 // Cargar datos específicos para el paso 5 (Médico/Cuidador)
                 if (currentStep === 5) {
-                    setTimeout(() => {
-                        loadDatosMedicoCuidador();
-                    }, 100);
+                    loadDatosMedicoCuidador().then(() => {
+                        // Restaurar datos después de cargar las opciones
+                        setTimeout(() => {
+                            restoreCurrentStepData();
+                        }, 100);
+                    });
+                    return;
                 }
 
                 // Cargar datos específicos para el paso 6 (Esquema Vacunación)
                 if (currentStep === 6) {
-                    setTimeout(() => {
-                        loadTiposCarnet();
-                    }, 100);
+                   loadTiposCarnet().then(() => {
+                        // Restaurar datos después de cargar las opciones
+                        setTimeout(() => {
+                            restoreCurrentStepData();
+                        }, 100);
+                    });
+                    return;
+                }
+
+                // Cargar datos específicos para el paso 7 (Responsable)
+                if (currentStep === 7) {
+                    loadControlResponsable().then(() => {
+                        // Restaurar datos después de cargar las opciones
+                        setTimeout(() => {
+                            restoreCurrentStepData();
+                        }, 100);
+                    });
+                    return;
+                }
+            }
+
+            async function loadControlResponsable() {
+                try {
+                    // Cargar Centros de Atención
+                    const centrosResponse = await fetch('/RegistroVacunacion/GetCentrosAtencion');
+                    if (centrosResponse.ok) {
+                        const centros = await centrosResponse.json();
+                        populateSelect('CentroSaludResponsable', centros, 'Seleccione Centro de Salud');
+                    }
+                } catch (error) {
+                    // Error silenciado intencionalmente
                 }
             }
 
@@ -458,7 +504,8 @@
                     const centrosResponse = await fetch('/RegistroVacunacion/GetCentrosAtencion');
                     if (centrosResponse.ok) {
                         const centros = await centrosResponse.json();
-                        populateSelect('CentroAtencionId', centros, 'Sistema Central');
+                        populateSelect('CentroAtencionId', centros, 'Seleccione Centro de Salud');
+                        populateSelect('LugardeParto', centros, 'Seleccione Lugar de Parto');
                     }
 
                 } catch (error) {
@@ -495,18 +542,11 @@
                 formData = {};
                 localStorage.removeItem('vacunacionFormData');
             }
-
-            // Función para obtener datos almacenados
-            function debugStoredData() {
-                // Esta función ha sido deshabilitada intencionalmente
-                return;
-            }
-
+  
             // Hacer las funciones globalmente accesibles
             window.saveCurrentStepData = saveCurrentStepData;
             window.restoreCurrentStepData = restoreCurrentStepData;
             window.clearStoredData = clearStoredData;
-            window.debugStoredData = debugStoredData;
 
             // Define functions first
             async function nextStep() {
@@ -560,10 +600,7 @@
                             console.log('Contenido actualizado en el contenedor');
 
                             // Restaurar los datos después de cargar el nuevo contenido
-                            setTimeout(() => {
-                                restoreCurrentStepData();
-                                console.log('Datos restaurados para el paso', currentStep);
-                            }, 100);
+                            executeStepSpecificLogic();
 
                             updateButtons();
                             updateStepIndicators();
@@ -592,9 +629,7 @@
                             document.getElementById('step-container').innerHTML = html;
 
                             // Restaurar los datos después de cargar el nuevo contenido
-                            setTimeout(() => {
-                                restoreCurrentStepData();
-                            }, 100);
+                            executeStepSpecificLogic();
 
                             updateButtons();
                             updateStepIndicators();
@@ -792,7 +827,7 @@
             }
 
             // Función para cargar condiciones usuarias en el paso 4
-            function loadCondicionesUsuarias() {
+            async function loadCondicionesUsuarias() {
                 fetch('@Url.Action("GetCondicionesUsuarias", "RegistroVacunacion")')
                     .then(response => {
                         if (!response.ok) {
@@ -846,8 +881,7 @@
                     // Cargar Regímenes de Afiliación para la madre
                     const regimenesResponse = await fetch('/RegistroVacunacion/GetRegimenesAfiliacion');
                     if (regimenesResponse.ok) {
-                        const regimenes = await regimenesResponse.json();
-                        populateSelectById('RegimenMadre', regimenes, 'Seleccione régimen');
+                        const regimenes = await regimenesResponse.json(); 
                         populateSelectById('RegimenCuidador', regimenes, 'Seleccione régimen');
                     }
 
@@ -855,7 +889,6 @@
                     const pertenenciasResponse = await fetch('/RegistroVacunacion/GetPertenenciasEtnicas');
                     if (pertenenciasResponse.ok) {
                         const pertenencias = await pertenenciasResponse.json();
-                        populateSelectById('EtniaMadre', pertenencias, 'Seleccione pertenencia étnica');
                         populateSelectById('EtniaCuidador', pertenencias, 'Seleccione pertenencia étnica');
                     }
 
@@ -1126,18 +1159,7 @@
                             }
                         });
                 });
-            }
-
-
-            // Configurar el botón anterior
-            const prevBtn = document.getElementById('prevBtn');
-            if (prevBtn) {
-                prevBtn.addEventListener('click', function (e) {
-                    e.preventDefault();
-                    prevStep();
-                });
-            }
-
+            } 
         })
     </script>
 }

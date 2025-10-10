@@ -246,13 +246,11 @@ namespace Highdmin.Controllers
         public async Task<IActionResult> GuardarRegistroCompleto([FromBody] Dictionary<string, object> datos)
         {
             try
-            {
-                Console.WriteLine("=== Datos recibidos en GuardarRegistroCompleto ===");
+            { 
                 // Log de los datos recibidos del request ANTES del model binding
 
                 // Crear un modelo para capturar todos los datos del formulario
-                var json = System.Text.Json.JsonSerializer.Serialize(datos);
-                Console.WriteLine($"JSON serializado: {json}");
+                var json = System.Text.Json.JsonSerializer.Serialize(datos); 
                 // Configuramos las opciones para que acepte números entre comillas
                 var options = new JsonSerializerOptions
                 {
@@ -261,12 +259,10 @@ namespace Highdmin.Controllers
                 };
         
                 var modelo = JsonSerializer.Deserialize<RegistroVacunacionItemViewModel>(json, options);
-
-                Console.WriteLine(System.Text.Json.JsonSerializer.Serialize(modelo));
+ 
 
                 // Mapear todos los datos del ViewModel a la entidad del modelo de datos
-                var Consecutivo = await GenerarConsecutivoAsync();
-                Console.WriteLine($"=== Consecutivo generado: {Consecutivo} ===");
+                var Consecutivo = await GenerarConsecutivoAsync(); 
                 var entidad = new RegistrosVacunacion
                 {
                     // DATOS BÁSICOS (Paso 1)
@@ -336,9 +332,7 @@ namespace Highdmin.Controllers
 
                     // ESQUEMA VACUNACIÓN (Paso 6)
                     TipoCarnetId = modelo.TipoCarnetId,
-                    Vacuna = modelo.Vacuna,
-                    Vacunador = modelo.Vacunador,
-                    RegistroProfesional = modelo.RegistroProfesional,
+                    Vacuna = modelo.Vacuna, 
                     Observaciones = modelo.Observaciones,
                     Dosis = modelo.Dosis,
                     FechaAplicacion = modelo.FechaRegistro ?? DateTime.Now,
@@ -359,16 +353,11 @@ namespace Highdmin.Controllers
 
                 // Guarda en base de datos
                 _context.RegistrosVacunacion.Add(entidad);
-                await _context.SaveChangesAsync();
-
-                Console.WriteLine("=== Registro guardado exitosamente ===");
+                await _context.SaveChangesAsync(); 
                 return Json(new { success = true, message = "Registro guardado correctamente", id = entidad.Id });
             }
             catch (Exception ex)
-            {
-                Console.WriteLine("=== Error al guardar ===");
-                Console.WriteLine(ex.Message);
-                Console.WriteLine(ex.StackTrace);
+            { 
                 return Json(new { success = false, message = "Ocurrió un error al guardar el registro: " + ex.Message });
             }
         }

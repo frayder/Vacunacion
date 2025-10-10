@@ -183,9 +183,7 @@ namespace Highdmin.Data
                 entity.Property(e => e.Genero).IsRequired().HasMaxLength(10);
                 entity.Property(e => e.Telefono).HasMaxLength(15);
                 entity.Property(e => e.Direccion).HasMaxLength(500);
-                entity.Property(e => e.Vacuna).IsRequired().HasMaxLength(100); 
-                entity.Property(e => e.Vacunador).HasMaxLength(255);
-                entity.Property(e => e.RegistroProfesional).HasMaxLength(50);
+                entity.Property(e => e.Vacuna).IsRequired().HasMaxLength(100);  
                 entity.Property(e => e.Observaciones).HasMaxLength(1000);
                 entity.Property(e => e.NotasFinales).HasMaxLength(1000);
 

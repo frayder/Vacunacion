@@ -76,13 +76,7 @@ namespace Highdmin.ViewModels
         public int? TipoCarnetId { get; set; }
 
         [Display(Name = "Vacuna")]
-        public string Vacuna { get; set; } = string.Empty;   
-
-        [Display(Name = "Vacunador")]
-        public string Vacunador { get; set; } = string.Empty;
-
-        [Display(Name = "Registro Profesional")]
-        public string RegistroProfesional { get; set; } = string.Empty;
+        public string Vacuna { get; set; } = string.Empty;    
 
         [Display(Name = "Observaciones")]
         public string Observaciones { get; set; } = string.Empty;
@@ -187,10 +181,10 @@ namespace Highdmin.ViewModels
         public string? ArrayAntecedentes { get; set; }
 
         [Display(Name = "Enfermedad/Contraindicación Vacuna")]
-        public string? EnfermedadContraindicacionVacuna { get; set; }
+        public bool? EnfermedadContraindicacionVacuna { get; set; }
 
         [Display(Name = "Reacción Biológica")]
-        public string? ReaccionBiologico { get; set; }
+        public bool? ReaccionBiologico { get; set; }
 
         [Display(Name = "Madre/Cuidador")]
         public bool? MadreCuidador { get; set; }
@@ -223,10 +217,10 @@ namespace Highdmin.ViewModels
         public string? CelularCuidador { get; set; }
 
         [Display(Name = "Régimen de Afiliación Cuidador")]
-        public string? RegimenAfiliacionCuidador { get; set; }
+        public int? RegimenAfiliacionCuidador { get; set; }
 
         [Display(Name = "Pertenencia Étnica Cuidador")]
-        public string? PertenenciaEtnicaIdCuidador { get; set; }
+        public int? PertenenciaEtnicaIdCuidador { get; set; }
 
         [Display(Name = "Estado Desplazado Cuidador")]
         public bool? EstadoDesplazadoCuidador { get; set; }
@@ -245,5 +239,8 @@ namespace Highdmin.ViewModels
 
         [Display(Name = "Centro de Salud Responsable")]
         public string? CentroSaludResponsable { get; set; }
+
+        [Display(Name = "Motivo de No Ingreso PAIWEB")]
+        public string? MotivoNoIngresoPAIWEB { get; set; }
     }
 }
