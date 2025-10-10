@@ -232,11 +232,11 @@
                                 @foreach (var registro in Model.Registros)
                                 {
                                     <tr>
-                                        <td class="paciente">@registro.Paciente</td>
-                                        <td class="documento">@registro.Documento</td>
-                                        <td class="edad">@registro.Edad</td>
-                                        <td class="vacunas">@registro.VacunasAplicadas</td>
-                                        <td class="ultima">@registro.UltimaVacuna</td>
+                                        <td class="paciente">@registro.NombreCompleto</td>
+                                        <td class="documento">@registro.NumeroDocumento</td>
+                                        @* <td class="edad">@registro.</td> *@
+                                        @* <td class="vacunas">@registro.VacunasAplicadas</td>
+                                        <td class="ultima">@registro.UltimaVacuna</td> *@
                                         <td class="estado">
                                             @if (registro.Estado == "Completo")
                                             {
@@ -251,7 +251,7 @@
                                                 <span class="badge bg-danger-subtle text-danger">Pendiente</span>
                                             }
                                         </td>
-                                        <td class="fecha">@registro.FechaRegistro.ToString("dd/MM/yyyy")</td>
+                                        <td class="fecha">@registro.FechaRegistro</td>
                                         <td>
                                             <div class="d-flex gap-2">
                                                 <div class="edit">

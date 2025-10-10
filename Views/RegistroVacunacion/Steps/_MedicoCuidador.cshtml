@@ -12,7 +12,7 @@
             <label class="form-label fw-bold">¿Hay información de la madre disponible?</label>
             <div class="mt-2">
                 <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="radio" name="TipoInformacion" id="infoMadre" value="madre" checked onchange="
+                    <input class="form-check-input" type="radio" name="MadreCuidador" id="infoMadre" value="si" checked onchange="
                         document.getElementById('contentMadre').style.display = 'block';
                         document.getElementById('contentCuidador').style.display = 'none';
                         document.getElementById('tabMadre').style.color = '#0d6efd';
@@ -25,7 +25,7 @@
                     </label>
                 </div>
                 <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="radio" name="TipoInformacion" id="infoCuidador" value="cuidador" onchange="
+                    <input class="form-check-input" type="radio" name="MadreCuidador" id="infoCuidador" value="no" onchange="
                         document.getElementById('contentMadre').style.display = 'none';
                         document.getElementById('contentCuidador').style.display = 'block';
                         document.getElementById('tabMadre').style.color = '#6c757d';
@@ -84,7 +84,7 @@
                 <div class="col-md-6">
                     <div class="mb-3">
                         <label class="form-label">Tipo de identificación</label>
-                        <select class="form-select" name="TipoIdMadre">
+                        <select class="form-select" name="TipoIdentificacionCuidador">
                             <option value="">Seleccione tipo</option>
                             <option value="CC">Cédula de Ciudadanía</option>
                             <option value="CE">Cédula de Extranjería</option>
@@ -97,31 +97,31 @@
                 <div class="col-md-6">
                     <div class="mb-3">
                         <label class="form-label">Número de identificación</label>
-                        <input type="text" class="form-control" name="NumeroIdMadre" placeholder="Número de documento">
+                        <input type="text" class="form-control" name="NumeroDocumentoCuidador" placeholder="Número de documento">
                     </div>
                 </div>
                 <div class="col-md-6">
                     <div class="mb-3">
                         <label class="form-label">Primer nombre</label>
-                        <input type="text" class="form-control" name="PrimerNombreMadre" placeholder="Primer nombre">
+                        <input type="text" class="form-control" name="PrimerNombreCuidador" placeholder="Primer nombre">
                     </div>
                 </div>
                 <div class="col-md-6">
                     <div class="mb-3">
                         <label class="form-label">Segundo nombre</label>
-                        <input type="text" class="form-control" name="SegundoNombreMadre" placeholder="Segundo nombre (opcional)">
+                        <input type="text" class="form-control" name="SegundoNombreCuidador" placeholder="Segundo nombre (opcional)">
                     </div>
                 </div>
                 <div class="col-md-6">
                     <div class="mb-3">
                         <label class="form-label">Primer apellido</label>
-                        <input type="text" class="form-control" name="PrimerApellidoMadre" placeholder="Primer apellido">
+                        <input type="text" class="form-control" name="PrimerApellidoCuidador" placeholder="Primer apellido">
                     </div>
                 </div>
                 <div class="col-md-6">
                     <div class="mb-3">
                         <label class="form-label">Segundo apellido</label>
-                        <input type="text" class="form-control" name="SegundoApellidoMadre" placeholder="Segundo apellido (opcional)">
+                        <input type="text" class="form-control" name="SegundoApellidoCuidador" placeholder="Segundo apellido (opcional)">
                     </div>
                 </div>
             </div>
@@ -131,19 +131,19 @@
                 <div class="col-md-4">
                     <div class="mb-3">
                         <label class="form-label">Correo electrónico</label>
-                        <input type="email" class="form-control" name="EmailMadre" placeholder="correo@ejemplo.com">
+                        <input type="email" class="form-control" name="EmailCuidador" placeholder="correo@ejemplo.com">
                     </div>
                 </div>
                 <div class="col-md-4">
                     <div class="mb-3">
                         <label class="form-label">Indicativo + Teléfono fijo</label>
-                        <input type="text" class="form-control" name="TelefonoFijoMadre" placeholder="+57 1 234567">
+                        <input type="text" class="form-control" name="TelefonoCuidador" placeholder="+57 1 234567">
                     </div>
                 </div>
                 <div class="col-md-4">
                     <div class="mb-3">
                         <label class="form-label">Celular</label>
-                        <input type="text" class="form-control" name="CelularMadre" placeholder="300 1234567">
+                        <input type="text" class="form-control" name="CelularCuidador" placeholder="300 1234567">
                     </div>
                 </div>
             </div>
@@ -153,7 +153,7 @@
                 <div class="col-md-6">
                     <div class="mb-3">
                         <label class="form-label">Régimen de afiliación</label>
-                        <select class="form-select" name="RegimenMadre" id="RegimenMadre">
+                        <select class="form-select" name="RegimenAfiliacionCuidador" id="RegimenCuidador">
                             <option value="">Seleccione régimen</option>
                         </select>
                     </div>
@@ -161,7 +161,7 @@
                 <div class="col-md-6">
                     <div class="mb-3">
                         <label class="form-label">Pertenencia étnica</label>
-                        <select class="form-select" name="EtniaMadre" id="EtniaMadre">
+                        <select class="form-select" name="PertenenciaEtnicaIdCuidador" id="EtniaCuidador">
                             <option value="">Seleccione pertenencia étnica</option>
                         </select>
                     </div>
@@ -174,12 +174,12 @@
                         <label class="form-label">Desplazado</label>
                         <div class="mt-2">
                             <div class="form-check form-check-inline">
-                                <input class="form-check-input" type="radio" name="DesplazadoMadre" id="desplazadoMadreSi" value="Si">
-                                <label class="form-check-label" for="desplazadoMadreSi">Sí</label>
+                                <input class="form-check-input" type="radio" name="EstadoDesplazadoCuidador" id="desplazadoCuidadorSi" value="si">
+                                <label class="form-check-label" for="desplazadoCuidadorSi">Sí</label>
                             </div>
                             <div class="form-check form-check-inline">
-                                <input class="form-check-input" type="radio" name="DesplazadoMadre" id="desplazadoMadreNo" value="No">
-                                <label class="form-check-label" for="desplazadoMadreNo">NO</label>
+                                <input class="form-check-input" type="radio" name="EstadoDesplazadoCuidador" id="desplazadoCuidadorNo" value="no">
+                                <label class="form-check-label" for="desplazadoCuidadorNo">NO</label>
                             </div>
                         </div>
                     </div>
@@ -199,7 +199,7 @@
                 <div class="col-md-6">
                     <div class="mb-3">
                         <label class="form-label">Tipo de identificación</label>
-                        <select class="form-select" name="TipoIdCuidador">
+                        <select class="form-select" name="TipoIdentificacionCuidador">
                             <option value="">Seleccione tipo</option>
                             <option value="CC">Cédula de Ciudadanía</option>
                             <option value="CE">Cédula de Extranjería</option>
@@ -258,7 +258,7 @@
                 <div class="col-md-4">
                     <div class="mb-3">
                         <label class="form-label">Indicativo + Teléfono fijo</label>
-                        <input type="text" class="form-control" name="TelefonoFijoCuidador" placeholder="+57 1 234567">
+                        <input type="text" class="form-control" name="TelefonoCuidador" placeholder="+57 1 234567">
                     </div>
                 </div>
                 <div class="col-md-4">
@@ -274,7 +274,7 @@
                 <div class="col-md-6">
                     <div class="mb-3">
                         <label class="form-label">Régimen de afiliación</label>
-                        <select class="form-select" name="RegimenCuidador" id="RegimenCuidador">
+                        <select class="form-select" name="RegimenAfiliacionCuidador" id="RegimenCuidador">
                             <option value="">Seleccione régimen</option>
                         </select>
                     </div>
@@ -282,7 +282,7 @@
                 <div class="col-md-6">
                     <div class="mb-3">
                         <label class="form-label">Pertenencia étnica</label>
-                        <select class="form-select" name="EtniaCuidador" id="EtniaCuidador">
+                        <select class="form-select" name="PertenenciaEtnicaIdCuidador" id="EtniaCuidador">
                             <option value="">Seleccione pertenencia étnica</option>
                         </select>
                     </div>
@@ -295,11 +295,11 @@
                         <label class="form-label">Desplazado</label>
                         <div class="mt-2">
                             <div class="form-check form-check-inline">
-                                <input class="form-check-input" type="radio" name="DesplazadoCuidador" id="desplazadoCuidadorSi" value="Si">
+                                <input class="form-check-input" type="radio" name="EstadoDesplazadoCuidador" id="desplazadoCuidadorSi" value="si">
                                 <label class="form-check-label" for="desplazadoCuidadorSi">Sí</label>
                             </div>
                             <div class="form-check form-check-inline">
-                                <input class="form-check-input" type="radio" name="DesplazadoCuidador" id="desplazadoCuidadorNo" value="No">
+                                <input class="form-check-input" type="radio" name="EstadoDesplazadoCuidador" id="desplazadoCuidadorNo" value="no">
                                 <label class="form-check-label" for="desplazadoCuidadorNo">NO</label>
                             </div>
                         </div>

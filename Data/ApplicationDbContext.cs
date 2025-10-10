@@ -26,7 +26,7 @@ namespace Highdmin.Data
         public DbSet<CentroAtencion> CentrosAtencion { get; set; }
         public DbSet<Insumo> Insumos { get; set; }
         public DbSet<Entrada> Entradas { get; set; }
-        public DbSet<RegistroVacunacion> RegistrosVacunacion { get; set; }
+        public DbSet<RegistrosVacunacion> RegistrosVacunacion { get; set; }
         public DbSet<Paciente> Pacientes { get; set; }
         public DbSet<HistorialCargaPacientes> HistorialCargas  { get; set; }
 
@@ -173,22 +173,17 @@ namespace Highdmin.Data
             });
 
             // Configuración de RegistroVacunacion
-            modelBuilder.Entity<RegistroVacunacion>(entity =>
+            modelBuilder.Entity<RegistrosVacunacion>(entity =>
             {
                 entity.HasKey(e => e.Id);
                 entity.Property(e => e.Consecutivo).IsRequired().HasMaxLength(20);
-                entity.Property(e => e.NombresApellidos).IsRequired().HasMaxLength(255);
+                entity.Property(e => e.NombreCompleto).IsRequired().HasMaxLength(255);
                 entity.Property(e => e.TipoDocumento).IsRequired().HasMaxLength(10);
                 entity.Property(e => e.NumeroDocumento).IsRequired().HasMaxLength(20);
                 entity.Property(e => e.Genero).IsRequired().HasMaxLength(10);
                 entity.Property(e => e.Telefono).HasMaxLength(15);
                 entity.Property(e => e.Direccion).HasMaxLength(500);
-                entity.Property(e => e.Vacuna).IsRequired().HasMaxLength(100);
-                entity.Property(e => e.NumeroDosis).IsRequired().HasMaxLength(20);
-                entity.Property(e => e.Lote).HasMaxLength(50);
-                entity.Property(e => e.Laboratorio).HasMaxLength(100);
-                entity.Property(e => e.ViaAdministracion).HasMaxLength(50);
-                entity.Property(e => e.SitioAplicacion).HasMaxLength(50);
+                entity.Property(e => e.Vacuna).IsRequired().HasMaxLength(100); 
                 entity.Property(e => e.Vacunador).HasMaxLength(255);
                 entity.Property(e => e.RegistroProfesional).HasMaxLength(50);
                 entity.Property(e => e.Observaciones).HasMaxLength(1000);
@@ -238,6 +233,8 @@ namespace Highdmin.Data
                       .WithMany()
                       .HasForeignKey(r => r.UsuarioModificadorId)
                       .OnDelete(DeleteBehavior.SetNull);
+                
+
             });
 
             // Configuración de la entidad Paciente

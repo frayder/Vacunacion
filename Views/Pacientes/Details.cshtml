@@ -126,8 +126,8 @@
                                         <tr>
                                             <td>@registro.Consecutivo</td>
                                             <td>@registro.Vacuna</td>
-                                            <td>@registro.NumeroDosis</td>
-                                            <td>@registro.FechaAplicacion.ToString("dd/MM/yyyy")</td>
+                                            <td>@registro.Dosis</td>
+                                            <td>@registro.FechaAplicacion</td>
                                             <td>@(registro.CentroAtencion?.Nombre ?? "No especificado")</td>
                                             <td>
                                                 <a href="@Url.Action("Details", "RegistroVacunacion", new { id = registro.Id })" 
@@ -146,7 +146,7 @@
                         <div class="text-center py-4">
                             <i class="ri-medicine-bottle-line fs-48 text-muted"></i>
                             <p class="text-muted mt-2 mb-0">No hay registros de vacunación para este paciente</p>
-                            <a href="@Url.Action("Create", "RegistroVacunacion", new { pacienteId = Model.Id })" 
+                            <a href="@Url.Action("Create", "RegistroVacunacion", new { SitioAplicacion = Model.Id })" 
                                class="btn btn-outline-primary btn-sm mt-2">
                                 <i class="ri-add-line me-1"></i>Agregar Registro de Vacunación
                             </a>

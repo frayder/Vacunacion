@@ -598,8 +598,6 @@ namespace Highdmin.Migrations
                         .HasMaxLength(1000)
                         .HasColumnType("nvarchar(1000)");
 
-                    b.Property<int?>("PacienteId")
-                        .HasColumnType("int");
 
                     b.Property<int?>("PertenenciaEtnicaId")
                         .HasColumnType("int");
@@ -657,7 +655,6 @@ namespace Highdmin.Migrations
                     b.HasIndex("Consecutivo")
                         .IsUnique();
 
-                    b.HasIndex("PacienteId");
 
                     b.HasIndex("PertenenciaEtnicaId");
 
@@ -866,10 +863,6 @@ namespace Highdmin.Migrations
                         .WithMany()
                         .HasForeignKey("CondicionUsuariaId")
                         .OnDelete(DeleteBehavior.SetNull);
-
-                    b.HasOne("Highdmin.Models.Paciente", null)
-                        .WithMany("RegistrosVacunacion")
-                        .HasForeignKey("PacienteId");
 
                     b.HasOne("Highdmin.Models.PertenenciaEtnica", "PertenenciaEtnica")
                         .WithMany()

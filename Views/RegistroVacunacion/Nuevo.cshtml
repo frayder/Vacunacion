@@ -54,7 +54,7 @@
 
                 <form asp-action="Nuevo" method="post" id="vacunacionForm">
                     <!-- Hidden fields for model binding -->
-                    <input type="hidden" asp-for="Paciente" />
+                    @* <input type="hidden" asp-for="Paciente" /> *@
 
                     <!-- Dynamic Step Container -->
                     <div id="step-container">
@@ -68,10 +68,6 @@
                             <i class="ri-arrow-left-line me-1"></i> Anterior
                         </button>
                         <div class="ms-auto">
-                            <button type="button" class="btn btn-info me-2" id="debugBtn" onclick="debugStoredData()"
-                                title="Ver datos almacenados en consola">
-                                <i class="ri-bug-line me-1"></i> Debug
-                            </button>
                             <button type="button" class="btn btn-primary" id="nextBtn">
                                 Siguiente <i class="ri-arrow-right-line ms-1"></i>
                             </button>
@@ -441,28 +437,28 @@
                     const aseguradorasResponse = await fetch('/RegistroVacunacion/GetAseguradoras');
                     if (aseguradorasResponse.ok) {
                         const aseguradoras = await aseguradorasResponse.json();
-                        populateSelect('Aseguradora', aseguradoras, 'Seleccione aseguradora');
+                        populateSelect('AseguradoraId', aseguradoras, 'Seleccione aseguradora');
                     }
 
                     // Cargar Regímenes de Afiliación
                     const regimenesResponse = await fetch('/RegistroVacunacion/GetRegimenesAfiliacion');
                     if (regimenesResponse.ok) {
                         const regimenes = await regimenesResponse.json();
-                        populateSelect('RegimenAfiliacion', regimenes, 'Seleccione régimen');
+                        populateSelect('RegimenAfiliacionId', regimenes, 'Seleccione régimen');
                     }
 
                     // Cargar Pertenencias Étnicas
                     const pertenenciasResponse = await fetch('/RegistroVacunacion/GetPertenenciasEtnicas');
                     if (pertenenciasResponse.ok) {
                         const pertenencias = await pertenenciasResponse.json();
-                        populateSelect('PertenenciaEtnica', pertenencias, 'Seleccione pertenencia étnica');
+                        populateSelect('PertenenciaEtnicaId', pertenencias, 'Seleccione pertenencia étnica');
                     }
 
                     // Cargar Centros de Atención
                     const centrosResponse = await fetch('/RegistroVacunacion/GetCentrosAtencion');
                     if (centrosResponse.ok) {
                         const centros = await centrosResponse.json();
-                        populateSelect('CentroSalud', centros, 'Sistema Central');
+                        populateSelect('CentroAtencionId', centros, 'Sistema Central');
                     }
 
                 } catch (error) {
@@ -701,16 +697,16 @@
                     // Crear fila de la tabla
                     const row = document.createElement('tr');
                     row.innerHTML = `
-                        <td>${antecedente.fechaFormateada}</td>
-                        <td>${antecedente.tipo}</td>
-                        <td>${antecedente.descripcion}</td>
-                        <td>${antecedente.observaciones}</td>
-                        <td>
-                            <button type="button" class="btn btn-danger btn-sm" onclick="eliminarAntecedente(this)">
-                                <i class="ri-delete-bin-line"></i>
-                            </button>
-                        </td>
-                    `;
+                            <td>${antecedente.fechaFormateada}</td>
+                            <td>${antecedente.tipo}</td>
+                            <td>${antecedente.descripcion}</td>
+                            <td>${antecedente.observaciones}</td>
+                            <td>
+                                <button type="button" class="btn btn-danger btn-sm" onclick="eliminarAntecedente(this)">
+                                    <i class="ri-delete-bin-line"></i>
+                                </button>
+                            </td>
+                        `;
 
                     tableBody.appendChild(row);
 
@@ -779,16 +775,16 @@
 
                             const row = document.createElement('tr');
                             row.innerHTML = `
-                                <td>${fechaMostrar}</td>
-                                <td>${antecedente.tipo}</td>
-                                <td>${antecedente.descripcion}</td>
-                                <td>${antecedente.observaciones}</td>
-                                <td>
-                                    <button type="button" class="btn btn-danger btn-sm" onclick="eliminarAntecedente(this)">
-                                        <i class="ri-delete-bin-line"></i>
-                                    </button>
-                                </td>
-                            `;
+                                    <td>${fechaMostrar}</td>
+                                    <td>${antecedente.tipo}</td>
+                                    <td>${antecedente.descripcion}</td>
+                                    <td>${antecedente.observaciones}</td>
+                                    <td>
+                                        <button type="button" class="btn btn-danger btn-sm" onclick="eliminarAntecedente(this)">
+                                            <i class="ri-delete-bin-line"></i>
+                                        </button>
+                                    </td>
+                                `;
                             tableBody.appendChild(row);
                         });
                     }
@@ -835,12 +831,12 @@
                                 select.appendChild(option);
                             });
                             // Options added successfully
-                        } 
+                        }
                     })
-            .catch(error => {
-                // Error handled silently
-            });
-        }
+                    .catch(error => {
+                        // Error handled silently
+                    });
+            }
 
             // Función para cargar datos de médico/cuidador en el paso 5
             async function loadDatosMedicoCuidador() {
@@ -904,7 +900,7 @@
                 } else if (data && data.error) {
                     // Error handled silently
                 }
-            } 
+            }
 
             // Función para cargar tipos de carnet en el paso 6
             async function loadTiposCarnet() {
@@ -983,10 +979,10 @@
             window.validateDatosBasicos = function () {
                 console.log('Iniciando validación de datos básicos');
                 const requiredFields = {
-                    'numeroIdentificacion': 'Número de Identificación',
-                    'primerNombre': 'Primer Nombre',
-                    'primerApellido': 'Primer Apellido',
-                    'fechaNacimiento': 'Fecha de Nacimiento'
+                    'NumeroDocumento': 'Número de Identificación',
+                    'PrimerNombre': 'Primer Nombre',
+                    'PrimerApellido': 'Primer Apellido',
+                    'FechaNacimiento': 'Fecha de Nacimiento'
                 };
 
                 let isValid = true;
@@ -1017,7 +1013,7 @@
 
                 if (!isValid) {
                     console.log('Validación falló. Campos faltantes:', missingFields);
-                 } else {
+                } else {
                     console.log('Todos los campos requeridos están completos');
                 }
 
@@ -1027,173 +1023,121 @@
             // Hacer las funciones globalmente accesibles
             window.eliminarAntecedente = eliminarAntecedente;
 
-            document.addEventListener('DOMContentLoaded', function() {
-                console.log('Inicializando la aplicación...');
-                
-                // Restaurar datos del paso inicial si existen
-                setTimeout(() => {
-                    restoreCurrentStepData();
-                }, 100);
 
-                // Agregar listeners para guardar datos automáticamente cuando cambian
-                const stepContainer = document.getElementById('step-container');
-                if (stepContainer) {
-                    stepContainer.addEventListener('change', function (e) {
-                        if (e.target.matches('input, select, textarea')) {
-                            saveCurrentStepData();
-                        }
-                    });
+            // Restaurar datos del paso inicial si existen
+            setTimeout(() => {
+                restoreCurrentStepData();
+            }, 100);
 
-                    stepContainer.addEventListener('input', function (e) {
-                        if (e.target.matches('input, textarea')) {
-                            saveCurrentStepData();
-                        }
-                    });
-                }
+            // Agregar listeners para guardar datos automáticamente cuando cambian
+            const stepContainer = document.getElementById('step-container');
+            if (stepContainer) {
+                stepContainer.addEventListener('change', function (e) {
+                    if (e.target.matches('input, select, textarea')) {
+                        saveCurrentStepData();
+                    }
+                });
 
-                // Agregar listener al formulario para manejar el envío
-                const form = document.getElementById('vacunacionForm');
-                if (form) {
-                    form.addEventListener('submit', function (e) {
-                    e.preventDefault(); // Prevenir el envío por defecto
+                stepContainer.addEventListener('input', function (e) {
+                    if (e.target.matches('input, textarea')) {
+                        saveCurrentStepData();
+                    }
+                });
+            }
 
-                    // Guardar los datos del paso final antes de enviar
+            // Agregar listener al formulario para manejar el envío
+            console.log('Configurando listener de envío del formulario...');
+            const form = document.getElementById('vacunacionForm');
+            if (form) {
+                console.log('Configurando listener de envío del formulario.entro..');
+                form.addEventListener('submit', function (e) {
+                    e.preventDefault();
+
+                    // Guardar datos del paso actual
                     saveCurrentStepData();
 
-                    // Recopilar todos los datos almacenados
+                    // Recopilar todos los datos
                     const todosLosDatos = {};
-                    let totalCampos = 0;
-
-                    // Obtener datos de todos los pasos
                     for (let step = 1; step <= totalSteps; step++) {
                         const stepData = localStorage.getItem(`stepData_${step}`);
-                        console.log(`Datos del paso ${step}:`, stepData);
                         if (stepData) {
                             try {
                                 const parsedData = JSON.parse(stepData);
+
+                                // Convertir posibles valores de texto a booleanos reales
+                                for (const [key, value] of Object.entries(parsedData)) {
+                                    if (typeof value === "string") {
+                                        const lowerValue = value.trim().toLowerCase();
+
+                                        if (["true", "si", "sí"].includes(lowerValue)) {
+                                            parsedData[key] = true;
+                                        } else if (["false", "no"].includes(lowerValue)) {
+                                            parsedData[key] = false;
+                                        }
+                                    }
+                                }
+
                                 Object.assign(todosLosDatos, parsedData);
-                                totalCampos += Object.keys(parsedData).length;
                             } catch (e) {
                                 console.error(`Error al parsear datos del paso ${step}:`, e);
                             }
                         }
                     }
 
-                    // También obtener datos directamente del formulario actual
-                    const currentForm = document.getElementById('vacunacionForm');
-                    if (currentForm) {
-                        const currentFormData = new FormData(currentForm);
-                        for (let [key, value] of currentFormData.entries()) {
-                            if (value && value.trim() !== '') {
-                                todosLosDatos[key] = value;
-                                totalCampos++;
-                            }
-                        }
-                    }
 
-                    // También obtener del objeto formData global
-                    if (formData && typeof formData === 'object') {
-                        Object.keys(formData).forEach(key => {
-                            if (formData[key] && formData[key].toString().trim() !== '') {
-                                todosLosDatos[key] = formData[key];
-                                totalCampos++;
-                            }
-                        });
-                    }
-
-                    console.log('Total de campos recopilados:', totalCampos);
-                    console.log('Enviando datos completos:', todosLosDatos);
-
-                    // Validar que hay datos para enviar
-                    if (Object.keys(todosLosDatos).length === 0) {
-                        alert('No hay datos para guardar. Por favor complete al menos algunos campos.');
-                        return;
-                    }
-
-                    // Crear FormData con todos los datos
-                    const finalFormData = new FormData();
-                    let camposEnviados = 0;
-
-                    for (const [key, value] of Object.entries(todosLosDatos)) {
-                        if (value !== null && value !== undefined && value !== '') {
-                            finalFormData.append(key, value);
-                            camposEnviados++;
-                        }
-                    }
-
-                    console.log(`Enviando ${camposEnviados} campos al servidor`);
-
-                    // Log de todos los campos que se van a enviar
-                    for (let [key, value] of finalFormData.entries()) {
-                        console.log(`${key}: ${value}`);
-                    }
-
-                    // Mostrar indicador de carga
+                    // Enviar via AJAX
                     const submitBtn = document.getElementById('submitBtn');
                     if (submitBtn) {
                         submitBtn.disabled = true;
                         submitBtn.innerHTML = '<i class="ri-loader-2-line spinner me-1"></i> Guardando...';
                     }
 
-                    // Enviar datos al servidor
                     fetch('/RegistroVacunacion/GuardarRegistroCompleto', {
                         method: 'POST',
-                        body: finalFormData
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+                        },
+                        body: JSON.stringify(todosLosDatos)
                     })
                         .then(response => response.json())
                         .then(data => {
                             if (data.success) {
-                                // Limpiar datos almacenados
-                                clearStoredData();
+                                // Limpiar localStorage
+                                @* for (let step = 1; step <= totalSteps; step++) {
+                                    localStorage.removeItem(`stepData_${step}`);
+                                }
+                                localStorage.removeItem('vacunacionFormData'); *@
 
-                                // Mostrar mensaje de éxito y redirigir
-                                alert('Registro guardado exitosamente');
+                                    alert('Registro guardado correctamente');
                                 window.location.href = '/RegistroVacunacion/Index';
                             } else {
-                                alert('Error al guardar: ' + data.message);
+                                alert('Error: ' + data.message);
                             }
                         })
                         .catch(error => {
                             console.error('Error:', error);
-                            alert('Error al enviar los datos: ' + error.message);
+                            alert('Error al guardar el registro');
                         })
                         .finally(() => {
-                            // Restaurar botón
                             if (submitBtn) {
                                 submitBtn.disabled = false;
                                 submitBtn.innerHTML = '<i class="ri-save-line me-1"></i> Guardar Registro';
                             }
                         });
-                    });
-                }
-                
-                // Configurar el botón siguiente
-                const nextBtn = document.getElementById('nextBtn');
-                if (nextBtn) {
-                    console.log('Configurando botón siguiente...');
-                    nextBtn.addEventListener('click', async function(e) {
-                        e.preventDefault();
-                        console.log('Click en botón siguiente');
-                        try {
-                            await nextStep();
-                        } catch (error) {
-                            console.error('Error al ejecutar nextStep:', error);
-                            alert('Error: ' + error.message);
-                        }
-                    });
-                }
+                });
+            }
 
-                // Configurar el botón anterior
-                const prevBtn = document.getElementById('prevBtn');
-                if (prevBtn) {
-                    prevBtn.addEventListener('click', function(e) {
-                        e.preventDefault();
-                        prevStep();
-                    });
-                }
 
-                console.log('Inicialización completada');
-            });
+            // Configurar el botón anterior
+            const prevBtn = document.getElementById('prevBtn');
+            if (prevBtn) {
+                prevBtn.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    prevStep();
+                });
+            }
+
         })
     </script>
 }

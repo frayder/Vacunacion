@@ -85,6 +85,6 @@ namespace Highdmin.Models
                           (DateTime.Now.DayOfYear < FechaNacimiento.DayOfYear ? 1 : 0);
 
         // Relaciones
-        public virtual ICollection<RegistroVacunacion>? RegistrosVacunacion { get; set; }
+        public virtual ICollection<RegistrosVacunacion>? RegistrosVacunacion { get; set; }
     }
 }
