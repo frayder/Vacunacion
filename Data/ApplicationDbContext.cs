@@ -29,7 +29,7 @@ namespace Highdmin.Data
         public DbSet<RegistrosVacunacion> RegistrosVacunacion { get; set; }
         public DbSet<Paciente> Pacientes { get; set; }
         public DbSet<HistorialCargaPacientes> HistorialCargas  { get; set; }
-
+        public DbSet<AntecedenteMedico> AntecedentesMedicos { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -253,7 +253,7 @@ namespace Highdmin.Data
                 entity.HasIndex(e => e.Identificacion).IsUnique();
                 entity.HasIndex(e => e.Email).IsUnique();
             });
-            
+
             modelBuilder.Entity<HistorialCargaPacientes>(entity =>
             {
                 entity.HasKey(e => e.Id);
@@ -264,6 +264,25 @@ namespace Highdmin.Data
                 entity.Property(e => e.ArchivoNombre).HasMaxLength(255);
                 entity.Property(e => e.Observaciones).HasMaxLength(1000);
             });
+            
+            // Configuración de AntecedentesMedicos
+            modelBuilder.Entity<AntecedenteMedico>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Tipo).IsRequired().HasMaxLength(100);
+                entity.Property(e => e.Descripcion).IsRequired().HasMaxLength(1000);
+                entity.Property(e => e.Observaciones).HasMaxLength(500);
+                entity.Property(e => e.FechaRegistro).IsRequired();
+                entity.Property(e => e.Activo).HasDefaultValue(true);
+                entity.Property(e => e.FechaCreacion).HasDefaultValueSql("GETDATE()");
+
+                // Relación con RegistroVacunacion
+                entity.HasOne(a => a.RegistroVacunacion)
+                      .WithMany(r => r.AntecedentesMedicos)
+                      .HasForeignKey(a => a.RegistroVacunacionId)
+                      .OnDelete(DeleteBehavior.Cascade);
+            });
+
         }
     }
 }

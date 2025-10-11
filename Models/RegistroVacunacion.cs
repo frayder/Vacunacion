@@ -183,7 +183,8 @@ namespace Highdmin.Models
         public string? Relacion { get; set; }
 
         [Display(Name = "Antecedentes")]
-        public string? ArrayAntecedentes { get; set; }
+        public virtual ICollection<AntecedenteMedico> AntecedentesMedicos { get; set; } = new List<AntecedenteMedico>();
+
 
         [Display(Name = "Enfermedad/Contraindicación Vacuna")]
         public bool? EnfermedadContraindicacionVacuna { get; set; }

@@ -28,6 +28,11 @@ namespace Highdmin.Controllers
                     NumeroDocumento = r.NumeroDocumento,
                     NombreCompleto = r.PrimerNombre + " " + r.SegundoNombre + " " + r.PrimerApellido + " " + r.SegundoApellido,
                     FechaNacimiento = r.FechaNacimiento,
+                    IngresoPAIWEB = r.IngresoPAIWEB,
+                    Genero = r.Genero,
+                    Telefono = r.Telefono,
+                    Vacuna = r.Vacuna,
+                    FechaRegistro = r.FechaRegistro,
                     // FechaAplicacion = r.FechaAplicacion,
                 })
                 .ToListAsync();
@@ -246,23 +251,23 @@ namespace Highdmin.Controllers
         public async Task<IActionResult> GuardarRegistroCompleto([FromBody] Dictionary<string, object> datos)
         {
             try
-            { 
+            {
                 // Log de los datos recibidos del request ANTES del model binding
 
                 // Crear un modelo para capturar todos los datos del formulario
-                var json = System.Text.Json.JsonSerializer.Serialize(datos); 
+                var json = System.Text.Json.JsonSerializer.Serialize(datos);
                 // Configuramos las opciones para que acepte números entre comillas
                 var options = new JsonSerializerOptions
                 {
                     PropertyNameCaseInsensitive = true,
                     NumberHandling = JsonNumberHandling.AllowReadingFromString
                 };
-        
+
                 var modelo = JsonSerializer.Deserialize<RegistroVacunacionItemViewModel>(json, options);
- 
+
 
                 // Mapear todos los datos del ViewModel a la entidad del modelo de datos
-                var Consecutivo = await GenerarConsecutivoAsync(); 
+                var Consecutivo = await GenerarConsecutivoAsync();
                 var entidad = new RegistrosVacunacion
                 {
                     // DATOS BÁSICOS (Paso 1)
@@ -306,8 +311,7 @@ namespace Highdmin.Controllers
                     AutorizaEnvioCorreo = modelo.AutorizaEnvioCorreo,
                     Relacion = modelo.Relacion,
 
-                    // ANTECEDENTES MÉDICOS (Paso 3)
-                    ArrayAntecedentes = modelo.ArrayAntecedentes,
+                    // ANTECEDENTES MÉDICOS (Paso 3) 
                     EnfermedadContraindicacionVacuna = modelo.EnfermedadContraindicacionVacuna,
                     ReaccionBiologico = modelo.ReaccionBiologico,
 
@@ -332,7 +336,7 @@ namespace Highdmin.Controllers
 
                     // ESQUEMA VACUNACIÓN (Paso 6)
                     TipoCarnetId = modelo.TipoCarnetId,
-                    Vacuna = modelo.Vacuna, 
+                    Vacuna = modelo.Vacuna,
                     Observaciones = modelo.Observaciones,
                     Dosis = modelo.Dosis,
                     FechaAplicacion = modelo.FechaRegistro ?? DateTime.Now,
@@ -353,12 +357,69 @@ namespace Highdmin.Controllers
 
                 // Guarda en base de datos
                 _context.RegistrosVacunacion.Add(entidad);
-                await _context.SaveChangesAsync(); 
+                await _context.SaveChangesAsync();
+                await GuardarAntecedentesMedicos(entidad.Id, modelo.ArrayAntecedentes, modelo.NumeroDocumento);
                 return Json(new { success = true, message = "Registro guardado correctamente", id = entidad.Id });
             }
             catch (Exception ex)
-            { 
+            {
                 return Json(new { success = false, message = "Ocurrió un error al guardar el registro: " + ex.Message });
+            }
+        }
+
+        // Método para procesar y guardar los antecedentes médicos
+        private async Task GuardarAntecedentesMedicos(int registroVacunacionId, string? arrayAntecedentes, string numeroDocumentoPaciente)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(arrayAntecedentes))
+                    return;
+
+                // Deserializar el array de antecedentes desde JSON
+                var options = new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true,
+                    NumberHandling = JsonNumberHandling.AllowReadingFromString
+                };
+
+                var antecedentes = JsonSerializer.Deserialize<List<AntecedenteMedicoViewModel>>(arrayAntecedentes, options);
+
+                if (antecedentes == null || !antecedentes.Any())
+                    return;
+
+                // Crear las entidades de antecedentes médicos
+                var entidadesAntecedentes = new List<AntecedenteMedico>();
+
+                foreach (var antecedente in antecedentes)
+                {
+                    var entidadAntecedente = new AntecedenteMedico
+                    {
+                        RegistroVacunacionId = registroVacunacionId,
+                        FechaRegistro = antecedente.FechaRegistro,
+                        Tipo = antecedente.Tipo,
+                        Descripcion = antecedente.Descripcion,
+                        Observaciones = antecedente.Observaciones,
+                        Activo = antecedente.Activo,
+                        NumeroDocumentoPaciente = numeroDocumentoPaciente,
+                        FechaCreacion = DateTime.Now
+                    };
+
+                    entidadesAntecedentes.Add(entidadAntecedente);
+                }
+
+                // Guardar todos los antecedentes en la base de datos
+                if (entidadesAntecedentes.Any())
+                {
+                    _context.AntecedentesMedicos.AddRange(entidadesAntecedentes);
+                    await _context.SaveChangesAsync();
+                }
+            }
+            catch (Exception ex)
+            {
+                // Log del error pero no fallar la operación principal
+                // En un entorno de producción, registrar este error en un sistema de logging
+                Console.WriteLine($"Error al guardar antecedentes médicos: {ex.Message}");
+                throw; // Re-lanzar para que se maneje en el método principal
             }
         }
     }

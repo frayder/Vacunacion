@@ -1117,6 +1117,31 @@
                         }
                     }
 
+                    // Obtener los antecedentes de formData y agregarlos al objeto de envío
+                    const formDataStr = localStorage.getItem('vacunacionFormData');
+                    if (formDataStr) {
+                        try {
+                            const formDataObj = JSON.parse(formDataStr);
+                            if (formDataObj.antecedentes && formDataObj.antecedentes.length > 0) {
+                                // Convertir los antecedentes a un formato que el servidor pueda procesar
+                                const antecedentesParaEnviar = formDataObj.antecedentes.map(ant => ({
+                                    FechaRegistro: ant.fecha, // Usar la fecha original (yyyy-mm-dd)
+                                    Tipo: ant.tipo,
+                                    Descripcion: ant.descripcion,
+                                    Observaciones: ant.observaciones === 'N/A' ? null : ant.observaciones,
+                                    Activo: true
+                                }));
+                                
+                                // Agregar al objeto que se enviará al servidor
+                                todosLosDatos.ArrayAntecedentes = JSON.stringify(antecedentesParaEnviar);
+                                
+                                console.log('Antecedentes agregados al envío:', antecedentesParaEnviar);
+                            }
+                        } catch (e) {
+                            console.error('Error al procesar antecedentes:', e);
+                        }
+                    }
+
 
                     // Enviar via AJAX
                     const submitBtn = document.getElementById('submitBtn');

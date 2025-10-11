@@ -216,12 +216,11 @@
                     <table class="table align-middle table-nowrap" id="registrosTable">
                         <thead class="table-light">
                             <tr>
-                                <th class="sort" data-sort="paciente">Paciente</th>
                                 <th class="sort" data-sort="documento">Documento</th>
-                                <th class="sort" data-sort="edad">Edad</th>
-                                <th class="sort" data-sort="vacunas">Vacunas Aplicadas</th>
-                                <th class="sort" data-sort="ultima">Última Vacuna</th>
-                                <th class="sort" data-sort="estado">Estado</th>
+                                <th class="sort" data-sort="paciente">Paciente</th> 
+                                <th class="sort" data-sort="edad">Género</th>
+                                <th class="sort" data-sort="vacunas">Vacunas Aplicadas</th> 
+                                <th class="sort text-center" data-sort="estado">Ingreso PAIWEB</th>
                                 <th class="sort" data-sort="fecha">Fecha Registro</th>
                                 <th>Acciones</th>
                             </tr>
@@ -232,24 +231,19 @@
                                 @foreach (var registro in Model.Registros)
                                 {
                                     <tr>
-                                        <td class="paciente">@registro.NombreCompleto</td>
                                         <td class="documento">@registro.NumeroDocumento</td>
-                                        @* <td class="edad">@registro.</td> *@
-                                        @* <td class="vacunas">@registro.VacunasAplicadas</td>
-                                        <td class="ultima">@registro.UltimaVacuna</td> *@
-                                        <td class="estado">
-                                            @if (registro.Estado == "Completo")
+                                        <td class="paciente">@registro.NombreCompleto</td> 
+                                        <td class="edad">@registro.Genero</td>
+                                        <td class="ultima">@registro.Vacuna</td>
+                                        <td align="center" class="estado">
+                                            @if (registro.IngresoPAIWEB == true)
                                             {
-                                                <span class="badge bg-success-subtle text-success">Completo</span>
-                                            }
-                                            else if (registro.Estado == "Incompleto")
-                                            {
-                                                <span class="badge bg-warning-subtle text-warning">Incompleto</span>
+                                                <span class="badge bg-success-subtle text-success">SI</span>
                                             }
                                             else
                                             {
-                                                <span class="badge bg-danger-subtle text-danger">Pendiente</span>
-                                            }
+                                                <span class="badge bg-danger-subtle text-danger">NO</span>
+                                            } 
                                         </td>
                                         <td class="fecha">@registro.FechaRegistro</td>
                                         <td>
