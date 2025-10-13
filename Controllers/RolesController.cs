@@ -4,15 +4,16 @@ using Microsoft.EntityFrameworkCore;
 using Highdmin.Data;
 using Highdmin.Models;
 using Highdmin.ViewModels;
+using Highdmin.Services;
 
 namespace Highdmin.Controllers
 {
     [Authorize]
-    public class RolesController : Controller
+    public class RolesController : BaseEmpresaController
     {
         private readonly ApplicationDbContext _context;
 
-        public RolesController(ApplicationDbContext context)
+        public RolesController(ApplicationDbContext context, IEmpresaService empresaService) : base(empresaService)
         {
             _context = context;
         }
@@ -33,7 +34,7 @@ namespace Highdmin.Controllers
         public async Task<IActionResult> Create()
         {
             var menuItems = await _context.MenuItems.OrderBy(m => m.Name).ToListAsync();
-            
+
             var viewModel = new RoleViewModel
             {
                 MenuItemPermissions = menuItems.Select(mi => new MenuItemPermission
@@ -71,7 +72,7 @@ namespace Highdmin.Controllers
                 Id = role.Id,
                 Name = role.Nombre,
                 Description = role.Descripcion,
-                MenuItemPermissions = menuItems.Select(mi => 
+                MenuItemPermissions = menuItems.Select(mi =>
                 {
                     var existingPermission = role.RolePermissions.FirstOrDefault(rp => rp.MenuItemId == mi.Id);
                     return new MenuItemPermission
@@ -159,7 +160,8 @@ namespace Highdmin.Controllers
                             CanCreate = mp.CanCreate,
                             CanRead = mp.CanRead,
                             CanUpdate = mp.CanUpdate,
-                            CanDelete = mp.CanDelete
+                            CanDelete = mp.CanDelete,
+                            EmpresaId = CurrentEmpresaId
                         }).ToList();
 
                     _context.RolePermissions.AddRange(rolePermissions);
@@ -172,7 +174,7 @@ namespace Highdmin.Controllers
             catch (Exception ex)
             {
                 TempData["ErrorMessage"] = $"Error al guardar el rol: {ex.Message}";
-                
+
                 var menuItems = await _context.MenuItems.OrderBy(m => m.Name).ToListAsync();
                 model.MenuItemPermissions = model.MenuItemPermissions ?? menuItems.Select(mi => new MenuItemPermission
                 {
@@ -231,7 +233,7 @@ namespace Highdmin.Controllers
 
                 // Eliminar permisos del rol
                 _context.RolePermissions.RemoveRange(role.RolePermissions);
-                
+
                 // Eliminar el rol
                 _context.Roles.Remove(role);
                 await _context.SaveChangesAsync();

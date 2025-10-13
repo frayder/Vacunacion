@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore;
 
 namespace Highdmin.Models
 {
@@ -126,6 +127,7 @@ namespace Highdmin.Models
         public int? EdadGestacional { get; set; }
 
         [Display(Name = "Peso Infante")]
+        [Precision(10, 3)]
         public decimal? PesoInfante { get; set; }
 
         [Display(Name = "País de Nacimiento")]

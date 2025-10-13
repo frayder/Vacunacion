@@ -295,7 +295,7 @@ namespace Highdmin.Controllers
                     Sexo = modelo.Sexo,
                     OrientacionSexual = modelo.OrientacionSexual,
                     EdadGestacional = modelo.EdadGestacional,
-                    PesoInfante = modelo.PesoInfante ?? 0,
+                    PesoInfante = modelo.PesoInfante,
                     PaisNacimiento = modelo.PaisNacimiento,
                     LugardeParto = modelo.LugardeParto,
                     EstatusMigratorio = modelo.EstatusMigratorio,
