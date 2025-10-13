@@ -8,6 +8,11 @@ namespace Highdmin.ViewModels
         public int TiposActivos { get; set; }
         public int TiposInactivos { get; set; }
         public List<TipoCarnetItemViewModel> TiposCarnet { get; set; } = new();
+
+        // Propiedades para permisos
+        public bool CanCreate { get; set; }
+        public bool CanUpdate { get; set; }
+        public bool CanDelete { get; set; } 
     }
 
     public class TipoCarnetItemViewModel

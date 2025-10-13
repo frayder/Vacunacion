@@ -40,6 +40,7 @@ builder.Services.AddDbContext<Highdmin.Data.ApplicationDbContext>(options =>
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<Highdmin.Services.IMenuService, Highdmin.Services.MenuService>();
 builder.Services.AddScoped<Highdmin.Services.IEmpresaService, Highdmin.Services.EmpresaService>();
+builder.Services.AddScoped<Highdmin.Services.AuthorizationService>();
 
 // Habilitar sesiones
 builder.Services.AddSession();

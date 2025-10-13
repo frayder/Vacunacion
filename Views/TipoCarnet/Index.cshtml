@@ -57,9 +57,12 @@
             </div>
             <div class="col-xxl-3 col-sm-8">
                 <div class="d-flex gap-2">
-                    <a asp-action="Crear" class="btn btn-success add-btn">
-                        <i class="ri-add-line align-bottom me-1"></i> Agregar
-                    </a>
+                    @if (Model.CanCreate)
+                    {
+                        <a asp-action="Crear" class="btn btn-success add-btn">
+                            <i class="ri-add-line align-bottom me-1"></i> Agregar
+                        </a>
+                    }
                     <button type="button" class="btn btn-info">
                         <i class="ri-file-download-line align-bottom me-1"></i> Importar
                     </button>
@@ -94,7 +97,10 @@
                         <th class="sort" data-sort="descripcion">Descripción</th>
                         <th class="sort" data-sort="estado">Estado</th>
                         <th class="sort" data-sort="fecha">Fecha Creación</th>
-                        <th class="sort text-center" data-sort="action">Acciones</th>
+                        @if (Model.CanUpdate || Model.CanDelete)
+                        {
+                            <th class="sort text-center" data-sort="action">Acciones</th>
+                        }
                     </tr>
                 </thead>
                 <tbody class="list form-check-all">
@@ -131,21 +137,30 @@
                                 <td class="estado">
                                     <span class="@item.EstadoClass">@item.EstadoTexto</span>
                                 </td>
-                                <td class="fecha">@item.FechaCreacion.ToString("dd/MM/yyyy")</td>
-                                <td>
-                                    <div class="d-flex gap-2 mx-auto justify-content-center action">
-                                        <div class="edit">
-                                            <button class="btn btn-sm btn-success edit-item-btn" onclick="editarTipoCarnet(@item.Id)">
-                                                <i class="ri-pencil-fill align-bottom me-2"></i> Editar
-                                            </button>
+                                <td class="fecha">@item.FechaCreacion.ToString("dd/MM/yyyy")</td> 
+                                @if (Model.CanUpdate || Model.CanDelete)
+                                {
+                                    <td>
+                                        <div class="d-flex gap-2 mx-auto justify-content-center action">
+                                            @if (Model.CanUpdate)
+                                            {
+                                                <div class="edit">
+                                                    <button class="btn btn-sm btn-success edit-item-btn" onclick="editarTipoCarnet(@item.Id)">
+                                                        <i class="ri-pencil-fill align-bottom me-2"></i> Editar
+                                                    </button>
+                                                </div>
+                                            }
+                                            @if (Model.CanDelete)
+                                            {
+                                                <div class="remove">
+                                                    <button class="btn btn-sm btn-danger remove-item-btn" onclick="eliminarTipoCarnet(@item.Id, '@item.Codigo')">
+                                                        <i class="ri-delete-bin-fill align-bottom me-2"></i> Eliminar
+                                                    </button>
+                                                </div>
+                                            }
                                         </div>
-                                        <div class="remove">
-                                            <button class="btn btn-sm btn-danger remove-item-btn" onclick="eliminarTipoCarnet(@item.Id, '@item.Codigo')">
-                                                <i class="ri-delete-bin-fill align-bottom me-2"></i> Eliminar
-                                            </button>
-                                        </div>
-                                    </div>
-                                </td>
+                                    </td>
+                                }  
                             </tr>
                         }
                     }
@@ -157,9 +172,12 @@
                                     <i class="ri-database-2-line fs-1 text-muted mb-3"></i>
                                     <h5 class="text-muted">No se encontraron tipos de carnet</h5>
                                     <p class="text-muted mb-3">Comience agregando el primer tipo de carnet</p>
-                                    <a asp-action="Crear" class="btn btn-primary">
-                                        <i class="ri-add-line me-1"></i> Agregar Tipo de Carnet
-                                    </a>
+                                    @if (Model.CanCreate)
+                                    {
+                                        <a asp-action="Crear" class="btn btn-primary">
+                                            <i class="ri-add-line me-1"></i> Agregar Tipo de Carnet
+                                        </a>
+                                    }
                                 </div>
                             </td>
                         </tr>
@@ -184,6 +202,8 @@
 </div>
 
 
+@if (Model.CanDelete)
+{
 <!-- Modal para Eliminar -->
 <div class="modal fade zoomIn" id="deleteRecordModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
@@ -211,21 +231,32 @@
         </div>
     </div>
 </div>
+}
 
 @section Scripts {
     <script src="~/libs/list.js/list.min.js"></script>
     <script src="~/libs/list.pagination.js/list.pagination.min.js"></script>
     
-    <script>
-        function editarTipoCarnet(id) {
-            window.location.href = '@Url.Action("Editar", "TipoCarnet")/' + id;
+   <script>
+        @if (Model.CanUpdate)
+        {
+            <text>
+            function editarTipoCarnet(id) {
+                window.location.href = '@Url.Action("Editar", "TipoCarnet")/' + id;
+            }
+            </text>
         }
 
-        function eliminarTipoCarnet(id, codigo) {
-            document.getElementById('delete-record-text').innerText = 'Código: ' + codigo;
-            document.getElementById('deleteForm').action = '@Url.Action("Eliminar", "TipoCarnet")/' + id;
-            var deleteModal = new bootstrap.Modal(document.getElementById('deleteRecordModal'));
-            deleteModal.show();
+        @if (Model.CanDelete)
+        {
+            <text>
+            function eliminarTipoCarnet(id, codigo) {
+                document.getElementById('delete-record-text').innerText = 'Código: ' + codigo;
+                document.getElementById('deleteForm').action = '@Url.Action("Eliminar", "TipoCarnet")/' + id;
+                var deleteModal = new bootstrap.Modal(document.getElementById('deleteRecordModal'));
+                deleteModal.show();
+            }
+            </text>
         }
 
         // Initialize list.js for search and pagination

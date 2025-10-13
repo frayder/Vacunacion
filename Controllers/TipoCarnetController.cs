@@ -4,21 +4,36 @@ using Highdmin.Data;
 using Highdmin.Models;
 using Highdmin.ViewModels;
 using Highdmin.Services;
+using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 namespace Highdmin.Controllers
 {
+    [Authorize]
     public class TipoCarnetController : BaseEmpresaController
     {
         private readonly ApplicationDbContext _context;
+        private readonly AuthorizationService _authorizationService;
 
-        public TipoCarnetController(ApplicationDbContext context, IEmpresaService empresaService ) : base(empresaService)
+        public TipoCarnetController(ApplicationDbContext context, IEmpresaService empresaService, AuthorizationService authorizationService) : base(empresaService)
         {
             _context = context;
+            _authorizationService = authorizationService;
         }
 
         // GET: TipoCarnet
         public async Task<IActionResult> Index()
         {
+            // Verificar permiso de lectura
+            var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "0");
+            var hasReadPermission = await _authorizationService.HasPermissionAsync(userId, "TipoCarnet", "Read");
+            
+            if (!hasReadPermission)
+            {
+                TempData["ErrorMessage"] = "No tiene permisos para ver los tipos de carnet.";
+                return RedirectToAction("Index", "Dashboard");
+            }
+
             try
             {
                 var tiposCarnet = await _context.TiposCarnet
@@ -35,12 +50,19 @@ namespace Highdmin.Controllers
                     })
                     .ToListAsync();
 
+                // Obtener permisos del usuario para la vista
+                var permissions = await _authorizationService.GetUserPermissionsAsync(userId, "TipoCarnet");
+
                 var viewModel = new TipoCarnetViewModel
                 {
                     TotalTipos = tiposCarnet.Count,
                     TiposActivos = tiposCarnet.Count(t => t.Estado),
                     TiposInactivos = tiposCarnet.Count(t => !t.Estado),
-                    TiposCarnet = tiposCarnet
+                    TiposCarnet = tiposCarnet,
+                    // Agregar permisos al ViewModel
+                    CanCreate = permissions["Create"],
+                    CanUpdate = permissions["Update"],
+                    CanDelete = permissions["Delete"]
                 };
 
                 return View(viewModel);
@@ -53,8 +75,17 @@ namespace Highdmin.Controllers
         }
 
         // GET: TipoCarnet/Crear
-        public IActionResult Crear()
+        public async Task<IActionResult> Crear()
         {
+            var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "0");
+            var hasCreatePermission = await _authorizationService.HasPermissionAsync(userId, "TipoCarnet", "Create");
+            
+            if (!hasCreatePermission)
+            {
+                TempData["ErrorMessage"] = "No tiene permisos para crear tipos de carnet.";
+                return RedirectToAction(nameof(Index));
+            }
+
             return View(new TipoCarnetCreateViewModel());
         }
 
@@ -63,6 +94,15 @@ namespace Highdmin.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Crear(TipoCarnetCreateViewModel model)
         {
+            var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "0");
+            var hasCreatePermission = await _authorizationService.HasPermissionAsync(userId, "TipoCarnet", "Create");
+            
+            if (!hasCreatePermission)
+            {
+                TempData["ErrorMessage"] = "No tiene permisos para crear tipos de carnet.";
+                return RedirectToAction(nameof(Index));
+            }
+
             if (ModelState.IsValid)
             {
                 try
@@ -105,6 +145,15 @@ namespace Highdmin.Controllers
         // GET: TipoCarnet/Editar/5
         public async Task<IActionResult> Editar(int? id)
         {
+            var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "0");
+            var hasUpdatePermission = await _authorizationService.HasPermissionAsync(userId, "TipoCarnet", "Update");
+            
+            if (!hasUpdatePermission)
+            {
+                TempData["ErrorMessage"] = "No tiene permisos para editar tipos de carnet.";
+                return RedirectToAction(nameof(Index));
+            }
+
             if (id == null)
             {
                 return NotFound();
@@ -142,6 +191,15 @@ namespace Highdmin.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Editar(int id, TipoCarnetEditViewModel model)
         {
+            var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "0");
+            var hasUpdatePermission = await _authorizationService.HasPermissionAsync(userId, "TipoCarnet", "Update");
+            
+            if (!hasUpdatePermission)
+            {
+                TempData["ErrorMessage"] = "No tiene permisos para editar tipos de carnet.";
+                return RedirectToAction(nameof(Index));
+            }
+
             if (id != model.Id)
             {
                 return NotFound();
@@ -203,6 +261,15 @@ namespace Highdmin.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Eliminar(int id)
         {
+            var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "0");
+            var hasDeletePermission = await _authorizationService.HasPermissionAsync(userId, "TipoCarnet", "Delete");
+            
+            if (!hasDeletePermission)
+            {
+                TempData["ErrorMessage"] = "No tiene permisos para eliminar tipos de carnet.";
+                return RedirectToAction(nameof(Index));
+            }
+
             try
             {
                 var tipoCarnet = await _context.TiposCarnet.FirstOrDefaultAsync(m => m.Id == id && m.EmpresaId == CurrentEmpresaId);
