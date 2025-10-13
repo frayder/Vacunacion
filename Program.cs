@@ -42,6 +42,11 @@ builder.Services.AddScoped<Highdmin.Services.IMenuService, Highdmin.Services.Men
 builder.Services.AddScoped<Highdmin.Services.IEmpresaService, Highdmin.Services.EmpresaService>();
 builder.Services.AddScoped<Highdmin.Services.AuthorizationService>();
 
+// Registrar servicios genéricos de Import/Export
+builder.Services.AddScoped<Highdmin.Services.IImportExportService, Highdmin.Services.ImportExportService>();
+builder.Services.AddSingleton<Highdmin.Services.IEntityConfigurationService, Highdmin.Services.EntityConfigurationService>();
+builder.Services.AddScoped<Highdmin.Services.IDataPersistenceService, Highdmin.Services.DataPersistenceService>();
+
 // Habilitar sesiones
 builder.Services.AddSession();
 

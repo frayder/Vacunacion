@@ -71,4 +71,12 @@ namespace Highdmin.ViewModels
         [Display(Name = "Fecha Creación")]
         public DateTime FechaCreacion { get; set; }
     }
+
+    public class ImportarTipoCarnetViewModel
+    {
+        [Display(Name = "Archivo Excel")]
+        public IFormFile ArchivoExcel { get; set; } = null!;
+
+        public List<TipoCarnetItemViewModel>? TiposCargados { get; set; }
+    }
 }
