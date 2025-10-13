@@ -7,11 +7,11 @@ using Highdmin.Services;
 
 namespace Highdmin.Controllers
 {
-    public class CondicionUsuariaController : BaseEmpresaController
+    public class CondicionUsuariaController : BaseAuthorizationController
     {
-        private readonly ApplicationDbContext _context;
+        private readonly ApplicationDbContext _context; 
 
-        public CondicionUsuariaController(ApplicationDbContext context, IEmpresaService empresaService) : base(empresaService)
+        public CondicionUsuariaController(ApplicationDbContext context, IEmpresaService empresaService, AuthorizationService authorizationService) : base(empresaService, authorizationService)
         {
             _context = context;
         }
@@ -21,6 +21,11 @@ namespace Highdmin.Controllers
         {
             try
             {
+                
+                // Validar permisos y obtener todos los permisos del módulo
+                var (redirect, permissions) = await ValidateAndGetPermissionsAsync("CondicionUsuaria", "Read");
+                if (redirect != null) return redirect;
+
                 var condicionesUsuarias = await _context.CondicionesUsuarias
                     .Where(c => c.EmpresaId == CurrentEmpresaId)
                     .OrderBy(c => c.Codigo)
@@ -40,7 +45,11 @@ namespace Highdmin.Controllers
                     TotalCondiciones = condicionesUsuarias.Count,
                     CondicionesActivas = condicionesUsuarias.Count(c => c.Estado),
                     CondicionesInactivas = condicionesUsuarias.Count(c => !c.Estado),
-                    CondicionesUsuarias = condicionesUsuarias
+                    CondicionesUsuarias = condicionesUsuarias,
+                    // Agregar permisos al ViewModel
+                    CanCreate = permissions["Create"],
+                    CanUpdate = permissions["Update"],
+                    CanDelete = permissions["Delete"]
                 };
 
                 return View(viewModel);
@@ -96,6 +105,10 @@ namespace Highdmin.Controllers
             {
                 try
                 {
+                    // Validar permiso de creación
+                    var redirect = await ValidatePermissionAsync("CondicionUsuaria", "Create");
+                    if (redirect != null) return redirect;
+
                     // Verificar si el código ya existe
                     var existeCodigo = await _context.CondicionesUsuarias
                         .AnyAsync(c => c.Codigo == viewModel.Codigo);
@@ -134,6 +147,11 @@ namespace Highdmin.Controllers
         // GET: CondicionUsuaria/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
+
+            // Validar permiso de actualización
+            var redirect = await ValidatePermissionAsync("CondicionUsuaria", "Update");
+            if (redirect != null) return redirect;
+
             if (id == null)
             {
                 return NotFound();
@@ -163,6 +181,10 @@ namespace Highdmin.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, CondicionUsuariaEditViewModel viewModel)
         {
+            // Validar permiso de actualización
+            var redirect = await ValidatePermissionAsync("CondicionUsuaria", "Update");
+            if (redirect != null) return redirect;
+
             if (id != viewModel.Id)
             {
                 return NotFound();
@@ -222,6 +244,10 @@ namespace Highdmin.Controllers
         // GET: CondicionUsuaria/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
+             // Validar permiso de eliminación
+            var redirect = await ValidatePermissionAsync("CondicionUsuaria", "Delete");
+            if (redirect != null) return redirect;
+
             if (id == null)
             {
                 return NotFound();
@@ -255,6 +281,10 @@ namespace Highdmin.Controllers
         {
             try
             {
+                 // Validar permiso de eliminación
+                var redirect = await ValidatePermissionAsync("CondicionUsuaria", "Delete");
+                if (redirect != null) return redirect;
+
                 var condicionUsuaria = await _context.CondicionesUsuarias.FirstOrDefaultAsync(m => m.Id == id && m.EmpresaId == CurrentEmpresaId);
                 if (condicionUsuaria != null)
                 {

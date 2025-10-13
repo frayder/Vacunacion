@@ -7,11 +7,11 @@ using Highdmin.Services;
 
 namespace Highdmin.Controllers
 {
-    public class CentroAtencionController : BaseEmpresaController
+    public class CentroAtencionController : BaseAuthorizationController
     {
         private readonly ApplicationDbContext _context; 
 
-        public CentroAtencionController(ApplicationDbContext context, IEmpresaService empresaService): base(empresaService)
+        public CentroAtencionController(ApplicationDbContext context, IEmpresaService empresaService, AuthorizationService authorizationService): base(empresaService, authorizationService)
         {
             _context = context;
         }
@@ -21,6 +21,11 @@ namespace Highdmin.Controllers
         {
             try
             { 
+
+                // Validar permisos y obtener todos los permisos del módulo
+                var (redirect, permissions) = await ValidateAndGetPermissionsAsync("CentroAtencion", "Read");
+                if (redirect != null) return redirect;
+
                 var centrosAtencion = await _context.CentrosAtencion
                     .Where(c => c.EmpresaId == CurrentEmpresaId)
                     .OrderBy(c => c.Codigo)
@@ -41,7 +46,11 @@ namespace Highdmin.Controllers
                     TotalCentros = centrosAtencion.Count,
                     CentrosActivos = centrosAtencion.Count(c => c.Estado),
                     CentrosInactivos = centrosAtencion.Count(c => !c.Estado),
-                    CentrosAtencion = centrosAtencion
+                    CentrosAtencion = centrosAtencion,
+                    // Agregar permisos al ViewModel
+                    CanCreate = permissions["Create"],
+                    CanUpdate = permissions["Update"],
+                    CanDelete = permissions["Delete"]
                 };
 
                 return View(viewModel);

@@ -8,6 +8,11 @@ namespace Highdmin.ViewModels
         public int AseguradorasActivas { get; set; }
         public int AseguradorasInactivas { get; set; }
         public List<AseguradoraItemViewModel> Aseguradoras { get; set; } = new();
+
+        // Propiedades para permisos
+        public bool CanCreate { get; set; }
+        public bool CanUpdate { get; set; }
+        public bool CanDelete { get; set; } 
     }
 
     public class AseguradoraItemViewModel : CatalogoItemViewModelBase

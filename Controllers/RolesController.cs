@@ -9,11 +9,11 @@ using Highdmin.Services;
 namespace Highdmin.Controllers
 {
     [Authorize]
-    public class RolesController : BaseEmpresaController
+    public class RolesController : BaseAuthorizationController
     {
         private readonly ApplicationDbContext _context;
 
-        public RolesController(ApplicationDbContext context, IEmpresaService empresaService) : base(empresaService)
+        public RolesController(ApplicationDbContext context, IEmpresaService empresaService, AuthorizationService authorizationService) : base(empresaService, authorizationService)
         {
             _context = context;
         }
@@ -21,12 +21,20 @@ namespace Highdmin.Controllers
         // GET: /Roles
         public async Task<IActionResult> Index()
         {
+            // Validar permisos y obtener todos los permisos del módulo
+            var (redirect, permissions) = await ValidateAndGetPermissionsAsync("Roles", "Read");
+            if (redirect != null) return redirect;
+
             var roles = await _context.Roles
                 .Include(r => r.RolePermissions)
                 .ThenInclude(rp => rp.MenuItem)
                 .OrderBy(r => r.Nombre)
                 .ToListAsync();
 
+            ViewBag.CanCreate = permissions["Create"];
+            ViewBag.CanUpdate = permissions["Update"];
+            ViewBag.CanDelete = permissions["Delete"];
+            
             return View(roles);
         }
 

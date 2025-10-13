@@ -1,3 +1,4 @@
+@using Highdmin.ViewComponents
 @model EntradaViewModel
 @{
     ViewData["Title"] = "Gestión de Entradas de Biológicos";
@@ -267,30 +268,17 @@
                                         <td class="notas">
                                             <span class="text-muted">@(entrada.Notas ?? "N/A")</span>
                                         </td>
-                                        <td>
-                                            <div class="dropdown d-inline-block">
-                                                <button class="btn btn-soft-secondary btn-sm dropdown" type="button" data-bs-toggle="dropdown">
-                                                    <i class="ri-more-fill align-middle"></i>
-                                                </button>
-                                                <ul class="dropdown-menu dropdown-menu-end">
-                                                    <li>
-                                                        <a href="@Url.Action("Details", new { id = entrada.Id })" class="dropdown-item">
-                                                            <i class="ri-eye-fill align-bottom me-2 text-muted"></i> Ver Detalles
-                                                        </a>
-                                                    </li>
-                                                    <li>
-                                                        <a href="@Url.Action("Edit", new { id = entrada.Id })" class="dropdown-item">
-                                                            <i class="ri-pencil-fill align-bottom me-2 text-muted"></i> Editar
-                                                        </a>
-                                                    </li>
-                                                    <li>
-                                                        <a href="@Url.Action("Delete", new { id = entrada.Id })" class="dropdown-item">
-                                                            <i class="ri-delete-bin-fill align-bottom me-2 text-muted"></i> Eliminar
-                                                        </a>
-                                                    </li>
-                                                </ul>
-                                            </div>
-                                        </td>
+                                        @if (Model.CanUpdate || Model.CanDelete)
+                                        {
+                                            <td>
+                                                @await Component.InvokeAsync("ActionButtons", 
+                                                    ActionButtonsHelper
+                                                        .CreateDefault(entrada.Id, "Entrada", $"Código: {entrada.InsumoCodigo}")
+                                                        .WithEdit(Model.CanUpdate)
+                                                        .WithDelete(Model.CanDelete, "¿Está seguro de que desea eliminar esta Entrada?")
+                                                )
+                                            </td>
+                                        }
                                     </tr>
                                 }
                             }

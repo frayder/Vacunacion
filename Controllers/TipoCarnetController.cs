@@ -10,29 +10,22 @@ using System.Security.Claims;
 namespace Highdmin.Controllers
 {
     [Authorize]
-    public class TipoCarnetController : BaseEmpresaController
+    public class TipoCarnetController : BaseAuthorizationController
     {
-        private readonly ApplicationDbContext _context;
-        private readonly AuthorizationService _authorizationService;
+        private readonly ApplicationDbContext _context; 
 
-        public TipoCarnetController(ApplicationDbContext context, IEmpresaService empresaService, AuthorizationService authorizationService) : base(empresaService)
+        public TipoCarnetController(ApplicationDbContext context, IEmpresaService empresaService, AuthorizationService authorizationService) : base(empresaService, authorizationService)
         {
-            _context = context;
-            _authorizationService = authorizationService;
+            _context = context; 
         }
 
         // GET: TipoCarnet
         public async Task<IActionResult> Index()
         {
-            // Verificar permiso de lectura
-            var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "0");
-            var hasReadPermission = await _authorizationService.HasPermissionAsync(userId, "TipoCarnet", "Read");
-            
-            if (!hasReadPermission)
-            {
-                TempData["ErrorMessage"] = "No tiene permisos para ver los tipos de carnet.";
-                return RedirectToAction("Index", "Dashboard");
-            }
+
+            // Validar permisos y obtener todos los permisos del módulo
+            var (redirect, permissions) = await ValidateAndGetPermissionsAsync("TipoCarnet", "Read");
+            if (redirect != null) return redirect;
 
             try
             {
@@ -50,9 +43,7 @@ namespace Highdmin.Controllers
                     })
                     .ToListAsync();
 
-                // Obtener permisos del usuario para la vista
-                var permissions = await _authorizationService.GetUserPermissionsAsync(userId, "TipoCarnet");
-
+                
                 var viewModel = new TipoCarnetViewModel
                 {
                     TotalTipos = tiposCarnet.Count,

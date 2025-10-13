@@ -17,13 +17,13 @@ using Highdmin.Services;
 namespace Highdmin.Controllers
 {
     [Authorize]
-    public class PacientesController : BaseEmpresaController
+    public class PacientesController : BaseAuthorizationController
     {
         private readonly ApplicationDbContext _context;
         private readonly ILogger<PacientesController> _logger;
         private static List<PacienteItemViewModel> PacientesCargados = new List<PacienteItemViewModel>();
 
-        public PacientesController(ApplicationDbContext context, ILogger<PacientesController> logger, IEmpresaService empresaService) : base(empresaService)
+        public PacientesController(ApplicationDbContext context, ILogger<PacientesController> logger, IEmpresaService empresaService, AuthorizationService authorizationService) : base(empresaService, authorizationService)
         {
             _context = context;
             _logger = logger;
@@ -132,6 +132,9 @@ namespace Highdmin.Controllers
         {
             try
             {
+                var (redirect, permissions) = await ValidateAndGetPermissionsAsync("Pacientes", "Read");
+                if (redirect != null) return redirect;
+
                 var query = _context.Pacientes.AsQueryable();
 
                 // Aplicar filtros
@@ -187,7 +190,11 @@ namespace Highdmin.Controllers
                     PacientesConDatos = pacientesConDatos,
                     CargasRealizadas = historialCargas.Count,
                     Pacientes = pacientes,
-                    HistorialCargas = historialCargas
+                    HistorialCargas = historialCargas,
+                    // Agregar permisos al ViewModel
+                    CanCreate = permissions["Create"],
+                    CanUpdate = permissions["Update"],
+                    CanDelete = permissions["Delete"]
                 };
 
                 return View(viewModel);

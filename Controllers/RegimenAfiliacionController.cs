@@ -7,11 +7,11 @@ using Highdmin.Services;
 
 namespace Highdmin.Controllers
 {
-    public class RegimenAfiliacionController : BaseEmpresaController
+    public class RegimenAfiliacionController : BaseAuthorizationController
     {
         private readonly ApplicationDbContext _context;
 
-        public RegimenAfiliacionController(ApplicationDbContext context, IEmpresaService empresaService) : base(empresaService)
+        public RegimenAfiliacionController(ApplicationDbContext context, IEmpresaService empresaService, AuthorizationService authorizationService) : base(empresaService, authorizationService)
         {
             _context = context;
         }
@@ -21,6 +21,9 @@ namespace Highdmin.Controllers
         {
             try
             {
+                var (redirect, permissions) = await ValidateAndGetPermissionsAsync("RegimenAfiliacion", "Read");
+                if (redirect != null) return redirect;
+
                 var regimenesAfiliacion = await _context.RegimenesAfiliacion
                     .Where(r => r.EmpresaId == CurrentEmpresaId)
                     .OrderBy(r => r.Codigo)
@@ -40,7 +43,11 @@ namespace Highdmin.Controllers
                     TotalRegimenes = regimenesAfiliacion.Count,
                     RegimenesActivos = regimenesAfiliacion.Count(r => r.Estado),
                     RegimenesInactivos = regimenesAfiliacion.Count(r => !r.Estado),
-                    RegimenesAfiliacion = regimenesAfiliacion
+                    RegimenesAfiliacion = regimenesAfiliacion,
+                    // Agregar permisos al ViewModel
+                    CanCreate = permissions["Create"],
+                    CanUpdate = permissions["Update"],
+                    CanDelete = permissions["Delete"]
                 };
 
                 return View(viewModel);

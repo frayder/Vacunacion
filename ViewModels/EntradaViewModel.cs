@@ -10,6 +10,11 @@ namespace Highdmin.ViewModels
         public int InsumosDiferentes { get; set; }
         public int UsuariosActivos { get; set; }
         public List<EntradaItemViewModel> Entradas { get; set; } = new();
+
+        // Propiedades para permisos
+        public bool CanCreate { get; set; }
+        public bool CanUpdate { get; set; }
+        public bool CanDelete { get; set; } 
     }
 
     public class EntradaItemViewModel

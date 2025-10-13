@@ -8,6 +8,11 @@ namespace Highdmin.ViewModels
         public int InsumosActivos { get; set; }
         public int InsumosInactivos { get; set; }
         public List<InsumoItemViewModel> Insumos { get; set; } = new();
+
+        // Propiedades para permisos
+        public bool CanCreate { get; set; }
+        public bool CanUpdate { get; set; }
+        public bool CanDelete { get; set; } 
     }
 
     public class InsumoItemViewModel : ICatalogoItem

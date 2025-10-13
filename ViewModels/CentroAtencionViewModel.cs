@@ -8,6 +8,11 @@ namespace Highdmin.ViewModels
         public int CentrosActivos { get; set; }
         public int CentrosInactivos { get; set; }
         public List<CentroAtencionItemViewModel> CentrosAtencion { get; set; } = new();
+
+        // Propiedades para permisos
+        public bool CanCreate { get; set; }
+        public bool CanUpdate { get; set; }
+        public bool CanDelete { get; set; } 
     }
 
     public class CentroAtencionItemViewModel : ICatalogoItem

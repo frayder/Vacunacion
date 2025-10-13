@@ -11,17 +11,21 @@ using Highdmin.Services;
 namespace Highdmin.Controllers
 {
     [Authorize]
-    public class UsersController : BaseEmpresaController
+    public class UsersController : BaseAuthorizationController
     {
         private readonly ApplicationDbContext _context;
 
-        public UsersController(ApplicationDbContext context, IEmpresaService empresaService) : base(empresaService)
+        public UsersController(ApplicationDbContext context, IEmpresaService empresaService, AuthorizationService authorizationService) : base(empresaService, authorizationService)
         {
             _context = context;
         }
 
         public async Task<IActionResult> Index()
         {
+            // Validar permisos y obtener todos los permisos del módulo
+            var (redirect, permissions) = await ValidateAndGetPermissionsAsync("CondicionUsuaria", "Read");
+            if (redirect != null) return redirect;
+
             var users = await _context.Users
                 .Where(u => u.EmpresaId == CurrentEmpresaId)
                 .Include(u => u.UserRoles)
@@ -29,6 +33,9 @@ namespace Highdmin.Controllers
                 .OrderBy(u => u.UserName)
                 .ToListAsync();
 
+            ViewBag.CanCreate = permissions["Create"];
+            ViewBag.CanUpdate = permissions["Update"];
+            ViewBag.CanDelete = permissions["Delete"];
             return View(users);
         }
 

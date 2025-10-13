@@ -7,11 +7,11 @@ using Highdmin.Services;
 
 namespace Highdmin.Controllers
 {
-    public class PertenenciaEtnicaController : BaseEmpresaController
+    public class PertenenciaEtnicaController : BaseAuthorizationController
     {
         private readonly ApplicationDbContext _context;
 
-        public PertenenciaEtnicaController(ApplicationDbContext context, IEmpresaService empresaService) : base(empresaService)
+        public PertenenciaEtnicaController(ApplicationDbContext context, IEmpresaService empresaService, AuthorizationService authorizationService) : base(empresaService, authorizationService)
         {
             _context = context;
         }
@@ -21,6 +21,10 @@ namespace Highdmin.Controllers
         {
             try
             {
+                // Validar permisos y obtener todos los permisos del módulo
+                var (redirect, permissions) = await ValidateAndGetPermissionsAsync("PertenenciaEtnica", "Read");
+                if (redirect != null) return redirect;
+
                 var pertenenciasEtnicas = await _context.PertenenciasEtnicas
                     .Where(p => p.EmpresaId == CurrentEmpresaId)
                     .OrderBy(p => p.Codigo)
@@ -40,7 +44,11 @@ namespace Highdmin.Controllers
                     TotalPertenencias = pertenenciasEtnicas.Count,
                     PertenenciasActivas = pertenenciasEtnicas.Count(p => p.Estado),
                     PertenenciasInactivas = pertenenciasEtnicas.Count(p => !p.Estado),
-                    PertenenciasEtnicas = pertenenciasEtnicas
+                    PertenenciasEtnicas = pertenenciasEtnicas,
+                    // Agregar permisos al ViewModel
+                    CanCreate = permissions["Create"],
+                    CanUpdate = permissions["Update"],
+                    CanDelete = permissions["Delete"]
                 };
 
                 return View(viewModel);

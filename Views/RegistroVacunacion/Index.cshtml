@@ -1,3 +1,4 @@
+@using Highdmin.ViewComponents
 @model RegistroVacunacionViewModel
 @{
     ViewData["Title"] = "Registro de Vacunación";
@@ -246,25 +247,17 @@
                                             } 
                                         </td>
                                         <td class="fecha">@registro.FechaRegistro</td>
-                                        <td>
-                                             <div class="d-flex gap-2">
-                                                <div class="view">
-                                                    <a asp-action="Details" asp-route-id="@registro.Id" class="btn btn-sm btn-info" data-bs-toggle="tooltip" data-bs-placement="top" title="Ver Detalles">
-                                                        <i class="ri-eye-line"></i>
-                                                    </a>
-                                                </div>
-                                                <div class="edit">
-                                                    <a asp-action="Edit" asp-route-id="@registro.Id" class="btn btn-sm btn-success edit-item-btn" data-bs-toggle="tooltip" data-bs-placement="top" title="Editar">
-                                                        <i class="ri-pencil-fill"></i>
-                                                    </a>
-                                                </div>
-                                                <div class="remove">
-                                                    <a asp-action="Delete" asp-route-id="@registro.Id" class="btn btn-sm btn-danger remove-item-btn" data-bs-toggle="tooltip" data-bs-placement="top" title="Eliminar">
-                                                        <i class="ri-delete-bin-fill"></i>
-                                                    </a>
-                                                </div>
-                                            </div>
-                                        </td>
+                                        @if (Model.CanUpdate || Model.CanDelete)
+                                        {
+                                            <td>
+                                                @await Component.InvokeAsync("ActionButtons", 
+                                                    ActionButtonsHelper
+                                                        .CreateDefault(registro.Id, "RegistroVacunacion", $"Código: {registro.Consecutivo}")
+                                                        .WithEdit(Model.CanUpdate)
+                                                        .WithDelete(Model.CanDelete, "¿Está seguro de que desea eliminar este registro de vacunación?")
+                                                )
+                                            </td>
+                                        }  
                                     </tr>
                                 }
                             }

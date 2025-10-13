@@ -7,11 +7,11 @@ using Highdmin.Services;
 
 namespace Highdmin.Controllers
 {
-    public class AseguradoraController : BaseEmpresaController
+    public class AseguradoraController : BaseAuthorizationController
     {
         private readonly ApplicationDbContext _context;
 
-        public AseguradoraController(ApplicationDbContext context, IEmpresaService empresaService) : base(empresaService)
+        public AseguradoraController(ApplicationDbContext context, IEmpresaService empresaService, AuthorizationService authorizationService) : base(empresaService, authorizationService)
         {
             _context = context;
         }
@@ -21,6 +21,11 @@ namespace Highdmin.Controllers
         {
             try
             {
+
+                // Validar permisos y obtener todos los permisos del módulo
+                var (redirect, permissions) = await ValidateAndGetPermissionsAsync("Aseguradora", "Read");
+                if (redirect != null) return redirect;
+
                 var aseguradoras = await _context.Aseguradoras
                     .Where(c => c.EmpresaId == CurrentEmpresaId)
                     .OrderBy(a => a.Codigo)
@@ -40,7 +45,11 @@ namespace Highdmin.Controllers
                     TotalAseguradoras = aseguradoras.Count,
                     AseguradorasActivas = aseguradoras.Count(a => a.Estado),
                     AseguradorasInactivas = aseguradoras.Count(a => !a.Estado),
-                    Aseguradoras = aseguradoras
+                    Aseguradoras = aseguradoras,
+                    // Agregar permisos al ViewModel
+                    CanCreate = permissions["Create"],
+                    CanUpdate = permissions["Update"],
+                    CanDelete = permissions["Delete"]
                 };
 
                 return View(viewModel);

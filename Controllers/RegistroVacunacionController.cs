@@ -10,11 +10,11 @@ using Highdmin.Services;
 
 namespace Highdmin.Controllers
 {
-    public class RegistroVacunacionController : BaseEmpresaController
+    public class RegistroVacunacionController : BaseAuthorizationController
     {
         private readonly ApplicationDbContext _context;
 
-        public RegistroVacunacionController(ApplicationDbContext context, IEmpresaService empresaService) : base(empresaService)
+        public RegistroVacunacionController(ApplicationDbContext context, IEmpresaService empresaService, AuthorizationService authorizationService) : base(empresaService, authorizationService)
         {
             _context = context;
         }
@@ -22,6 +22,10 @@ namespace Highdmin.Controllers
         public async Task<IActionResult> Index()
         {
             // Consultamos todos los registros de vacunación desde la base de datos
+
+            var (redirect, permissions) = await ValidateAndGetPermissionsAsync("RegistroVacunacion", "Read");
+            if (redirect != null) return redirect;
+
             var registros = await _context.RegistrosVacunacion
                 .Where(r => r.EmpresaId == CurrentEmpresaId)
                 .OrderByDescending(r => r.FechaRegistro)
@@ -48,7 +52,12 @@ namespace Highdmin.Controllers
                 EsquemasCompletos = 0,
                 EsquemasIncompletos = 0,
                 // Pendientes = registros.Count(r => r.FechaAplicacion == null),
-                Registros = registros
+                Registros = registros,
+                // Agregar permisos al ViewModel
+                CanCreate = permissions["Create"],
+                CanUpdate = permissions["Update"],
+                CanDelete = permissions["Delete"]
+                
             };
 
             return View(viewModel);

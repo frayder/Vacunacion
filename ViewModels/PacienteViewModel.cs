@@ -10,6 +10,11 @@ namespace Highdmin.ViewModels
         public int CargasRealizadas { get; set; }
         public List<PacienteItemViewModel> Pacientes { get; set; } = new();
         public List<CargaHistorialItem> HistorialCargas { get; set; } = new();
+
+        // Propiedades para permisos
+        public bool CanCreate { get; set; }
+        public bool CanUpdate { get; set; }
+        public bool CanDelete { get; set; } 
     }
 
     public class PacienteItemViewModel

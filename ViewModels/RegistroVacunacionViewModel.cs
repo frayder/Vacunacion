@@ -10,6 +10,11 @@ namespace Highdmin.ViewModels
         public int EsquemasIncompletos { get; set; }
         public int Pendientes { get; set; }
         public List<RegistroVacunacionItemViewModel> Registros { get; set; } = new();
+
+        // Propiedades para permisos
+        public bool CanCreate { get; set; }
+        public bool CanUpdate { get; set; }
+        public bool CanDelete { get; set; } 
     }
 
     public class RegistroVacunacionItemViewModel

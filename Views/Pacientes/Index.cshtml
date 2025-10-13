@@ -1,3 +1,4 @@
+@using Highdmin.ViewComponents
 @model PacienteViewModel
 @{
     ViewData["Title"] = "Base de Datos de Pacientes";
@@ -193,23 +194,17 @@
                                     <td>@paciente.NombreCompleto</td>
                                     <td>@paciente.FechaNacimiento.ToString("dd/MM/yyyy")</td>
                                     <td>@paciente.Sexo</td>
-                                    <td>
-                                        <div class="btn-group" role="group">
-                                            <a href="@Url.Action("Details", new { id = paciente.Id })"
-                                                class="btn btn-sm btn-outline-info" title="Ver detalles">
-                                                <i class="ri-eye-line"></i>
-                                            </a>
-                                            <a href="@Url.Action("Edit", new { id = paciente.Id })"
-                                                class="btn btn-sm btn-outline-primary" title="Editar">
-                                                <i class="ri-edit-line"></i>
-                                            </a>
-                                            <button type="button" class="btn btn-sm btn-outline-danger"
-                                                onclick="confirmarEliminacion(@paciente.Id, '@paciente.NombreCompleto')"
-                                                title="Eliminar">
-                                                <i class="ri-delete-bin-line"></i>
-                                            </button>
-                                        </div>
-                                    </td>
+                                    @if (Model.CanUpdate || Model.CanDelete)
+                                    {
+                                        <td>
+                                            @await Component.InvokeAsync("ActionButtons", 
+                                                ActionButtonsHelper
+                                                    .CreateDefault(paciente.Id, "Pacientes", $"Código: {paciente.Identificacion}")
+                                                    .WithEdit(Model.CanUpdate)
+                                                    .WithDelete(Model.CanDelete, "¿Está seguro de que desea eliminar este Paciente?")
+                                            )
+                                        </td>
+                                    }
                                 </tr>
                             }
                         </tbody>

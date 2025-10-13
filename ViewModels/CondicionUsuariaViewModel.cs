@@ -8,6 +8,11 @@ namespace Highdmin.ViewModels
         public int CondicionesActivas { get; set; }
         public int CondicionesInactivas { get; set; }
         public List<CondicionUsuariaItemViewModel> CondicionesUsuarias { get; set; } = new();
+
+        // Propiedades para permisos
+        public bool CanCreate { get; set; }
+        public bool CanUpdate { get; set; }
+        public bool CanDelete { get; set; } 
     }
 
     public class CondicionUsuariaItemViewModel : CatalogoItemViewModelBase

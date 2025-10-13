@@ -2,6 +2,18 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Highdmin.ViewModels
 {
+    public class ListaAntecedentesViewModel
+    {
+        public int RegistroVacunacionId { get; set; }
+        public List<AntecedenteMedicoViewModel> Antecedentes { get; set; } = new();
+        public AntecedenteMedicoViewModel NuevoAntecedente { get; set; } = new();
+
+        // Propiedades para permisos
+        public bool CanCreate { get; set; }
+        public bool CanUpdate { get; set; }
+        public bool CanDelete { get; set; } 
+    }
+    
     public class AntecedenteMedicoViewModel
     {
         public int Id { get; set; }
@@ -29,12 +41,5 @@ namespace Highdmin.ViewModels
         public string? Observaciones { get; set; }
 
         public bool Activo { get; set; } = true;
-    }
-
-    public class ListaAntecedentesViewModel
-    {
-        public int RegistroVacunacionId { get; set; }
-        public List<AntecedenteMedicoViewModel> Antecedentes { get; set; } = new();
-        public AntecedenteMedicoViewModel NuevoAntecedente { get; set; } = new();
-    }
+    } 
 }

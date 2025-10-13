@@ -7,11 +7,11 @@ using Highdmin.Services;
 
 namespace Highdmin.Controllers
 {
-    public class InsumoController : BaseEmpresaController
+    public class InsumoController : BaseAuthorizationController
     {
         private readonly ApplicationDbContext _context;
 
-        public InsumoController(ApplicationDbContext context, IEmpresaService empresaService) : base(empresaService)
+        public InsumoController(ApplicationDbContext context, IEmpresaService empresaService, AuthorizationService authorizationService) : base(empresaService, authorizationService)
         {
             _context = context;
         }
@@ -21,6 +21,10 @@ namespace Highdmin.Controllers
         {
             try
             {
+                // Validar permisos y obtener todos los permisos del módulo
+                var (redirect, permissions) = await ValidateAndGetPermissionsAsync("Insumos", "Read");
+                if (redirect != null) return redirect;
+
                 var insumos = await _context.Insumos
                     .Where(i => i.EmpresaId == CurrentEmpresaId)
                     .OrderBy(i => i.Codigo)
@@ -42,7 +46,11 @@ namespace Highdmin.Controllers
                     TotalInsumos = insumos.Count,
                     InsumosActivos = insumos.Count(i => i.Estado),
                     InsumosInactivos = insumos.Count(i => !i.Estado),
-                    Insumos = insumos
+                    Insumos = insumos,
+                    // Agregar permisos al ViewModel
+                    CanCreate = permissions["Create"],
+                    CanUpdate = permissions["Update"],
+                    CanDelete = permissions["Delete"]
                 };
 
                 return View(viewModel);

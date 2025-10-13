@@ -8,6 +8,11 @@ namespace Highdmin.ViewModels
         public int RegimenesActivos { get; set; }
         public int RegimenesInactivos { get; set; }
         public List<RegimenAfiliacionItemViewModel> RegimenesAfiliacion { get; set; } = new();
+
+        // Propiedades para permisos
+        public bool CanCreate { get; set; }
+        public bool CanUpdate { get; set; }
+        public bool CanDelete { get; set; } 
     }
 
     public class RegimenAfiliacionItemViewModel : CatalogoItemViewModelBase

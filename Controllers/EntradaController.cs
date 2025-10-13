@@ -8,11 +8,11 @@ using Highdmin.Services;
 
 namespace Highdmin.Controllers
 {
-    public class EntradaController : BaseEmpresaController
+    public class EntradaController : BaseAuthorizationController
     {
         private readonly ApplicationDbContext _context;
 
-        public EntradaController(ApplicationDbContext context, IEmpresaService empresaService) : base(empresaService)
+        public EntradaController(ApplicationDbContext context, IEmpresaService empresaService, AuthorizationService authorizationService) : base(empresaService, authorizationService)
         {
             _context = context;
         } 
@@ -22,6 +22,10 @@ namespace Highdmin.Controllers
         {
             try
             {
+                // Validar permisos y obtener todos los permisos del módulo
+                var (redirect, permissions) = await ValidateAndGetPermissionsAsync("Entradas", "Read");
+                if (redirect != null) return redirect;
+
                 var entradas = await _context.Entradas
                     .Where(e => e.EmpresaId == CurrentEmpresaId)
                     .Include(e => e.Insumo)
@@ -54,7 +58,11 @@ namespace Highdmin.Controllers
                     EntradasDelMes = entradasDelMes,
                     InsumosDiferentes = insumosDiferentes,
                     UsuariosActivos = usuariosActivos,
-                    Entradas = entradas
+                    Entradas = entradas,
+                    // Agregar permisos al ViewModel
+                    CanCreate = permissions["Create"],
+                    CanUpdate = permissions["Update"],
+                    CanDelete = permissions["Delete"]
                 };
 
                 return View(viewModel);

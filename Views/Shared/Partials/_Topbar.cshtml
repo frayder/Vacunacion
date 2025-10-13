@@ -7,7 +7,7 @@
 <div class="color-line"></div>
 
 <!-- Topbar Start -->
-<header class="app-topbar" style="padding-top:0px !important; padding:0px !important;">
+<header class="app-topbar mb-2" style="padding-top:0px !important; padding:0px !important;">
     <div class="page-container topbar-menu">
         <div class="d-flex align-items-center gap-2">
 
@@ -61,14 +61,14 @@
             </div>
 
             <!-- Button Trigger Search Modal -->
-            <div class="topbar-search d-none d-xl-flex gap-2 me-2 align-items-center" data-bs-toggle="modal"
+            @* <div class="topbar-search d-none d-xl-flex gap-2 me-2 align-items-center" data-bs-toggle="modal"
                 data-bs-target="#searchModal" type="button">
                 <i class="ri-search-line fs-18"></i>
                 <span class="me-2">Search something..</span>
-            </div>
+            </div> *@
 
             <!-- Language Dropdown -->
-            <div class="topbar-item">
+            @* <div class="topbar-item">
                 <div class="dropdown">
                     <button class="topbar-link" data-bs-toggle="dropdown" data-bs-offset="0,32" type="button"
                         aria-haspopup="false" aria-expanded="false">
@@ -115,10 +115,10 @@
 
                     </div>
                 </div>
-            </div>
+            </div> *@
 
             <!-- Notification Dropdown -->
-            <div class="topbar-item">
+            @* <div class="topbar-item">
                 <div class="dropdown">
                     <button class="topbar-link dropdown-toggle drop-arrow-none" data-bs-toggle="dropdown"
                         data-bs-offset="0,25" type="button" data-bs-auto-close="outside" aria-haspopup="false"
@@ -279,11 +279,11 @@
                             View All
                         </a>
                     </div>
-                </div>
+                </div> *@
             </div>
 
             <!-- Apps Dropdown -->
-            <div class="topbar-item d-none d-sm-flex">
+            @* <div class="topbar-item d-none d-sm-flex">
                 <div class="dropdown">
                     <button class="topbar-link dropdown-toggle drop-arrow-none" data-bs-toggle="dropdown"
                         data-bs-offset="0,25" type="button" aria-haspopup="false" aria-expanded="false">
@@ -356,59 +356,62 @@
                         </div>
                     </div>
                 </div>
-            </div>
+            </div> *@
 
-            <!-- Button Trigger Customizer Offcanvas -->
-            <div class="topbar-item d-none d-sm-flex">
-                <button class="topbar-link" data-bs-toggle="offcanvas" data-bs-target="#theme-settings-offcanvas"
-                    type="button">
-                    <i class="ri-settings-4-line fs-22"></i>
-                </button>
-            </div>
+            <div class="d-flex">
+         
+                <!-- Button Trigger Customizer Offcanvas -->
+                <div class="topbar-item d-none d-sm-flex">
+                    <button class="topbar-link" data-bs-toggle="offcanvas" data-bs-target="#theme-settings-offcanvas"
+                        type="button">
+                        <i class="ri-settings-4-line fs-22"></i>
+                    </button>
+                </div>
 
-            <!-- Light/Dark Mode Button -->
-            <div class="topbar-item d-none d-sm-flex">
-                <button class="topbar-link" id="light-dark-mode" type="button">
-                    <i class="ri-moon-line fs-22"></i>
-                </button>
-            </div>
+                <!-- Light/Dark Mode Button -->
+                <div class="topbar-item d-none d-sm-flex">
+                    <button class="topbar-link" id="light-dark-mode" type="button">
+                        <i class="ri-moon-line fs-22"></i>
+                    </button>
+                </div>
 
-            <!-- User Dropdown -->
-            <div class="topbar-item nav-user">
-                <div class="dropdown">
-                    <a class="topbar-link dropdown-toggle drop-arrow-none px-2" data-bs-toggle="dropdown"
-                        data-bs-offset="0,25" type="button" aria-haspopup="false" aria-expanded="false">
-                        <img src="~/images/users/avatar-1.jpg" width="32" class="rounded-circle me-lg-2 d-flex"
-                            alt="user-image">
-                        <span class="d-lg-flex flex-column gap-1 d-none">
-                            <h5 class="my-0">Admin</h5>
-                        </span>
-                        <i class="ri-arrow-down-s-line d-none d-lg-block align-middle ms-2"></i>
-                    </a>
-                    <div class="dropdown-menu dropdown-menu-end">
-                        <!-- item-->
-                        <div class="dropdown-header noti-title">
-                            <h6 class="text-overflow m-0">Welcome !</h6>
+                <!-- User Dropdown -->
+                <div class="topbar-item nav-user">
+                    <div class="dropdown">
+                        <a class="topbar-link dropdown-toggle drop-arrow-none px-2" data-bs-toggle="dropdown"
+                            data-bs-offset="0,25" type="button" aria-haspopup="false" aria-expanded="false">
+                            <img src="~/images/users/avatar-1.jpg" width="32" class="rounded-circle me-lg-2 d-flex"
+                                alt="user-image">
+                            <span class="d-lg-flex flex-column gap-1 d-none">
+                                <h5 class="my-0">Admin</h5>
+                            </span>
+                            <i class="ri-arrow-down-s-line d-none d-lg-block align-middle ms-2"></i>
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-end">
+                            <!-- item-->
+                            <div class="dropdown-header noti-title">
+                                <h6 class="text-overflow m-0">Welcome !</h6>
+                            </div>
+
+                            <!-- item-->
+                            <a href="javascript:void(0);" class="dropdown-item">
+                                <i class="ri-account-circle-line me-1 fs-16 align-middle"></i>
+                                <span class="align-middle">My Account</span>
+                            </a>
+
+                        
+
+                            <div class="dropdown-divider"></div>
+
+                        
+
+                            <!-- item-->
+                                                    <!-- item-->
+                            <a href="javascript:void(0);" class="dropdown-item active fw-semibold text-danger" onclick="logout()">
+                                <i class="ri-logout-box-line me-1 fs-16 align-middle"></i>
+                                <span class="align-middle">Sign Out</span>
+                            </a>
                         </div>
-
-                        <!-- item-->
-                        <a href="javascript:void(0);" class="dropdown-item">
-                            <i class="ri-account-circle-line me-1 fs-16 align-middle"></i>
-                            <span class="align-middle">My Account</span>
-                        </a>
-
-                      
-
-                        <div class="dropdown-divider"></div>
-
-                      
-
-                        <!-- item-->
-                                                <!-- item-->
-                        <a href="javascript:void(0);" class="dropdown-item active fw-semibold text-danger" onclick="logout()">
-                            <i class="ri-logout-box-line me-1 fs-16 align-middle"></i>
-                            <span class="align-middle">Sign Out</span>
-                        </a>
                     </div>
                 </div>
             </div>

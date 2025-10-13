@@ -1,0 +1,196 @@
+@model Highdmin.ViewComponents.ActionButtonsOptions
+
+@{
+    string sizeClass = Model.Size switch
+    {
+        Highdmin.ViewComponents.ActionButtonSize.ExtraSmall => "btn-xs",
+        Highdmin.ViewComponents.ActionButtonSize.Small => "btn-sm",
+        Highdmin.ViewComponents.ActionButtonSize.Medium => "",
+        Highdmin.ViewComponents.ActionButtonSize.Large => "btn-lg",
+        _ => "btn-sm"
+    };
+}
+
+<div class="@Model.ContainerClass action">
+    @* Botón Ver *@
+    @if (Model.ViewButton?.Show == true)
+    {
+        <div class="view">
+            @if (Model.ViewButton.Type == Highdmin.ViewComponents.ActionButtonType.Link)
+            {
+                <a asp-controller="@Model.Controller" 
+                   asp-action="@Model.ViewButton.Action" 
+                   asp-route-id="@Model.RecordId"
+                   class="@Model.ViewButton.CssClass @sizeClass view-item-btn"
+                   title="@Model.ViewButton.Tooltip">
+                    <i class="@Model.ViewButton.Icon align-bottom me-2"></i> @Model.ViewButton.Text
+                </a>
+            }
+            else
+            {
+                <button type="button" 
+                        class="@Model.ViewButton.CssClass @sizeClass view-item-btn"
+                        onclick="@(Model.ViewButton.OnClick ?? $"window.location.href='{Url.Action(Model.ViewButton.Action, Model.Controller, new { id = Model.RecordId })}';")"
+                        title="@Model.ViewButton.Tooltip">
+                    <i class="@Model.ViewButton.Icon align-bottom me-2"></i> @Model.ViewButton.Text
+                </button>
+            }
+        </div>
+    }
+
+    @* Botón Editar *@
+    @if (Model.EditButton?.Show == true)
+    {
+        <div class="edit">
+            @if (Model.EditButton.Type == Highdmin.ViewComponents.ActionButtonType.Link)
+            {
+                <a asp-controller="@Model.Controller" 
+                   asp-action="@Model.EditButton.Action" 
+                   asp-route-id="@Model.RecordId"
+                   class="@Model.EditButton.CssClass @sizeClass edit-item-btn"
+                   title="@Model.EditButton.Tooltip">
+                    <i class="@($"{Model.EditButton.Icon} align-bottom {(Model.EditButton.Text != "" ? "me-2" : "")}")"></i>@if (@Model.EditButton.Text != null) { @Model.EditButton.Text }
+                </a>
+            }
+            else
+            {
+                <button type="button" 
+                        class="@Model.EditButton.CssClass @sizeClass edit-item-btn"
+                        onclick="@(Model.EditButton.OnClick ?? $"window.location.href='{Url.Action(Model.EditButton.Action, Model.Controller, new { id = Model.RecordId })}';")"
+                        title="@Model.EditButton.Tooltip">
+                    <i class="@Model.EditButton.Icon align-bottom me-2"></i> @Model.EditButton.Text
+                </button>
+            }
+        </div>
+    }
+
+    @* Botones Personalizados *@
+    @foreach (var customButton in Model.CustomButtons.Where(cb => cb.Show))
+    {
+        <div class="custom-action">
+            @if (customButton.Type == Highdmin.ViewComponents.ActionButtonType.Link)
+            {
+                <a asp-controller="@Model.Controller" 
+                   asp-action="@customButton.Action" 
+                   asp-route-id="@Model.RecordId"
+                   class="@customButton.CssClass @sizeClass"
+                   title="@customButton.Tooltip">
+                    <i class="@customButton.Icon align-bottom me-2"></i> @customButton.Text
+                </a>
+            }
+            else
+            {
+                <button type="button" 
+                        class="@customButton.CssClass @sizeClass"
+                        onclick="@customButton.OnClick"
+                        title="@customButton.Tooltip">
+                    <i class="@customButton.Icon align-bottom me-2"></i> @customButton.Text
+                </button>
+            }
+        </div>
+    }
+
+    @* Botón Eliminar *@
+    @if (Model.DeleteButton?.Show == true)
+    {
+        <div class="remove">
+            <button type="button" 
+                    class="@Model.DeleteButton.CssClass @sizeClass remove-item-btn"
+                    onclick="@(Model.DeleteButton.OnClick ?? $"deleteModalHelper.confirmDelete({Model.RecordId}, '{Model.RecordIdentifier}'); deleteModalHelper.setupForController('{Url.Action("Eliminar", Model.Controller)}', '{Model.Controller}');")"
+                    title="@Model.DeleteButton.Tooltip">
+                    <i class="@($"{Model.DeleteButton.Icon} align-bottom {(Model.DeleteButton.Text != "" ? "me-2" : "")}")"></i>@if (@Model.DeleteButton.Text != null) { @Model.DeleteButton.Text }
+            </button>
+        </div>
+    }
+</div>
+
+@* Documentation:
+Ejemplo basico:
+@await Component.InvokeAsync("ActionButtons", 
+    ActionButtonsHelper.CreateDefault(item.Id, "Usuarios", $"Usuario: {item.Nombre}")
+        .WithEdit(Model.CanUpdate)
+        .WithDelete(Model.CanDelete)
+);
+
+Ejemplo con ver detalles:
+@await Component.InvokeAsync("ActionButtons", 
+    ActionButtonsHelper.CreateDefault(item.Id, "Pacientes", $"Paciente: {item.NombreCompleto}")
+        .WithView(true, "Detalles")
+        .WithEdit(Model.CanUpdate)
+        .WithDelete(Model.CanDelete, "¿Está seguro de eliminar este paciente?")
+)
+
+Ejemplo con botones personalizados:
+@await Component.InvokeAsync("ActionButtons", 
+    ActionButtonsHelper.CreateDefault(item.Id, "RegistroVacunacion", $"Registro: {item.Id}")
+        .WithView(true)
+        .WithEdit(Model.CanUpdate)
+        .WithCustomButton(new ActionButtonConfig
+        {
+            Show = Model.CanApprove,
+            Text = "Aprobar",
+            Icon = "ri-check-line",
+            CssClass = "btn btn-primary",
+            OnClick = $"aprobarRegistro({item.Id})"
+        })
+        .WithCustomButton(new ActionButtonConfig
+        {
+            Show = Model.CanPrint,
+            Text = "Imprimir",
+            Icon = "ri-printer-line",
+            CssClass = "btn btn-outline-secondary",
+            Action = "Imprimir"
+        })
+        .WithDelete(Model.CanDelete)
+        .WithSize(ActionButtonSize.Small)
+)
+
+Ejemplo con configuración avanzada:
+
+@{
+    var actionOptions = new ActionButtonsOptions
+    {
+        RecordId = item.Id,
+        Controller = "Facturas",
+        RecordIdentifier = $"Factura: {item.Numero}",
+        Size = ActionButtonSize.Small,
+        ContainerClass = "d-flex gap-1 justify-content-end",
+        
+        ViewButton = new ActionButtonConfig
+        {
+            Show = true,
+            Text = "Detalles",
+            Icon = "ri-file-text-line",
+            CssClass = "btn btn-outline-info",
+            Tooltip = "Ver detalles de la factura"
+        },
+        
+        EditButton = new ActionButtonConfig
+        {
+            Show = Model.CanEdit && item.Estado == "Borrador",
+            Text = "Editar",
+            Icon = "ri-edit-line",
+            CssClass = "btn btn-warning"
+        },
+        
+        DeleteButton = new ActionButtonConfig
+        {
+            Show = Model.CanDelete && item.Estado == "Borrador",
+            Text = "Anular",
+            Icon = "ri-close-line",
+            CssClass = "btn btn-danger",
+            ConfirmationMessage = "¿Está seguro de anular esta factura? Esta acción no se puede deshacer."
+        }
+    };
+    
+    actionOptions.CustomButtons.Add(new ActionButtonConfig
+    {
+        Show = item.Estado == "Aprobada",
+        Text = "PDF",
+        Icon = "ri-file-pdf-line",
+        CssClass = "btn btn-success",
+        Action = "GenerarPDF"
+    });
+}
+
+@await Component.InvokeAsync("ActionButtons", actionOptions) *@
