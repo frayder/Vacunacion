@@ -34,7 +34,7 @@ builder.Services.AddDbContext<Highdmin.Data.ApplicationDbContext>(options =>
 // Registrar servicios personalizados
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<Highdmin.Services.IMenuService, Highdmin.Services.MenuService>();
-
+builder.Services.AddScoped<Highdmin.Services.IEmpresaService, Highdmin.Services.EmpresaService>();
 
 // Habilitar sesiones
 builder.Services.AddSession();

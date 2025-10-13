@@ -3,14 +3,15 @@ using Microsoft.EntityFrameworkCore;
 using Highdmin.Data;
 using Highdmin.Models;
 using Highdmin.ViewModels;
+using Highdmin.Services;
 
 namespace Highdmin.Controllers
 {
-    public class TipoCarnetController : Controller
+    public class TipoCarnetController : BaseEmpresaController
     {
         private readonly ApplicationDbContext _context;
 
-        public TipoCarnetController(ApplicationDbContext context)
+        public TipoCarnetController(ApplicationDbContext context, IEmpresaService empresaService ) : base(empresaService)
         {
             _context = context;
         }
@@ -21,6 +22,7 @@ namespace Highdmin.Controllers
             try
             {
                 var tiposCarnet = await _context.TiposCarnet
+                    .Where(t => t.EmpresaId == CurrentEmpresaId)
                     .OrderBy(t => t.Codigo)
                     .Select(t => new TipoCarnetItemViewModel
                     {
@@ -81,7 +83,8 @@ namespace Highdmin.Controllers
                         Nombre = model.Nombre,
                         Descripcion = model.Descripcion,
                         Estado = model.Estado,
-                        FechaCreacion = DateTime.Now
+                        FechaCreacion = DateTime.Now,
+                        EmpresaId = CurrentEmpresaId
                     };
 
                     _context.TiposCarnet.Add(tipoCarnet);
@@ -109,7 +112,7 @@ namespace Highdmin.Controllers
 
             try
             {
-                var tipoCarnet = await _context.TiposCarnet.FindAsync(id);
+                var tipoCarnet = await _context.TiposCarnet.FirstOrDefaultAsync(m => m.Id == id && m.EmpresaId == CurrentEmpresaId);
                 if (tipoCarnet == null)
                 {
                     return NotFound();
@@ -158,7 +161,7 @@ namespace Highdmin.Controllers
                         return View(model);
                     }
 
-                    var tipoCarnet = await _context.TiposCarnet.FindAsync(id);
+                    var tipoCarnet = await _context.TiposCarnet.FirstOrDefaultAsync(m => m.Id == id && m.EmpresaId == CurrentEmpresaId);
                     if (tipoCarnet == null)
                     {
                         return NotFound();
@@ -202,7 +205,7 @@ namespace Highdmin.Controllers
         {
             try
             {
-                var tipoCarnet = await _context.TiposCarnet.FindAsync(id);
+                var tipoCarnet = await _context.TiposCarnet.FirstOrDefaultAsync(m => m.Id == id && m.EmpresaId == CurrentEmpresaId);
                 if (tipoCarnet != null)
                 {
                     _context.TiposCarnet.Remove(tipoCarnet);

@@ -4,17 +4,18 @@ using Highdmin.Data;
 using Highdmin.Models;
 using Highdmin.ViewModels;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Highdmin.Services;
 
 namespace Highdmin.Controllers
 {
-    public class EntradaController : Controller
+    public class EntradaController : BaseEmpresaController
     {
         private readonly ApplicationDbContext _context;
 
-        public EntradaController(ApplicationDbContext context)
+        public EntradaController(ApplicationDbContext context, IEmpresaService empresaService) : base(empresaService)
         {
             _context = context;
-        }
+        } 
 
         // GET: Entrada
         public async Task<IActionResult> Index()
@@ -22,6 +23,7 @@ namespace Highdmin.Controllers
             try
             {
                 var entradas = await _context.Entradas
+                    .Where(e => e.EmpresaId == CurrentEmpresaId)
                     .Include(e => e.Insumo)
                     .Include(e => e.Usuario)
                     .OrderByDescending(e => e.FechaEntrada)
@@ -95,7 +97,8 @@ namespace Highdmin.Controllers
                         Mes = viewModel.Mes,
                         Notas = viewModel.Notas,
                         Estado = viewModel.Estado,
-                        FechaCreacion = DateTime.Now
+                        FechaCreacion = DateTime.Now,
+                        EmpresaId = CurrentEmpresaId
                     };
 
                     _context.Add(entrada);
@@ -122,7 +125,8 @@ namespace Highdmin.Controllers
                 return NotFound();
             }
 
-            var entrada = await _context.Entradas.FindAsync(id);
+            var entrada = await _context.Entradas
+                .FirstOrDefaultAsync(m => m.Id == id && m.EmpresaId == CurrentEmpresaId);
             if (entrada == null)
             {
                 return NotFound();
@@ -159,7 +163,8 @@ namespace Highdmin.Controllers
             {
                 try
                 {
-                    var entrada = await _context.Entradas.FindAsync(id);
+                    var entrada = await _context.Entradas
+                        .FirstOrDefaultAsync(m => m.Id == id && m.EmpresaId == CurrentEmpresaId);
                     if (entrada == null)
                     {
                         return NotFound();
@@ -211,7 +216,7 @@ namespace Highdmin.Controllers
             var entrada = await _context.Entradas
                 .Include(e => e.Insumo)
                 .Include(e => e.Usuario)
-                .FirstOrDefaultAsync(m => m.Id == id);
+                .FirstOrDefaultAsync(m => m.Id == id && m.EmpresaId == CurrentEmpresaId);
 
             if (entrada == null)
             {
@@ -247,7 +252,7 @@ namespace Highdmin.Controllers
             var entrada = await _context.Entradas
                 .Include(e => e.Insumo)
                 .Include(e => e.Usuario)
-                .FirstOrDefaultAsync(m => m.Id == id);
+                .FirstOrDefaultAsync(m => m.Id == id && m.EmpresaId == CurrentEmpresaId);
 
             if (entrada == null)
             {
@@ -279,7 +284,7 @@ namespace Highdmin.Controllers
         {
             try
             {
-                var entrada = await _context.Entradas.FindAsync(id);
+                var entrada = await _context.Entradas.FirstOrDefaultAsync(m => m.Id == id && m.EmpresaId == CurrentEmpresaId);
                 if (entrada != null)
                 {
                     _context.Entradas.Remove(entrada);

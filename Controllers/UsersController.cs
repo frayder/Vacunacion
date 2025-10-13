@@ -6,15 +6,16 @@ using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
+using Highdmin.Services;
 
 namespace Highdmin.Controllers
 {
     [Authorize]
-    public class UsersController : Controller
+    public class UsersController : BaseEmpresaController
     {
         private readonly ApplicationDbContext _context;
 
-        public UsersController(ApplicationDbContext context)
+        public UsersController(ApplicationDbContext context, IEmpresaService empresaService) : base(empresaService)
         {
             _context = context;
         }
@@ -22,6 +23,7 @@ namespace Highdmin.Controllers
         public async Task<IActionResult> Index()
         {
             var users = await _context.Users
+                .Where(u => u.EmpresaId == CurrentEmpresaId)
                 .Include(u => u.UserRoles)
                 .ThenInclude(ur => ur.Role)
                 .OrderBy(u => u.UserName)
@@ -42,6 +44,7 @@ namespace Highdmin.Controllers
         {
             if (ModelState.IsValid)
             {
+                user.EmpresaId = CurrentEmpresaId;
                 _context.Add(user);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
@@ -60,7 +63,7 @@ namespace Highdmin.Controllers
             var user = await _context.Users
                 .Include(u => u.UserRoles)
                 .ThenInclude(ur => ur.Role)
-                .FirstOrDefaultAsync(m => m.UserId == id);
+                .FirstOrDefaultAsync(m => m.UserId == id && m.EmpresaId == CurrentEmpresaId);
             if (user == null)
             {
                 return NotFound();
@@ -76,7 +79,7 @@ namespace Highdmin.Controllers
                 return NotFound();
             }
 
-            var user = await _context.Users.FindAsync(id);
+            var user = await _context.Users.FirstOrDefaultAsync(m => m.UserId == id && m.EmpresaId == CurrentEmpresaId);
             if (user == null)
             {
                 return NotFound();
@@ -128,7 +131,7 @@ namespace Highdmin.Controllers
             var user = await _context.Users
                 .Include(u => u.UserRoles)
                 .ThenInclude(ur => ur.Role)
-                .FirstOrDefaultAsync(m => m.UserId == id);
+                .FirstOrDefaultAsync(m => m.UserId == id && m.EmpresaId == CurrentEmpresaId);
             if (user == null)
             {
                 return NotFound();
@@ -141,7 +144,7 @@ namespace Highdmin.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var user = await _context.Users.FindAsync(id);
+            var user = await _context.Users.FirstOrDefaultAsync(m => m.UserId == id && m.EmpresaId == CurrentEmpresaId);
             if (user != null)
             {
                 _context.Users.Remove(user);
@@ -153,7 +156,7 @@ namespace Highdmin.Controllers
 
         private bool UserExists(int id)
         {
-            return _context.Users.Any(e => e.UserId == id);
+            return _context.Users.Any(e => e.UserId == id && e.EmpresaId == CurrentEmpresaId);
         }
     }
 }

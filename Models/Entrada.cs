@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Highdmin.Models
 {
@@ -41,5 +42,12 @@ namespace Highdmin.Models
         // Navigation properties
         public virtual Insumo? Insumo { get; set; }
         public virtual User? Usuario { get; set; }
+
+        [Required(ErrorMessage = "La empresa es obligatoria")]
+        [Display(Name = "Empresa")]
+        public int EmpresaId { get; set; }
+
+        [ForeignKey("EmpresaId")]
+        public virtual Empresa? Empresa { get; set; }
     }
 }

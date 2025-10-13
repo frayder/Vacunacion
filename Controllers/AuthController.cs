@@ -54,13 +54,15 @@ namespace Highdmin.Controllers
                 }
 
                 // Para la plantilla, aceptamos cualquier contraseña (en producción usar hash real)
-                // Crear claims de autenticación
+                // Crear claims de autenticación  
                 var claims = new List<Claim>
                 {
                     new Claim(ClaimTypes.NameIdentifier, usuario.UserId.ToString()),
                     new Claim(ClaimTypes.Name, usuario.UserName ?? ""),
                     new Claim(ClaimTypes.Email, usuario.Email ?? ""),
-                    new Claim(ClaimTypes.Role, usuario.UserRoles?.FirstOrDefault()?.Role?.Nombre ?? "User")
+                    new Claim(ClaimTypes.Role, usuario.UserRoles?.FirstOrDefault()?.Role?.Nombre ?? "User"),
+                    new Claim("EmpresaId", usuario.EmpresaId.ToString()),
+                    new Claim("EmpresaNombre", usuario.Empresa?.Nombre ?? string.Empty)
                 };
 
                 var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);

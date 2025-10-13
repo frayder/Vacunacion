@@ -3,14 +3,15 @@ using Microsoft.EntityFrameworkCore;
 using Highdmin.Data;
 using Highdmin.Models;
 using Highdmin.ViewModels;
+using Highdmin.Services;
 
 namespace Highdmin.Controllers
 {
-    public class CondicionUsuariaController : Controller
+    public class CondicionUsuariaController : BaseEmpresaController
     {
         private readonly ApplicationDbContext _context;
 
-        public CondicionUsuariaController(ApplicationDbContext context)
+        public CondicionUsuariaController(ApplicationDbContext context, IEmpresaService empresaService) : base(empresaService)
         {
             _context = context;
         }
@@ -21,6 +22,7 @@ namespace Highdmin.Controllers
             try
             {
                 var condicionesUsuarias = await _context.CondicionesUsuarias
+                    .Where(c => c.EmpresaId == CurrentEmpresaId)
                     .OrderBy(c => c.Codigo)
                     .Select(c => new CondicionUsuariaItemViewModel
                     {
@@ -59,7 +61,7 @@ namespace Highdmin.Controllers
             }
 
             var condicionUsuaria = await _context.CondicionesUsuarias
-                .FirstOrDefaultAsync(m => m.Id == id);
+                .FirstOrDefaultAsync(m => m.Id == id && m.EmpresaId == CurrentEmpresaId);
 
             if (condicionUsuaria == null)
             {
@@ -110,7 +112,8 @@ namespace Highdmin.Controllers
                         Nombre = viewModel.Nombre,
                         Descripcion = viewModel.Descripcion,
                         Estado = viewModel.Estado,
-                        FechaCreacion = DateTime.Now
+                        FechaCreacion = DateTime.Now,
+                        EmpresaId = CurrentEmpresaId
                     };
 
                     _context.Add(condicionUsuaria);
@@ -136,7 +139,7 @@ namespace Highdmin.Controllers
                 return NotFound();
             }
 
-            var condicionUsuaria = await _context.CondicionesUsuarias.FindAsync(id);
+            var condicionUsuaria = await _context.CondicionesUsuarias.FirstOrDefaultAsync(m => m.Id == id && m.EmpresaId == CurrentEmpresaId);
             if (condicionUsuaria == null)
             {
                 return NotFound();
@@ -179,7 +182,7 @@ namespace Highdmin.Controllers
                         return View(viewModel);
                     }
 
-                    var condicionUsuaria = await _context.CondicionesUsuarias.FindAsync(id);
+                    var condicionUsuaria = await _context.CondicionesUsuarias.FirstOrDefaultAsync(m => m.Id == id && m.EmpresaId == CurrentEmpresaId);
                     if (condicionUsuaria == null)
                     {
                         return NotFound();
@@ -225,7 +228,7 @@ namespace Highdmin.Controllers
             }
 
             var condicionUsuaria = await _context.CondicionesUsuarias
-                .FirstOrDefaultAsync(m => m.Id == id);
+                .FirstOrDefaultAsync(m => m.Id == id && m.EmpresaId == CurrentEmpresaId);
 
             if (condicionUsuaria == null)
             {
@@ -252,7 +255,7 @@ namespace Highdmin.Controllers
         {
             try
             {
-                var condicionUsuaria = await _context.CondicionesUsuarias.FindAsync(id);
+                var condicionUsuaria = await _context.CondicionesUsuarias.FirstOrDefaultAsync(m => m.Id == id && m.EmpresaId == CurrentEmpresaId);
                 if (condicionUsuaria != null)
                 {
                     _context.CondicionesUsuarias.Remove(condicionUsuaria);
@@ -275,7 +278,7 @@ namespace Highdmin.Controllers
         {
             try
             {
-                var condicionUsuaria = await _context.CondicionesUsuarias.FindAsync(id);
+                var condicionUsuaria = await _context.CondicionesUsuarias.FirstOrDefaultAsync(m => m.Id == id && m.EmpresaId == CurrentEmpresaId);
                 if (condicionUsuaria != null)
                 {
                     condicionUsuaria.Estado = !condicionUsuaria.Estado;

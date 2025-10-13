@@ -29,5 +29,12 @@ namespace Highdmin.Models
 
         [StringLength(1000)]
         public string? Observaciones { get; set; }
+
+        [Required(ErrorMessage = "La empresa es obligatoria")]
+        [Display(Name = "Empresa")]
+        public int EmpresaId { get; set; }
+
+        [ForeignKey("EmpresaId")]
+        public virtual Empresa? Empresa { get; set; }
     }
 }

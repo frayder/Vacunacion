@@ -3,14 +3,15 @@ using Microsoft.EntityFrameworkCore;
 using Highdmin.Data;
 using Highdmin.Models;
 using Highdmin.ViewModels;
+using Highdmin.Services;
 
 namespace Highdmin.Controllers
 {
-    public class AseguradoraController : Controller
+    public class AseguradoraController : BaseEmpresaController
     {
         private readonly ApplicationDbContext _context;
 
-        public AseguradoraController(ApplicationDbContext context)
+        public AseguradoraController(ApplicationDbContext context, IEmpresaService empresaService) : base(empresaService)
         {
             _context = context;
         }
@@ -21,6 +22,7 @@ namespace Highdmin.Controllers
             try
             {
                 var aseguradoras = await _context.Aseguradoras
+                    .Where(c => c.EmpresaId == CurrentEmpresaId)
                     .OrderBy(a => a.Codigo)
                     .Select(a => new AseguradoraItemViewModel
                     {
@@ -59,7 +61,7 @@ namespace Highdmin.Controllers
             }
 
             var aseguradora = await _context.Aseguradoras
-                .FirstOrDefaultAsync(m => m.Id == id);
+                .FirstOrDefaultAsync(m => m.Id == id && m.EmpresaId == CurrentEmpresaId);
 
             if (aseguradora == null)
             {
@@ -110,7 +112,8 @@ namespace Highdmin.Controllers
                         Nombre = viewModel.Nombre,
                         Descripcion = viewModel.Descripcion,
                         Estado = viewModel.Estado,
-                        FechaCreacion = DateTime.Now
+                        FechaCreacion = DateTime.Now,
+                        EmpresaId = CurrentEmpresaId
                     };
 
                     _context.Add(aseguradora);
@@ -136,7 +139,7 @@ namespace Highdmin.Controllers
                 return NotFound();
             }
 
-            var aseguradora = await _context.Aseguradoras.FindAsync(id);
+            var aseguradora = await _context.Aseguradoras.FirstOrDefaultAsync(m => m.Id == id && m.EmpresaId == CurrentEmpresaId);
             if (aseguradora == null)
             {
                 return NotFound();
@@ -179,7 +182,7 @@ namespace Highdmin.Controllers
                         return View(viewModel);
                     }
 
-                    var aseguradora = await _context.Aseguradoras.FindAsync(id);
+                    var aseguradora = await _context.Aseguradoras.FirstOrDefaultAsync(m => m.Id == id && m.EmpresaId == CurrentEmpresaId);
                     if (aseguradora == null)
                     {
                         return NotFound();
@@ -225,7 +228,7 @@ namespace Highdmin.Controllers
             }
 
             var aseguradora = await _context.Aseguradoras
-                .FirstOrDefaultAsync(m => m.Id == id);
+                .FirstOrDefaultAsync(m => m.Id == id && m.EmpresaId == CurrentEmpresaId);
 
             if (aseguradora == null)
             {
@@ -252,7 +255,7 @@ namespace Highdmin.Controllers
         {
             try
             {
-                var aseguradora = await _context.Aseguradoras.FindAsync(id);
+                var aseguradora = await _context.Aseguradoras.FirstOrDefaultAsync(m => m.Id == id && m.EmpresaId == CurrentEmpresaId);
                 if (aseguradora != null)
                 {
                     _context.Aseguradoras.Remove(aseguradora);
@@ -275,7 +278,7 @@ namespace Highdmin.Controllers
         {
             try
             {
-                var aseguradora = await _context.Aseguradoras.FindAsync(id);
+                var aseguradora = await _context.Aseguradoras.FirstOrDefaultAsync(m => m.Id == id && m.EmpresaId == CurrentEmpresaId);
                 if (aseguradora != null)
                 {
                     aseguradora.Estado = !aseguradora.Estado;

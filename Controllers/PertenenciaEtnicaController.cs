@@ -3,14 +3,15 @@ using Microsoft.EntityFrameworkCore;
 using Highdmin.Data;
 using Highdmin.Models;
 using Highdmin.ViewModels;
+using Highdmin.Services;
 
 namespace Highdmin.Controllers
 {
-    public class PertenenciaEtnicaController : Controller
+    public class PertenenciaEtnicaController : BaseEmpresaController
     {
         private readonly ApplicationDbContext _context;
 
-        public PertenenciaEtnicaController(ApplicationDbContext context)
+        public PertenenciaEtnicaController(ApplicationDbContext context, IEmpresaService empresaService) : base(empresaService)
         {
             _context = context;
         }
@@ -21,6 +22,7 @@ namespace Highdmin.Controllers
             try
             {
                 var pertenenciasEtnicas = await _context.PertenenciasEtnicas
+                    .Where(p => p.EmpresaId == CurrentEmpresaId)
                     .OrderBy(p => p.Codigo)
                     .Select(p => new PertenenciaEtnicaItemViewModel
                     {
@@ -59,7 +61,7 @@ namespace Highdmin.Controllers
             }
 
             var pertenenciaEtnica = await _context.PertenenciasEtnicas
-                .FirstOrDefaultAsync(m => m.Id == id);
+                .FirstOrDefaultAsync(m => m.Id == id && m.EmpresaId == CurrentEmpresaId);
 
             if (pertenenciaEtnica == null)
             {
@@ -96,7 +98,7 @@ namespace Highdmin.Controllers
                 {
                     // Verificar si el código ya existe
                     var existeCodigo = await _context.PertenenciasEtnicas
-                        .AnyAsync(p => p.Codigo == viewModel.Codigo);
+                        .AnyAsync(p => p.Codigo == viewModel.Codigo && p.EmpresaId == CurrentEmpresaId);
 
                     if (existeCodigo)
                     {
@@ -110,7 +112,8 @@ namespace Highdmin.Controllers
                         Nombre = viewModel.Nombre,
                         Descripcion = viewModel.Descripcion,
                         Estado = viewModel.Estado,
-                        FechaCreacion = DateTime.Now
+                        FechaCreacion = DateTime.Now,
+                        EmpresaId = CurrentEmpresaId
                     };
 
                     _context.Add(pertenenciaEtnica);
@@ -136,7 +139,7 @@ namespace Highdmin.Controllers
                 return NotFound();
             }
 
-            var pertenenciaEtnica = await _context.PertenenciasEtnicas.FindAsync(id);
+            var pertenenciaEtnica = await _context.PertenenciasEtnicas.FirstOrDefaultAsync(m => m.Id == id && m.EmpresaId == CurrentEmpresaId);
             if (pertenenciaEtnica == null)
             {
                 return NotFound();
@@ -171,7 +174,7 @@ namespace Highdmin.Controllers
                 {
                     // Verificar si el código ya existe (excluyendo el registro actual)
                     var existeCodigo = await _context.PertenenciasEtnicas
-                        .AnyAsync(p => p.Codigo == viewModel.Codigo && p.Id != id);
+                        .AnyAsync(p => p.Codigo == viewModel.Codigo && p.Id != id && p.EmpresaId == CurrentEmpresaId);
 
                     if (existeCodigo)
                     {
@@ -179,7 +182,7 @@ namespace Highdmin.Controllers
                         return View(viewModel);
                     }
 
-                    var pertenenciaEtnica = await _context.PertenenciasEtnicas.FindAsync(id);
+                    var pertenenciaEtnica = await _context.PertenenciasEtnicas.FirstOrDefaultAsync(m => m.Id == id && m.EmpresaId == CurrentEmpresaId);
                     if (pertenenciaEtnica == null)
                     {
                         return NotFound();
@@ -225,7 +228,7 @@ namespace Highdmin.Controllers
             }
 
             var pertenenciaEtnica = await _context.PertenenciasEtnicas
-                .FirstOrDefaultAsync(m => m.Id == id);
+                .FirstOrDefaultAsync(m => m.Id == id && m.EmpresaId == CurrentEmpresaId);
 
             if (pertenenciaEtnica == null)
             {
@@ -252,7 +255,7 @@ namespace Highdmin.Controllers
         {
             try
             {
-                var pertenenciaEtnica = await _context.PertenenciasEtnicas.FindAsync(id);
+                var pertenenciaEtnica = await _context.PertenenciasEtnicas.FirstOrDefaultAsync(m => m.Id == id && m.EmpresaId == CurrentEmpresaId);
                 if (pertenenciaEtnica != null)
                 {
                     _context.PertenenciasEtnicas.Remove(pertenenciaEtnica);
@@ -275,7 +278,8 @@ namespace Highdmin.Controllers
         {
             try
             {
-                var pertenenciaEtnica = await _context.PertenenciasEtnicas.FindAsync(id);
+                var pertenenciaEtnica = await _context.PertenenciasEtnicas
+                    .FirstOrDefaultAsync(m => m.Id == id && m.EmpresaId == CurrentEmpresaId);
                 if (pertenenciaEtnica != null)
                 {
                     pertenenciaEtnica.Estado = !pertenenciaEtnica.Estado;
@@ -295,7 +299,7 @@ namespace Highdmin.Controllers
 
         private bool PertenenciaEtnicaExists(int id)
         {
-            return _context.PertenenciasEtnicas.Any(e => e.Id == id);
+            return _context.PertenenciasEtnicas.Any(e => e.Id == id && e.EmpresaId == CurrentEmpresaId);
         }
     }
 }

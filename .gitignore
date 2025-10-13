@@ -371,3 +371,4 @@ publish.rar
 *.zip
 *.rar
 *.7z
+.vercel

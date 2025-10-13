@@ -43,6 +43,13 @@ namespace Highdmin.Models
         [Display(Name = "Número Documento Paciente")]
         public string NumeroDocumentoPaciente { get; set; } = string.Empty;
 
+        [Required(ErrorMessage = "La empresa es obligatoria")]
+        [Display(Name = "Empresa")]
+        public int EmpresaId { get; set; }
+
+        [ForeignKey("EmpresaId")]
+        public virtual Empresa? Empresa { get; set; }
+
         // Navegación
         public virtual RegistrosVacunacion? RegistroVacunacion { get; set; }
     }

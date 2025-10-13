@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Highdmin.Models
 {
@@ -26,5 +27,12 @@ namespace Highdmin.Models
 
         [Display(Name = "Fecha Creación")]
         public DateTime FechaCreacion { get; set; } = DateTime.Now;
+
+        [Required(ErrorMessage = "La empresa es obligatoria")]
+        [Display(Name = "Empresa")]
+        public int EmpresaId { get; set; }
+
+        [ForeignKey("EmpresaId")]
+        public virtual Empresa? Empresa { get; set; }
     }
 }

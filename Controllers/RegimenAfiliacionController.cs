@@ -3,14 +3,15 @@ using Microsoft.EntityFrameworkCore;
 using Highdmin.Data;
 using Highdmin.Models;
 using Highdmin.ViewModels;
+using Highdmin.Services;
 
 namespace Highdmin.Controllers
 {
-    public class RegimenAfiliacionController : Controller
+    public class RegimenAfiliacionController : BaseEmpresaController
     {
         private readonly ApplicationDbContext _context;
 
-        public RegimenAfiliacionController(ApplicationDbContext context)
+        public RegimenAfiliacionController(ApplicationDbContext context, IEmpresaService empresaService) : base(empresaService)
         {
             _context = context;
         }
@@ -21,6 +22,7 @@ namespace Highdmin.Controllers
             try
             {
                 var regimenesAfiliacion = await _context.RegimenesAfiliacion
+                    .Where(r => r.EmpresaId == CurrentEmpresaId)
                     .OrderBy(r => r.Codigo)
                     .Select(r => new RegimenAfiliacionItemViewModel
                     {
@@ -59,7 +61,7 @@ namespace Highdmin.Controllers
             }
 
             var regimenAfiliacion = await _context.RegimenesAfiliacion
-                .FirstOrDefaultAsync(m => m.Id == id);
+                .FirstOrDefaultAsync(m => m.Id == id && m.EmpresaId == CurrentEmpresaId);
 
             if (regimenAfiliacion == null)
             {
@@ -96,7 +98,7 @@ namespace Highdmin.Controllers
                 {
                     // Verificar si el código ya existe
                     var existeCodigo = await _context.RegimenesAfiliacion
-                        .AnyAsync(r => r.Codigo == viewModel.Codigo);
+                        .AnyAsync(r => r.Codigo == viewModel.Codigo && r.EmpresaId == CurrentEmpresaId);
 
                     if (existeCodigo)
                     {
@@ -110,7 +112,8 @@ namespace Highdmin.Controllers
                         Nombre = viewModel.Nombre,
                         Descripcion = viewModel.Descripcion,
                         Estado = viewModel.Estado,
-                        FechaCreacion = DateTime.Now
+                        FechaCreacion = DateTime.Now,
+                        EmpresaId = CurrentEmpresaId
                     };
 
                     _context.Add(regimenAfiliacion);
@@ -136,7 +139,8 @@ namespace Highdmin.Controllers
                 return NotFound();
             }
 
-            var regimenAfiliacion = await _context.RegimenesAfiliacion.FindAsync(id);
+            var regimenAfiliacion = await _context.RegimenesAfiliacion
+                .FirstOrDefaultAsync(m => m.Id == id && m.EmpresaId == CurrentEmpresaId);
             if (regimenAfiliacion == null)
             {
                 return NotFound();
@@ -179,7 +183,8 @@ namespace Highdmin.Controllers
                         return View(viewModel);
                     }
 
-                    var regimenAfiliacion = await _context.RegimenesAfiliacion.FindAsync(id);
+                    var regimenAfiliacion = await _context.RegimenesAfiliacion
+                        .FirstOrDefaultAsync(m => m.Id == id && m.EmpresaId == CurrentEmpresaId);
                     if (regimenAfiliacion == null)
                     {
                         return NotFound();
@@ -225,7 +230,7 @@ namespace Highdmin.Controllers
             }
 
             var regimenAfiliacion = await _context.RegimenesAfiliacion
-                .FirstOrDefaultAsync(m => m.Id == id);
+                .FirstOrDefaultAsync(m => m.Id == id && m.EmpresaId == CurrentEmpresaId);
 
             if (regimenAfiliacion == null)
             {
@@ -252,7 +257,8 @@ namespace Highdmin.Controllers
         {
             try
             {
-                var regimenAfiliacion = await _context.RegimenesAfiliacion.FindAsync(id);
+                var regimenAfiliacion = await _context.RegimenesAfiliacion
+                    .FirstOrDefaultAsync(m => m.Id == id && m.EmpresaId == CurrentEmpresaId);
                 if (regimenAfiliacion != null)
                 {
                     _context.RegimenesAfiliacion.Remove(regimenAfiliacion);
@@ -275,7 +281,8 @@ namespace Highdmin.Controllers
         {
             try
             {
-                var regimenAfiliacion = await _context.RegimenesAfiliacion.FindAsync(id);
+                var regimenAfiliacion = await _context.RegimenesAfiliacion
+                    .FirstOrDefaultAsync(m => m.Id == id && m.EmpresaId == CurrentEmpresaId);
                 if (regimenAfiliacion != null)
                 {
                     regimenAfiliacion.Estado = !regimenAfiliacion.Estado;
@@ -295,7 +302,7 @@ namespace Highdmin.Controllers
 
         private bool RegimenAfiliacionExists(int id)
         {
-            return _context.RegimenesAfiliacion.Any(e => e.Id == id);
+            return _context.RegimenesAfiliacion.Any(e => e.Id == id && e.EmpresaId == CurrentEmpresaId);
         }
     }
 }

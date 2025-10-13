@@ -117,7 +117,7 @@ document.getElementById('actionBtn').addEventListener('click', function() {
 [RequirePermission("Users", "activate")]
 public async Task<IActionResult> ToggleUserStatus(int id)
 {
-    var usuario = await _context.Users.FindAsync(id);
+    var usuario = await _context.Users.FirstOrDefaultAsync(m => m.Id == id && m.EmpresaId == CurrentEmpresaId);
     if (usuario == null) return NotFound();
 
     usuario.IsActive = !usuario.IsActive;
@@ -146,7 +146,7 @@ public async Task<IActionResult> ToggleUserStatus(int id)
 [RequirePermission("Users", "resetPassword")]
 public async Task<IActionResult> ResetPassword(int id)
 {
-    var usuario = await _context.Users.FindAsync(id);
+    var usuario = await _context.Users.FirstOrDefaultAsync(m => m.Id == id && m.EmpresaId == CurrentEmpresaId);
     if (usuario == null) return NotFound();
 
     // Lógica de reseteo de contraseña

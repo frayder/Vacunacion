@@ -6,13 +6,15 @@ using Microsoft.Data.SqlClient;
 using Highdmin.Models;
 using System.Text.Json.Serialization;
 using System.Text.Json;
+using Highdmin.Services;
+
 namespace Highdmin.Controllers
 {
-    public class RegistroVacunacionController : Controller
+    public class RegistroVacunacionController : BaseEmpresaController
     {
         private readonly ApplicationDbContext _context;
 
-        public RegistroVacunacionController(ApplicationDbContext context)
+        public RegistroVacunacionController(ApplicationDbContext context, IEmpresaService empresaService) : base(empresaService)
         {
             _context = context;
         }
@@ -21,6 +23,8 @@ namespace Highdmin.Controllers
         {
             // Consultamos todos los registros de vacunación desde la base de datos
             var registros = await _context.RegistrosVacunacion
+                .Where(r => r.EmpresaId == CurrentEmpresaId)
+                .OrderByDescending(r => r.FechaRegistro)
                 .Select(r => new RegistroVacunacionItemViewModel
                 {
                     Id = r.Id,
@@ -64,9 +68,9 @@ namespace Highdmin.Controllers
             var sql = $@"
         BEGIN TRANSACTION;
         DECLARE @Ultimo NVARCHAR(50);
-        SELECT TOP 1 @Ultimo = Consecutivo 
+        SELECT TOP 1 @Ultimo = Consecutivo  
         FROM RegistrosVacunacion WITH (UPDLOCK, HOLDLOCK)
-        WHERE Consecutivo LIKE 'VAC-{año}-%'
+        WHERE Consecutivo LIKE 'VAC-{año}-%' AND EmpresaId = @EmpresaId
         ORDER BY Consecutivo DESC;
 
         DECLARE @Nuevo NVARCHAR(50);
@@ -422,5 +426,149 @@ namespace Highdmin.Controllers
                 throw; // Re-lanzar para que se maneje en el método principal
             }
         }
+    
+        [HttpGet]
+public async Task<IActionResult> Details(int id)
+{
+    var registro = await _context.RegistrosVacunacion
+        .FirstOrDefaultAsync(r => r.Id == id);
+
+    if (registro == null)
+    {
+        return NotFound();
+    }
+
+    var viewModel = new RegistroVacunacionItemViewModel
+    {
+        Id = registro.Id,
+        Consecutivo = registro.Consecutivo,
+        FechaRegistro = registro.FechaRegistro,
+        PrimerNombre = registro.PrimerNombre,
+        SegundoNombre = registro.SegundoNombre,
+        PrimerApellido = registro.PrimerApellido,
+        SegundoApellido = registro.SegundoApellido,
+        TipoDocumento = registro.TipoDocumento,
+        NumeroDocumento = registro.NumeroDocumento,
+
+        FechaNacimiento = registro.FechaNacimiento,
+        Genero = registro.Genero,
+        Telefono = registro.Telefono,
+        Direccion = registro.Direccion,
+        AseguradoraId = registro.AseguradoraId,
+        RegimenAfiliacionId = registro.RegimenAfiliacionId,
+        PertenenciaEtnicaId = registro.PertenenciaEtnicaId,
+        CentroAtencionId = registro.CentroAtencionId,
+        CondicionUsuariaId = registro.CondicionUsuariaId,
+        TipoCarnetId = registro.TipoCarnetId,
+        Vacuna = registro.Vacuna,
+        Observaciones = registro.Observaciones,
+        NotasFinales = registro.NotasFinales,
+        FechaCreacion = registro.FechaCreacion,
+        FechaModificacion = registro.FechaModificacion,
+        UsuarioCreadorId = registro.UsuarioCreadorId,
+        UsuarioModificadorId = registro.UsuarioModificadorId,
+        FechaAtencion = registro.FechaAtencion,
+        EsquemaCompleto = registro.EsquemaCompleto,
+        Sexo = registro.Sexo,
+        OrientacionSexual = registro.OrientacionSexual,
+        EdadGestacional = registro.EdadGestacional,
+        PesoInfante = registro.PesoInfante,
+        PaisNacimiento = registro.PaisNacimiento,
+        EstatusMigratorio = registro.EstatusMigratorio,
+        Desplazado = registro.Desplazado,
+        Discapacitado = registro.Discapacitado,
+        Fallecido = registro.Fallecido,
+        VictimaConflictoArmado = registro.VictimaConflictoArmado,
+        Estudia = registro.Estudia,
+        PaisResidencia = registro.PaisResidencia,
+        DepartamentoResidencia = registro.DepartamentoResidencia,
+        MunicipioResidencia = registro.MunicipioResidencia,
+        ComunaLocalidad = registro.ComunaLocalidad,
+        Area = registro.Area,
+        Celular = registro.Celular,
+        Email = registro.Email,
+        AutorizaLlamadas = registro.AutorizaLlamadas,
+        AutorizaEnvioCorreo = registro.AutorizaEnvioCorreo,
+        Relacion = registro.Relacion,
+        EnfermedadContraindicacionVacuna = registro.EnfermedadContraindicacionVacuna,
+        ReaccionBiologico = registro.ReaccionBiologico,
+        MadreCuidador = registro.MadreCuidador,
+        TipoIdentificacionCuidador = registro.TipoIdentificacionCuidador,
+        NumeroDocumentoCuidador = registro.NumeroDocumentoCuidador,
+        PrimerNombreCuidador = registro.PrimerNombreCuidador,
+        SegundoNombreCuidador = registro.SegundoNombreCuidador,
+        PrimerApellidoCuidador = registro.PrimerApellidoCuidador,
+        SegundoApellidoCuidador = registro.SegundoApellidoCuidador,
+        EmailCuidador = registro.EmailCuidador,
+        TelefonoCuidador = registro.TelefonoCuidador,
+        CelularCuidador = registro.CelularCuidador,
+        RegimenAfiliacionCuidador = registro.RegimenAfiliacionCuidador,
+        PertenenciaEtnicaIdCuidador = registro.PertenenciaEtnicaIdCuidador,
+        EstadoDesplazadoCuidador = registro.EstadoDesplazadoCuidador,
+        ParentescoCuidador = registro.ParentescoCuidador,
+        Dosis = registro.Dosis,
+        Responsable = registro.Responsable,
+        IngresoPAIWEB = registro.IngresoPAIWEB,
+        CentroSaludResponsable = registro.CentroSaludResponsable,
+        MotivoNoIngresoPAIWEB = registro.MotivoNoIngresoPAIWEB,
+        NombreCompleto = $"{registro.PrimerNombre} {registro.SegundoNombre} {registro.PrimerApellido} {registro.SegundoApellido}".Trim()
+    };
+
+    return View(viewModel);
+}
+
+[HttpGet]
+public async Task<IActionResult> Delete(int id)
+{
+    var registro = await _context.RegistrosVacunacion
+        .FirstOrDefaultAsync(r => r.Id == id);
+
+    if (registro == null)
+    {
+        return NotFound();
+    }
+
+    var viewModel = new RegistroVacunacionItemViewModel
+    {
+        Id = registro.Id,
+        Consecutivo = registro.Consecutivo,
+        FechaRegistro = registro.FechaRegistro,
+        NombreCompleto = $"{registro.PrimerNombre} {registro.SegundoNombre} {registro.PrimerApellido} {registro.SegundoApellido}".Trim(),
+        NumeroDocumento = registro.NumeroDocumento,
+        TipoDocumento = registro.TipoDocumento,
+        Vacuna = registro.Vacuna,
+        FechaAtencion = registro.FechaAtencion,
+        IngresoPAIWEB = registro.IngresoPAIWEB
+    };
+
+    return View(viewModel);
+}
+
+[HttpPost, ActionName("Delete")]
+[ValidateAntiForgeryToken]
+public async Task<IActionResult> DeleteConfirmed(int id)
+{
+    try
+    {
+        var registro = await _context.RegistrosVacunacion.FirstOrDefaultAsync(m => m.Id == id && m.EmpresaId == CurrentEmpresaId);
+        if (registro != null)
+        {
+            _context.RegistrosVacunacion.Remove(registro);
+            await _context.SaveChangesAsync();
+            
+            TempData["SuccessMessage"] = "El registro de vacunación ha sido eliminado exitosamente.";
+        }
+        else
+        {
+            TempData["ErrorMessage"] = "No se encontró el registro a eliminar.";
+        }
+    }
+    catch (Exception ex)
+    {
+        TempData["ErrorMessage"] = "Ocurrió un error al eliminar el registro: " + ex.Message;
+    }
+
+    return RedirectToAction(nameof(Index));
+}
     }
 }

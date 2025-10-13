@@ -293,5 +293,12 @@ namespace Highdmin.Models
 
         [Display(Name = "Motivo de No Ingreso PAIWEB")]
         public string? MotivoNoIngresoPAIWEB { get; set; }
+
+        [Required(ErrorMessage = "La empresa es obligatoria")]
+        [Display(Name = "Empresa")]
+        public int EmpresaId { get; set; }
+
+        [ForeignKey("EmpresaId")]
+        public virtual Empresa? Empresa { get; set; }
     }
 }

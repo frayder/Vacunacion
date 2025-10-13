@@ -1,0 +1,611 @@
+@model RegistroVacunacionItemViewModel
+@{
+    ViewData["Title"] = "Detalle del Registro de Vacunación";
+    ViewData["SubTitle"] = "Información completa del registro de vacunación";
+    Layout = "~/Views/Shared/_VerticalLayout.cshtml";
+}
+
+<!-- Breadcrumb -->
+<div class="row">
+    <div class="col-12">
+        <div class="page-title-box d-sm-flex align-items-center justify-content-between">
+            <div class="page-title-right">
+                <ol class="breadcrumb m-0">
+                    <li class="breadcrumb-item"><a href="javascript: void(0);">Highdmin</a></li>
+                    <li class="breadcrumb-item"><a asp-action="Index">Registro de Vacunación</a></li>
+                    <li class="breadcrumb-item active">Detalle</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Header Card -->
+<div class="card mb-4">
+    <div class="card-body">
+        <div class="d-flex align-items-center">
+            <div class="flex-shrink-0">
+                <div class="avatar-lg">
+                    <span class="avatar-title bg-primary-subtle text-primary rounded-circle fs-2">
+                        <i class="ri-user-heart-line"></i>
+                    </span>
+                </div>
+            </div>
+            <div class="flex-grow-1 ms-3">
+                <h4 class="mb-1">@Model.NombreCompleto</h4>
+                <p class="text-muted mb-1"><strong>Documento:</strong> @Model.TipoDocumento - @Model.NumeroDocumento</p>
+                <p class="text-muted mb-0"><strong>Consecutivo:</strong> @Model.Consecutivo</p>
+            </div>
+            <div class="flex-shrink-0">
+                <div class="d-flex gap-2">
+                    <a asp-action="Index" class="btn btn-secondary">
+                        <i class="ri-arrow-left-line align-bottom me-1"></i> Volver
+                    </a>
+                    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">
+                        <i class="ri-pencil-line align-bottom me-1"></i> Editar
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Status Card -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card card-animate">
+            <div class="card-body text-center">
+                <div class="avatar-sm mx-auto mb-3">
+                    <span class="avatar-title bg-success-subtle text-success rounded-circle fs-3">
+                        <i class="ri-calendar-check-line"></i>
+                    </span>
+                </div>
+                <h6 class="mb-1">Fecha de Registro</h6>
+                <p class="text-muted mb-0">@Model.FechaRegistro?.ToString("dd/MM/yyyy")</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card card-animate">
+            <div class="card-body text-center">
+                <div class="avatar-sm mx-auto mb-3">
+                    <span class="avatar-title bg-info-subtle text-info rounded-circle fs-3">
+                        <i class="ri-vaccine-line"></i>
+                    </span>
+                </div>
+                <h6 class="mb-1">Vacuna Aplicada</h6>
+                <p class="text-muted mb-0">@Model.Vacuna</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card card-animate">
+            <div class="card-body text-center">
+                <div class="avatar-sm mx-auto mb-3">
+                    <span class="avatar-title bg-@(Model.IngresoPAIWEB == true ? "success" : "danger")-subtle text-@(Model.IngresoPAIWEB == true ? "success" : "danger") rounded-circle fs-3">
+                        <i class="ri-database-2-line"></i>
+                    </span>
+                </div>
+                <h6 class="mb-1">Ingreso PAIWEB</h6>
+                <span class="badge bg-@(Model.IngresoPAIWEB == true ? "success" : "danger")-subtle text-@(Model.IngresoPAIWEB == true ? "success" : "danger")">
+                    @(Model.IngresoPAIWEB == true ? "SÍ" : "NO")
+                </span>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card card-animate">
+            <div class="card-body text-center">
+                <div class="avatar-sm mx-auto mb-3">
+                    <span class="avatar-title bg-warning-subtle text-warning rounded-circle fs-3">
+                        <i class="ri-shield-check-line"></i>
+                    </span>
+                </div>
+                <h6 class="mb-1">Esquema</h6>
+                <span class="badge bg-@(Model.EsquemaCompleto ? "success" : "warning")-subtle text-@(Model.EsquemaCompleto ? "success" : "warning")">
+                    @(Model.EsquemaCompleto ? "Completo" : "Incompleto")
+                </span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Main Content Tabs -->
+<div class="row">
+    <div class="col-lg-12">
+        <div class="card">
+            <div class="card-header">
+                <ul class="nav nav-tabs-custom card-header-tabs border-bottom-0" role="tablist">
+                    <li class="nav-item">
+                        <a class="nav-link active" data-bs-toggle="tab" href="#personal-info" role="tab">
+                            <i class="fas fa-user"></i> Información Personal
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-bs-toggle="tab" href="#health-info" role="tab">
+                            <i class="fas fa-heartbeat"></i> Información de Salud
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-bs-toggle="tab" href="#vaccine-info" role="tab">
+                            <i class="fas fa-syringe"></i> Información de Vacunación
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-bs-toggle="tab" href="#caregiver-info" role="tab">
+                            <i class="fas fa-user-friends"></i> Información del Cuidador
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-bs-toggle="tab" href="#additional-info" role="tab">
+                            <i class="fas fa-info-circle"></i> Información Adicional
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            <div class="card-body">
+                <div class="tab-content">
+                    <!-- Personal Information Tab -->
+                    <div class="tab-pane active" id="personal-info" role="tabpanel">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="table-responsive">
+                                    <table class="table table-borderless table-sm">
+                                        <tbody>
+                                            <tr>
+                                                <td class="fw-medium text-muted">Primer Nombre:</td>
+                                                <td>@Model.PrimerNombre</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="fw-medium text-muted">Segundo Nombre:</td>
+                                                <td>@Model.SegundoNombre</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="fw-medium text-muted">Primer Apellido:</td>
+                                                <td>@Model.PrimerApellido</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="fw-medium text-muted">Segundo Apellido:</td>
+                                                <td>@Model.SegundoApellido</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="fw-medium text-muted">Tipo de Documento:</td>
+                                                <td>@Model.TipoDocumento</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="fw-medium text-muted">Número de Documento:</td>
+                                                <td>@Model.NumeroDocumento</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="fw-medium text-muted">Fecha de Nacimiento:</td>
+                                                <td>@Model.FechaNacimiento?.ToString("dd/MM/yyyy")</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="fw-medium text-muted">Género:</td>
+                                                <td>@Model.Genero</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="table-responsive">
+                                    <table class="table table-borderless table-sm">
+                                        <tbody>
+                                            <tr>
+                                                <td class="fw-medium text-muted">Sexo:</td>
+                                                <td>@Model.Sexo</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="fw-medium text-muted">Orientación Sexual:</td>
+                                                <td>@Model.OrientacionSexual</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="fw-medium text-muted">Teléfono:</td>
+                                                <td>@Model.Telefono</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="fw-medium text-muted">Celular:</td>
+                                                <td>@Model.Celular</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="fw-medium text-muted">Email:</td>
+                                                <td>@Model.Email</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="fw-medium text-muted">Dirección:</td>
+                                                <td>@Model.Direccion</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="fw-medium text-muted">País de Nacimiento:</td>
+                                                <td>@Model.PaisNacimiento</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="fw-medium text-muted">País de Residencia:</td>
+                                                <td>@Model.PaisResidencia</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Health Information Tab -->
+                    <div class="tab-pane" id="health-info" role="tabpanel">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="table-responsive">
+                                    <table class="table table-borderless table-sm">
+                                        <tbody>
+                                            <tr>
+                                                <td class="fw-medium text-muted">Aseguradora ID:</td>
+                                                <td>@Model.AseguradoraId</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="fw-medium text-muted">Régimen de Afiliación ID:</td>
+                                                <td>@Model.RegimenAfiliacionId</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="fw-medium text-muted">Pertenencia Étnica ID:</td>
+                                                <td>@Model.PertenenciaEtnicaId</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="fw-medium text-muted">Centro de Atención ID:</td>
+                                                <td>@Model.CentroAtencionId</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="fw-medium text-muted">Condición Usuaria ID:</td>
+                                                <td>@Model.CondicionUsuariaId</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="fw-medium text-muted">Peso del Infante:</td>
+                                                <td>@Model.PesoInfante kg</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="fw-medium text-muted">Edad Gestacional:</td>
+                                                <td>@Model.EdadGestacional semanas</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="table-responsive">
+                                    <table class="table table-borderless table-sm">
+                                        <tbody>
+                                            <tr>
+                                                <td class="fw-medium text-muted">Lugar de Parto:</td>
+                                                <td>@Model.LugardeParto</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="fw-medium text-muted">Estatus Migratorio:</td>
+                                                <td>@Model.EstatusMigratorio</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="fw-medium text-muted">Desplazado:</td>
+                                                <td><span class="badge bg-@(Model.Desplazado ? "warning" : "success")-subtle text-@(Model.Desplazado ? "warning" : "success")">@(Model.Desplazado ? "Sí" : "No")</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td class="fw-medium text-muted">Discapacitado:</td>
+                                                <td><span class="badge bg-@(Model.Discapacitado ? "warning" : "success")-subtle text-@(Model.Discapacitado ? "warning" : "success")">@(Model.Discapacitado ? "Sí" : "No")</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td class="fw-medium text-muted">Fallecido:</td>
+                                                <td><span class="badge bg-@(Model.Fallecido ? "danger" : "success")-subtle text-@(Model.Fallecido ? "danger" : "success")">@(Model.Fallecido ? "Sí" : "No")</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td class="fw-medium text-muted">Víctima Conflicto Armado:</td>
+                                                <td><span class="badge bg-@(Model.VictimaConflictoArmado ? "danger" : "success")-subtle text-@(Model.VictimaConflictoArmado ? "danger" : "success")">@(Model.VictimaConflictoArmado ? "Sí" : "No")</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td class="fw-medium text-muted">Estudia:</td>
+                                                <td><span class="badge bg-@(Model.Estudia ? "info" : "secondary")-subtle text-@(Model.Estudia ? "info" : "secondary")">@(Model.Estudia ? "Sí" : "No")</span></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Medical Conditions -->
+                        <div class="row mt-4">
+                            <div class="col-12">
+                                <h6 class="mb-3">Condiciones Médicas</h6>
+                                <div class="table-responsive">
+                                    <table class="table table-borderless table-sm">
+                                        <tbody>
+                                            <tr>
+                                                <td class="fw-medium text-muted">Enfermedad/Contraindicación Vacuna:</td>
+                                                <td><span class="badge bg-@(Model.EnfermedadContraindicacionVacuna == true ? "warning" : "success")-subtle text-@(Model.EnfermedadContraindicacionVacuna == true ? "warning" : "success")">@(Model.EnfermedadContraindicacionVacuna == true ? "Sí" : Model.EnfermedadContraindicacionVacuna == false ? "No" : "N/A")</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td class="fw-medium text-muted">Reacción Biológica:</td>
+                                                <td><span class="badge bg-@(Model.ReaccionBiologico == true ? "warning" : "success")-subtle text-@(Model.ReaccionBiologico == true ? "warning" : "success")">@(Model.ReaccionBiologico == true ? "Sí" : Model.ReaccionBiologico == false ? "No" : "N/A")</span></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Vaccine Information Tab -->
+                    <div class="tab-pane" id="vaccine-info" role="tabpanel">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="table-responsive">
+                                    <table class="table table-borderless table-sm">
+                                        <tbody>
+                                            <tr>
+                                                <td class="fw-medium text-muted">Tipo de Carnet ID:</td>
+                                                <td>@Model.TipoCarnetId</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="fw-medium text-muted">Vacuna:</td>
+                                                <td><span class="badge bg-primary-subtle text-primary fs-6">@Model.Vacuna</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td class="fw-medium text-muted">Dosis:</td>
+                                                <td>@Model.Dosis</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="fw-medium text-muted">Fecha de Atención:</td>
+                                                <td>@Model.FechaAtencion?.ToString("dd/MM/yyyy")</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="fw-medium text-muted">Esquema Completo:</td>
+                                                <td><span class="badge bg-@(Model.EsquemaCompleto ? "success" : "warning")-subtle text-@(Model.EsquemaCompleto ? "success" : "warning")">@(Model.EsquemaCompleto ? "Sí" : "No")</span></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="table-responsive">
+                                    <table class="table table-borderless table-sm">
+                                        <tbody>
+                                            <tr>
+                                                <td class="fw-medium text-muted">Responsable:</td>
+                                                <td>@Model.Responsable</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="fw-medium text-muted">Ingreso PAIWEB:</td>
+                                                <td><span class="badge bg-@(Model.IngresoPAIWEB == true ? "success" : "danger")-subtle text-@(Model.IngresoPAIWEB == true ? "success" : "danger")">@(Model.IngresoPAIWEB == true ? "Sí" : "No")</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td class="fw-medium text-muted">Centro de Salud Responsable:</td>
+                                                <td>@Model.CentroSaludResponsable</td>
+                                            </tr>
+                                            @if (Model.IngresoPAIWEB == false)
+                                            {
+                                                <tr>
+                                                    <td class="fw-medium text-muted">Motivo No Ingreso PAIWEB:</td>
+                                                    <td><span class="text-danger">@Model.MotivoNoIngresoPAIWEB</span></td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Observations -->
+                        @if (!string.IsNullOrEmpty(Model.Observaciones))
+                        {
+                            <div class="row mt-4">
+                                <div class="col-12">
+                                    <h6 class="mb-3">Observaciones</h6>
+                                    <div class="alert alert-info">
+                                        <i class="ri-information-line me-2"></i>
+                                        @Model.Observaciones
+                                    </div>
+                                </div>
+                            </div>
+                        }
+
+                        @if (!string.IsNullOrEmpty(Model.NotasFinales))
+                        {
+                            <div class="row mt-3">
+                                <div class="col-12">
+                                    <h6 class="mb-3">Notas Finales</h6>
+                                    <div class="alert alert-warning">
+                                        <i class="ri-sticky-note-line me-2"></i>
+                                        @Model.NotasFinales
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+
+                    <!-- Caregiver Information Tab -->
+                    <div class="tab-pane" id="caregiver-info" role="tabpanel">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="table-responsive">
+                                    <table class="table table-borderless table-sm">
+                                        <tbody>
+                                            <tr>
+                                                <td class="fw-medium text-muted">Madre/Cuidador:</td>
+                                                <td>@Model.MadreCuidador</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="fw-medium text-muted">Tipo de Identificación:</td>
+                                                <td>@Model.TipoIdentificacionCuidador</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="fw-medium text-muted">Número de Documento:</td>
+                                                <td>@Model.NumeroDocumentoCuidador</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="fw-medium text-muted">Primer Nombre:</td>
+                                                <td>@Model.PrimerNombreCuidador</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="fw-medium text-muted">Segundo Nombre:</td>
+                                                <td>@Model.SegundoNombreCuidador</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="fw-medium text-muted">Primer Apellido:</td>
+                                                <td>@Model.PrimerApellidoCuidador</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="fw-medium text-muted">Segundo Apellido:</td>
+                                                <td>@Model.SegundoApellidoCuidador</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="table-responsive">
+                                    <table class="table table-borderless table-sm">
+                                        <tbody>
+                                            <tr>
+                                                <td class="fw-medium text-muted">Email:</td>
+                                                <td>@Model.EmailCuidador</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="fw-medium text-muted">Teléfono:</td>
+                                                <td>@Model.TelefonoCuidador</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="fw-medium text-muted">Celular:</td>
+                                                <td>@Model.CelularCuidador</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="fw-medium text-muted">Parentesco:</td>
+                                                <td>@Model.ParentescoCuidador</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="fw-medium text-muted">Régimen de Afiliación:</td>
+                                                <td>@Model.RegimenAfiliacionCuidador</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="fw-medium text-muted">Pertenencia Étnica ID:</td>
+                                                <td>@Model.PertenenciaEtnicaIdCuidador</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="fw-medium text-muted">Estado Desplazado:</td>
+                                                <td><span class="badge bg-@(Model.EstadoDesplazadoCuidador == true ? "warning" : "success")-subtle text-@(Model.EstadoDesplazadoCuidador == true ? "warning" : "success")">@(Model.EstadoDesplazadoCuidador == true ? "Sí" : "No")</span></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Additional Information Tab -->
+                    <div class="tab-pane" id="additional-info" role="tabpanel">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6 class="mb-3">Ubicación</h6>
+                                <div class="table-responsive">
+                                    <table class="table table-borderless table-sm">
+                                        <tbody>
+                                            <tr>
+                                                <td class="fw-medium text-muted">Departamento de Residencia:</td>
+                                                <td>@Model.DepartamentoResidencia</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="fw-medium text-muted">Municipio de Residencia:</td>
+                                                <td>@Model.MunicipioResidencia</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="fw-medium text-muted">Comuna/Localidad:</td>
+                                                <td>@Model.ComunaLocalidad</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="fw-medium text-muted">Área:</td>
+                                                <td>@Model.Area</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <h6 class="mb-3">Permisos de Comunicación</h6>
+                                <div class="table-responsive">
+                                    <table class="table table-borderless table-sm">
+                                        <tbody>
+                                            <tr>
+                                                <td class="fw-medium text-muted">Autoriza Llamadas:</td>
+                                                <td><span class="badge bg-@(Model.AutorizaLlamadas ? "success" : "danger")-subtle text-@(Model.AutorizaLlamadas ? "success" : "danger")">@(Model.AutorizaLlamadas ? "Sí" : "No")</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td class="fw-medium text-muted">Autoriza Envío de Correo:</td>
+                                                <td><span class="badge bg-@(Model.AutorizaEnvioCorreo ? "success" : "danger")-subtle text-@(Model.AutorizaEnvioCorreo ? "success" : "danger")">@(Model.AutorizaEnvioCorreo ? "Sí" : "No")</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td class="fw-medium text-muted">Relación:</td>
+                                                <td>@Model.Relacion</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row mt-4">
+                            <div class="col-md-6">
+                                <h6 class="mb-3">Control de Registro</h6>
+                                <div class="table-responsive">
+                                    <table class="table table-borderless table-sm">
+                                        <tbody>
+                                            <tr>
+                                                <td class="fw-medium text-muted">Fecha de Creación:</td>
+                                                <td>@Model.FechaCreacion</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="fw-medium text-muted">Fecha de Modificación:</td>
+                                                <td>@Model.FechaModificacion?.ToString("dd/MM/yyyy HH:mm")</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="fw-medium text-muted">Usuario Creador ID:</td>
+                                                <td>@Model.UsuarioCreadorId</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="fw-medium text-muted">Usuario Modificador ID:</td>
+                                                <td>@Model.UsuarioModificadorId</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Inicializar tooltips
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl)
+        });
+
+        // Activar tab basado en hash de URL si existe
+        $(document).ready(function() {
+            if (window.location.hash) {
+                var tab = window.location.hash.substring(1);
+                if ($('#' + tab).length) {
+                    $('a[href="#' + tab + '"]').tab('show');
+                }
+            }
+        });
+
+        // Actualizar URL hash cuando se cambie de tab
+        $('a[data-bs-toggle="tab"]').on('shown.bs.tab', function (e) {
+            var target = $(e.target).attr("href");
+            if (target && target.startsWith('#')) {
+                window.location.hash = target;
+            }
+        });
+    </script>
+
+    }

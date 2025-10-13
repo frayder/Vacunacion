@@ -3,14 +3,15 @@ using Microsoft.EntityFrameworkCore;
 using Highdmin.Data;
 using Highdmin.Models;
 using Highdmin.ViewModels;
+using Highdmin.Services;
 
 namespace Highdmin.Controllers
 {
-    public class CentroAtencionController : Controller
+    public class CentroAtencionController : BaseEmpresaController
     {
-        private readonly ApplicationDbContext _context;
+        private readonly ApplicationDbContext _context; 
 
-        public CentroAtencionController(ApplicationDbContext context)
+        public CentroAtencionController(ApplicationDbContext context, IEmpresaService empresaService): base(empresaService)
         {
             _context = context;
         }
@@ -19,8 +20,9 @@ namespace Highdmin.Controllers
         public async Task<IActionResult> Index()
         {
             try
-            {
+            { 
                 var centrosAtencion = await _context.CentrosAtencion
+                    .Where(c => c.EmpresaId == CurrentEmpresaId)
                     .OrderBy(c => c.Codigo)
                     .Select(c => new CentroAtencionItemViewModel
                     {
@@ -60,7 +62,7 @@ namespace Highdmin.Controllers
             }
 
             var centroAtencion = await _context.CentrosAtencion
-                .FirstOrDefaultAsync(m => m.Id == id);
+                .FirstOrDefaultAsync(m => m.Id == id && m.EmpresaId == CurrentEmpresaId);
 
             if (centroAtencion == null)
             {
@@ -98,7 +100,7 @@ namespace Highdmin.Controllers
                 {
                     // Verificar si el código ya existe
                     var existeCodigo = await _context.CentrosAtencion
-                        .AnyAsync(c => c.Codigo == viewModel.Codigo);
+                        .AnyAsync(c => c.Codigo == viewModel.Codigo && c.EmpresaId == CurrentEmpresaId);
 
                     if (existeCodigo)
                     {
@@ -113,7 +115,8 @@ namespace Highdmin.Controllers
                         Tipo = viewModel.Tipo,
                         Estado = viewModel.Estado,
                         Descripcion = viewModel.Descripcion,
-                        FechaCreacion = DateTime.Now
+                        FechaCreacion = DateTime.Now,
+                        EmpresaId = CurrentEmpresaId
                     };
 
                     _context.Add(centroAtencion);
@@ -139,7 +142,8 @@ namespace Highdmin.Controllers
                 return NotFound();
             }
 
-            var centroAtencion = await _context.CentrosAtencion.FindAsync(id);
+            var centroAtencion = await _context.CentrosAtencion
+                .FirstOrDefaultAsync(c => c.Id == id && c.EmpresaId == CurrentEmpresaId);
             if (centroAtencion == null)
             {
                 return NotFound();
@@ -182,7 +186,7 @@ namespace Highdmin.Controllers
                         return View(viewModel);
                     }
 
-                    var centroAtencion = await _context.CentrosAtencion.FindAsync(id);
+                    var centroAtencion = await _context.CentrosAtencion.FirstOrDefaultAsync(m => m.Id == id && m.EmpresaId == CurrentEmpresaId);
                     if (centroAtencion == null)
                     {
                         return NotFound();
@@ -229,7 +233,7 @@ namespace Highdmin.Controllers
             }
 
             var centroAtencion = await _context.CentrosAtencion
-                .FirstOrDefaultAsync(m => m.Id == id);
+                .FirstOrDefaultAsync(m => m.Id == id && m.EmpresaId == CurrentEmpresaId);
 
             if (centroAtencion == null)
             {
@@ -257,7 +261,7 @@ namespace Highdmin.Controllers
         {
             try
             {
-                var centroAtencion = await _context.CentrosAtencion.FindAsync(id);
+                var centroAtencion = await _context.CentrosAtencion.FirstOrDefaultAsync(m => m.Id == id && m.EmpresaId == CurrentEmpresaId);
                 if (centroAtencion != null)
                 {
                     _context.CentrosAtencion.Remove(centroAtencion);
@@ -280,7 +284,7 @@ namespace Highdmin.Controllers
         {
             try
             {
-                var centroAtencion = await _context.CentrosAtencion.FindAsync(id);
+                var centroAtencion = await _context.CentrosAtencion.FirstOrDefaultAsync(m => m.Id == id && m.EmpresaId == CurrentEmpresaId);
                 if (centroAtencion != null)
                 {
                     centroAtencion.Estado = !centroAtencion.Estado;

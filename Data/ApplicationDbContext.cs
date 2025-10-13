@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Highdmin.Models;
+using System.Security.Claims;
 
 namespace Highdmin.Data
 {
@@ -22,7 +23,6 @@ namespace Highdmin.Data
         public DbSet<PertenenciaEtnica> PertenenciasEtnicas { get; set; }
         public DbSet<Aseguradora> Aseguradoras { get; set; }
         public DbSet<RegimenAfiliacion> RegimenesAfiliacion { get; set; }
-        public DbSet<Hospital> Hospitales { get; set; }
         public DbSet<CentroAtencion> CentrosAtencion { get; set; }
         public DbSet<Insumo> Insumos { get; set; }
         public DbSet<Entrada> Entradas { get; set; }
@@ -30,10 +30,23 @@ namespace Highdmin.Data
         public DbSet<Paciente> Pacientes { get; set; }
         public DbSet<HistorialCargaPacientes> HistorialCargas  { get; set; }
         public DbSet<AntecedenteMedico> AntecedentesMedicos { get; set; }
+        public DbSet<Empresa> Empresas { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
+            // Configuración de la entidad Empresa
+            modelBuilder.Entity<Empresa>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Codigo).IsRequired().HasMaxLength(10);
+                entity.Property(e => e.Nombre).IsRequired().HasMaxLength(255);
+                entity.Property(e => e.RazonSocial).IsRequired().HasMaxLength(255);
+                entity.Property(e => e.Nit).IsRequired().HasMaxLength(20);
+                entity.HasIndex(e => e.Codigo).IsUnique();
+                entity.HasIndex(e => e.Nit).IsUnique();
+            });
 
             // Configuración de la entidad User
             modelBuilder.Entity<User>(entity =>
@@ -154,15 +167,6 @@ namespace Highdmin.Data
                 entity.HasIndex(t => t.Codigo).IsUnique();
             });
 
-            modelBuilder.Entity<Hospital>(entity =>
-            {
-                entity.HasKey(e => e.Id);
-                entity.Property(e => e.Codigo).IsRequired().HasMaxLength(10);
-                entity.Property(e => e.Nombre).IsRequired().HasMaxLength(255);
-                entity.Property(e => e.Descripcion).HasMaxLength(500);
-                entity.HasIndex(t => t.Codigo).IsUnique();
-            });
-
             modelBuilder.Entity<CentroAtencion>(entity =>
             {
                 entity.HasKey(e => e.Id);
@@ -183,7 +187,7 @@ namespace Highdmin.Data
                 entity.Property(e => e.Genero).IsRequired().HasMaxLength(10);
                 entity.Property(e => e.Telefono).HasMaxLength(15);
                 entity.Property(e => e.Direccion).HasMaxLength(500);
-                entity.Property(e => e.Vacuna).IsRequired().HasMaxLength(100);  
+                entity.Property(e => e.Vacuna).IsRequired().HasMaxLength(100);
                 entity.Property(e => e.Observaciones).HasMaxLength(1000);
                 entity.Property(e => e.NotasFinales).HasMaxLength(1000);
 
@@ -231,7 +235,7 @@ namespace Highdmin.Data
                       .WithMany()
                       .HasForeignKey(r => r.UsuarioModificadorId)
                       .OnDelete(DeleteBehavior.SetNull);
-                
+
 
             });
 
@@ -264,7 +268,7 @@ namespace Highdmin.Data
                 entity.Property(e => e.ArchivoNombre).HasMaxLength(255);
                 entity.Property(e => e.Observaciones).HasMaxLength(1000);
             });
-            
+
             // Configuración de AntecedentesMedicos
             modelBuilder.Entity<AntecedenteMedico>(entity =>
             {

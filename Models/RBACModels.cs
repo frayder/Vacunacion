@@ -20,6 +20,13 @@ namespace Highdmin.Models
         [Display(Name = "Activo")]
         public bool IsActive { get; set; } = true;
 
+        [Required(ErrorMessage = "La empresa es obligatoria")]
+        [Display(Name = "Empresa")]
+        public int EmpresaId { get; set; }
+
+        [ForeignKey("EmpresaId")]
+        public virtual Empresa? Empresa { get; set; }
+
         public ICollection<UserRole> UserRoles { get; set; } = new List<UserRole>();
     }
 
@@ -37,6 +44,13 @@ namespace Highdmin.Models
 
         public ICollection<RolePermission> RolePermissions { get; set; } = new List<RolePermission>();
         public ICollection<UserRole> UserRoles { get; set; } = new List<UserRole>();
+
+        [Required(ErrorMessage = "La empresa es obligatoria")]
+        [Display(Name = "Empresa")]
+        public int EmpresaId { get; set; }
+
+        [ForeignKey("EmpresaId")]
+        public virtual Empresa? Empresa { get; set; }
     }
 
     public class Permission
@@ -51,6 +65,13 @@ namespace Highdmin.Models
         [Required]
         [MaxLength(50)]
         public string? Action { get; set; }
+
+        [Required(ErrorMessage = "La empresa es obligatoria")]
+        [Display(Name = "Empresa")]
+        public int EmpresaId { get; set; }
+
+        [ForeignKey("EmpresaId")]
+        public virtual Empresa? Empresa { get; set; }
     }
 
     public class RolePermission
@@ -83,6 +104,13 @@ namespace Highdmin.Models
         // Permisos específicos para Usuarios
         public bool CanActivate { get; set; }     // Activar/Desactivar usuarios
         public bool CanResetPassword { get; set; } // Resetear contraseñas
+
+        [Required(ErrorMessage = "La empresa es obligatoria")]
+        [Display(Name = "Empresa")]
+        public int EmpresaId { get; set; }
+
+        [ForeignKey("EmpresaId")]
+        public virtual Empresa? Empresa { get; set; }
     }
 
     public class UserRole
@@ -100,6 +128,13 @@ namespace Highdmin.Models
 
         [ForeignKey("RoleId")]
         public Role? Role { get; set; }
+
+        [Required(ErrorMessage = "La empresa es obligatoria")]
+        [Display(Name = "Empresa")]
+        public int EmpresaId { get; set; }
+
+        [ForeignKey("EmpresaId")]
+        public virtual Empresa? Empresa { get; set; }
     }
 
     public class MenuItem
@@ -164,6 +199,13 @@ namespace Highdmin.Models
 
         [Display(Name = "Fecha Creación")]
         public DateTime FechaCreacion { get; set; } = DateTime.Now;
+
+        [Required(ErrorMessage = "La empresa es obligatoria")]
+        [Display(Name = "Empresa")]
+        public int EmpresaId { get; set; }
+
+        [ForeignKey("EmpresaId")]
+        public virtual Empresa? Empresa { get; set; }
     }
     
      public class StandarModel
@@ -190,6 +232,13 @@ namespace Highdmin.Models
 
         [Display(Name = "Fecha Creación")]
         public DateTime FechaCreacion { get; set; } = DateTime.Now;
+
+        [Required(ErrorMessage = "La empresa es obligatoria")]
+        [Display(Name = "Empresa")]
+        public int EmpresaId { get; set; }
+
+        [ForeignKey("EmpresaId")]
+        public virtual Empresa? Empresa { get; set; }
     }
 
 }

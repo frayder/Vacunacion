@@ -12,17 +12,18 @@ using System.Globalization;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Highdmin.Services;
 
 namespace Highdmin.Controllers
 {
     [Authorize]
-    public class PacientesController : Controller
+    public class PacientesController : BaseEmpresaController
     {
         private readonly ApplicationDbContext _context;
         private readonly ILogger<PacientesController> _logger;
         private static List<PacienteItemViewModel> PacientesCargados = new List<PacienteItemViewModel>();
 
-        public PacientesController(ApplicationDbContext context, ILogger<PacientesController> logger)
+        public PacientesController(ApplicationDbContext context, ILogger<PacientesController> logger, IEmpresaService empresaService) : base(empresaService)
         {
             _context = context;
             _logger = logger;
@@ -123,7 +124,7 @@ namespace Highdmin.Controllers
 
         private bool PacienteExists(int id)
         {
-            return _context.Pacientes.Any(e => e.Id == id);
+            return _context.Pacientes.Any(e => e.Id == id && e.EmpresaId == CurrentEmpresaId);
         }
 
         // GET: Pacientes
@@ -146,6 +147,7 @@ namespace Highdmin.Controllers
                 }
 
                 var pacientes = await query
+                    .Where(p => p.EmpresaId == CurrentEmpresaId)
                     .OrderByDescending(p => p.FechaCreacion)
                     .Select(p => new PacienteItemViewModel
                     {
@@ -167,6 +169,7 @@ namespace Highdmin.Controllers
                 var totalPacientes = await _context.Pacientes.CountAsync();
                 var pacientesConDatos = await _context.Pacientes.CountAsync(p => p.Estado);
                 var historialCargas = await _context.HistorialCargas
+                    .Where(h => h.EmpresaId == CurrentEmpresaId)
                     .OrderByDescending(h => h.FechaCarga)
                     .Select(h => new CargaHistorialItem
                     {
@@ -207,7 +210,7 @@ namespace Highdmin.Controllers
 
             var paciente = await _context.Pacientes
                 .Include(p => p.RegistrosVacunacion)
-                .FirstOrDefaultAsync(m => m.Id == id);
+                .FirstOrDefaultAsync(m => m.Id == id && m.EmpresaId == CurrentEmpresaId);
 
             if (paciente == null)
             {
@@ -257,7 +260,8 @@ namespace Highdmin.Controllers
                         Telefono = viewModel.Telefono,
                         Email = viewModel.Email,
                         Estado = viewModel.Estado,
-                        FechaCreacion = DateTime.Now
+                        FechaCreacion = DateTime.Now,
+                        EmpresaId = CurrentEmpresaId
                     };
 
                     _context.Add(paciente);
@@ -290,7 +294,8 @@ namespace Highdmin.Controllers
                 int nuevos = 0, existentes = 0;
                 foreach (var p in pacientesCargados)
                 {
-                    var pacienteExistente = await _context.Pacientes.FirstOrDefaultAsync(x => x.Identificacion == p.Identificacion);
+                    var pacienteExistente = await _context.Pacientes
+                        .FirstOrDefaultAsync(x => x.Identificacion == p.Identificacion && x.EmpresaId == CurrentEmpresaId);
                     if (pacienteExistente != null)
                     {
                         // 🔁 Actualizar información del paciente existente
@@ -366,7 +371,7 @@ namespace Highdmin.Controllers
                 return NotFound();
             }
 
-            var paciente = await _context.Pacientes.FindAsync(id);
+            var paciente = await _context.Pacientes.FirstOrDefaultAsync(m => m.Id == id && m.EmpresaId == CurrentEmpresaId);
             if (paciente == null)
             {
                 return NotFound();
@@ -410,7 +415,7 @@ namespace Highdmin.Controllers
                 {
                     // Verificar si ya existe otro paciente con la misma identificación
                     var existeOtroPaciente = await _context.Pacientes
-                        .AnyAsync(p => p.Identificacion == viewModel.Identificacion && p.Id != id);
+                        .AnyAsync(p => p.Identificacion == viewModel.Identificacion && p.Id != id && p.EmpresaId == CurrentEmpresaId);
 
                     if (existeOtroPaciente)
                     {
@@ -418,7 +423,7 @@ namespace Highdmin.Controllers
                         return View(viewModel);
                     }
 
-                    var paciente = await _context.Pacientes.FindAsync(id);
+                    var paciente = await _context.Pacientes.FirstOrDefaultAsync(m => m.Id == id && m.EmpresaId == CurrentEmpresaId);
                     if (paciente == null)
                     {
                         return NotFound();
@@ -475,7 +480,7 @@ namespace Highdmin.Controllers
             }
 
             var paciente = await _context.Pacientes
-                .FirstOrDefaultAsync(m => m.Id == id);
+                .FirstOrDefaultAsync(m => m.Id == id && m.EmpresaId == CurrentEmpresaId);
 
             if (paciente == null)
             {
@@ -492,7 +497,7 @@ namespace Highdmin.Controllers
         {
             try
             {
-                var paciente = await _context.Pacientes.FindAsync(id);
+                var paciente = await _context.Pacientes.FirstOrDefaultAsync(m => m.Id == id && m.EmpresaId == CurrentEmpresaId);
                 if (paciente != null)
                 {
                     _context.Pacientes.Remove(paciente);
@@ -717,7 +722,8 @@ namespace Highdmin.Controllers
                         Sexo = sexo,
                         Eps = eps,
                         Estado = true,
-                        FechaCreacion = DateTime.Now
+                        FechaCreacion = DateTime.Now,
+                        EmpresaId = CurrentEmpresaId
                     };
 
                     // Solo agregar si tiene los campos requeridos

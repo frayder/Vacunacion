@@ -86,5 +86,12 @@ namespace Highdmin.Models
 
         // Relaciones
         public virtual ICollection<RegistrosVacunacion>? RegistrosVacunacion { get; set; }
+
+        [Required(ErrorMessage = "La empresa es obligatoria")]
+        [Display(Name = "Empresa")]
+        public int EmpresaId { get; set; }
+
+        [ForeignKey("EmpresaId")]
+        public virtual Empresa? Empresa { get; set; }
     }
 }

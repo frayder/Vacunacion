@@ -3,14 +3,15 @@ using Microsoft.EntityFrameworkCore;
 using Highdmin.Data;
 using Highdmin.Models;
 using Highdmin.ViewModels;
+using Highdmin.Services;
 
 namespace Highdmin.Controllers
 {
-    public class InsumoController : Controller
+    public class InsumoController : BaseEmpresaController
     {
         private readonly ApplicationDbContext _context;
 
-        public InsumoController(ApplicationDbContext context)
+        public InsumoController(ApplicationDbContext context, IEmpresaService empresaService) : base(empresaService)
         {
             _context = context;
         }
@@ -21,6 +22,7 @@ namespace Highdmin.Controllers
             try
             {
                 var insumos = await _context.Insumos
+                    .Where(i => i.EmpresaId == CurrentEmpresaId)
                     .OrderBy(i => i.Codigo)
                     .Select(i => new InsumoItemViewModel
                     {
@@ -61,7 +63,7 @@ namespace Highdmin.Controllers
             }
 
             var insumo = await _context.Insumos
-                .FirstOrDefaultAsync(m => m.Id == id);
+                .FirstOrDefaultAsync(m => m.Id == id && m.EmpresaId == CurrentEmpresaId);
 
             if (insumo == null)
             {
@@ -100,7 +102,7 @@ namespace Highdmin.Controllers
                 {
                     // Verificar si el código ya existe
                     var existeCodigo = await _context.Insumos
-                        .AnyAsync(i => i.Codigo == viewModel.Codigo);
+                        .AnyAsync(i => i.Codigo == viewModel.Codigo && i.EmpresaId == CurrentEmpresaId);
 
                     if (existeCodigo)
                     {
@@ -141,7 +143,8 @@ namespace Highdmin.Controllers
                         Descripcion = viewModel.Descripcion,
                         RangoDosis = rangoDosis,
                         Estado = viewModel.Estado,
-                        FechaCreacion = DateTime.Now
+                        FechaCreacion = DateTime.Now,
+                        EmpresaId = CurrentEmpresaId
                     };
 
                     _context.Add(insumo);
@@ -167,7 +170,7 @@ namespace Highdmin.Controllers
                 return NotFound();
             }
 
-            var insumo = await _context.Insumos.FindAsync(id);
+            var insumo = await _context.Insumos.FirstOrDefaultAsync(m => m.Id == id && m.EmpresaId == CurrentEmpresaId);
             if (insumo == null)
             {
                 return NotFound();
@@ -204,7 +207,7 @@ namespace Highdmin.Controllers
                 {
                     // Verificar si el código ya existe en otro registro
                     var existeCodigo = await _context.Insumos
-                        .AnyAsync(i => i.Codigo == viewModel.Codigo && i.Id != id);
+                        .AnyAsync(i => i.Codigo == viewModel.Codigo && i.Id != id && i.EmpresaId == CurrentEmpresaId);
 
                     if (existeCodigo)
                     {
@@ -212,7 +215,7 @@ namespace Highdmin.Controllers
                         return View(viewModel);
                     }
 
-                    var insumo = await _context.Insumos.FindAsync(id);
+                    var insumo = await _context.Insumos.FirstOrDefaultAsync(m => m.Id == id && m.EmpresaId == CurrentEmpresaId);
                     if (insumo == null)
                     {
                         return NotFound();
@@ -260,7 +263,7 @@ namespace Highdmin.Controllers
             }
 
             var insumo = await _context.Insumos
-                .FirstOrDefaultAsync(m => m.Id == id);
+                .FirstOrDefaultAsync(m => m.Id == id && m.EmpresaId == CurrentEmpresaId);
 
             if (insumo == null)
             {
@@ -289,7 +292,7 @@ namespace Highdmin.Controllers
         {
             try
             {
-                var insumo = await _context.Insumos.FindAsync(id);
+                var insumo = await _context.Insumos.FirstOrDefaultAsync(m => m.Id == id && m.EmpresaId == CurrentEmpresaId);
                 if (insumo != null)
                 {
                     _context.Insumos.Remove(insumo);
@@ -320,7 +323,7 @@ namespace Highdmin.Controllers
         {
             try
             {
-                var insumo = await _context.Insumos.FindAsync(id);
+                var insumo = await _context.Insumos.FirstOrDefaultAsync(m => m.Id == id && m.EmpresaId == CurrentEmpresaId);
                 if (insumo == null)
                 {
                     return Json(new { success = false, message = "Insumo no encontrado" });
@@ -362,7 +365,7 @@ namespace Highdmin.Controllers
 
                 // Verificar si el código ya existe
                 var existeCodigo = await _context.Insumos
-                    .AnyAsync(i => i.Codigo == viewModel.Codigo);
+                    .AnyAsync(i => i.Codigo == viewModel.Codigo && i.EmpresaId == CurrentEmpresaId);
 
                 if (existeCodigo)
                 {
@@ -406,7 +409,7 @@ namespace Highdmin.Controllers
 
                 // Verificar si el código ya existe en otro registro
                 var existeCodigo = await _context.Insumos
-                    .AnyAsync(i => i.Codigo == viewModel.Codigo && i.Id != viewModel.Id);
+                    .AnyAsync(i => i.Codigo == viewModel.Codigo && i.Id != viewModel.Id && i.EmpresaId == CurrentEmpresaId);
 
                 if (existeCodigo)
                 {
@@ -442,7 +445,7 @@ namespace Highdmin.Controllers
         {
             try
             {
-                var insumo = await _context.Insumos.FindAsync(id);
+                var insumo = await _context.Insumos.FirstOrDefaultAsync(m => m.Id == id && m.EmpresaId == CurrentEmpresaId);
                 if (insumo == null)
                 {
                     return Json(new { success = false, message = "Insumo no encontrado" });
