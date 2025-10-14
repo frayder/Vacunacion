@@ -249,5 +249,11 @@ namespace Highdmin.ViewModels
 
         [Display(Name = "Motivo de No Ingreso PAIWEB")]
         public string? MotivoNoIngresoPAIWEB { get; set; }
+
+        [Display(Name = "Marcar como perdida")]
+        public bool? MarcarComoPerdida { get; set; } = false;
+
+        [Display(Name = "Motivo de Pérdida")]
+        public string? MotivoPerdida { get; set; }
     }
 }

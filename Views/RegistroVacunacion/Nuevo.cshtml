@@ -1102,7 +1102,7 @@
                                     if (typeof value === "string") {
                                         const lowerValue = value.trim().toLowerCase();
 
-                                        if (["true", "si", "sí"].includes(lowerValue)) {
+                                        if (["true", "si", "sí", "on"].includes(lowerValue)) {
                                             parsedData[key] = true;
                                         } else if (["false", "no"].includes(lowerValue)) {
                                             parsedData[key] = false;

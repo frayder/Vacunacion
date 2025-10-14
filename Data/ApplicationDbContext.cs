@@ -192,6 +192,7 @@ namespace Highdmin.Data
                 entity.Property(e => e.Observaciones).HasMaxLength(1000);
                 entity.Property(e => e.NotasFinales).HasMaxLength(1000);
                 entity.Property(e => e.PesoInfante).HasPrecision(10, 3);
+                entity.Property(e => e.MotivoPerdida).HasMaxLength(100);
                 // Índices únicos
                 entity.HasIndex(r => r.Consecutivo).IsUnique();
                 entity.HasIndex(r => new { r.TipoDocumento, r.NumeroDocumento });

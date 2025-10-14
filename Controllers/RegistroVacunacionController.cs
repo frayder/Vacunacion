@@ -94,6 +94,13 @@ namespace Highdmin.Controllers
 
             await using var command = _context.Database.GetDbConnection().CreateCommand();
             command.CommandText = sql;
+
+            // Agregar el parámetro @EmpresaId
+            var parameter = command.CreateParameter();
+            parameter.ParameterName = "@EmpresaId";
+            parameter.Value = CurrentEmpresaId;
+            command.Parameters.Add(parameter);
+            
             await _context.Database.OpenConnectionAsync();
             var result = await command.ExecuteScalarAsync();
             await _context.Database.CloseConnectionAsync();
@@ -269,6 +276,8 @@ namespace Highdmin.Controllers
 
                 // Crear un modelo para capturar todos los datos del formulario
                 var json = System.Text.Json.JsonSerializer.Serialize(datos);
+                 Console.WriteLine("Modelo deserializado: " + json);
+                 Console.WriteLine("Modelo currentEmpresaId: " + CurrentEmpresaId);
                 // Configuramos las opciones para que acepte números entre comillas
                 var options = new JsonSerializerOptions
                 {
@@ -280,6 +289,7 @@ namespace Highdmin.Controllers
 
 
                 // Mapear todos los datos del ViewModel a la entidad del modelo de datos
+               
                 var Consecutivo = await GenerarConsecutivoAsync();
                 var entidad = new RegistrosVacunacion
                 {
@@ -358,7 +368,9 @@ namespace Highdmin.Controllers
                     Responsable = modelo.Responsable,
                     IngresoPAIWEB = modelo.IngresoPAIWEB,
                     CentroSaludResponsable = modelo.CentroSaludResponsable,
-
+                    MarcarComoPerdida = modelo.MarcarComoPerdida,
+                    MotivoPerdida = modelo.MotivoPerdida,
+                    EmpresaId = CurrentEmpresaId,
                     // CAMPOS DE CONTROL
                     NotasFinales = modelo.NotasFinales,
                     Estado = true,
@@ -369,6 +381,7 @@ namespace Highdmin.Controllers
                 };
 
                 // Guarda en base de datos
+                Console.WriteLine("Entidad a guardar: " + JsonSerializer.Serialize(entidad));
                 _context.RegistrosVacunacion.Add(entidad);
                 await _context.SaveChangesAsync();
                 await GuardarAntecedentesMedicos(entidad.Id, modelo.ArrayAntecedentes, modelo.NumeroDocumento);
@@ -414,7 +427,8 @@ namespace Highdmin.Controllers
                         Observaciones = antecedente.Observaciones,
                         Activo = antecedente.Activo,
                         NumeroDocumentoPaciente = numeroDocumentoPaciente,
-                        FechaCreacion = DateTime.Now
+                        FechaCreacion = DateTime.Now,
+                        EmpresaId = CurrentEmpresaId
                     };
 
                     entidadesAntecedentes.Add(entidadAntecedente);

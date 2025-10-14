@@ -302,5 +302,12 @@ namespace Highdmin.Models
 
         [ForeignKey("EmpresaId")]
         public virtual Empresa? Empresa { get; set; }
+
+        [Display(Name = "Marcar como perdida")]
+        public bool? MarcarComoPerdida { get; set; } = false;
+
+        [Display(Name = "Motivo de Pérdida")]
+        [StringLength(100, ErrorMessage = "El motivo de pérdida no puede tener más de 100 caracteres")]
+        public string? MotivoPerdida { get; set; }
     }
 }
