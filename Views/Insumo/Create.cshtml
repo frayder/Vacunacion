@@ -53,6 +53,30 @@
                         </div>
                     </div>
 
+                    <!-- Tabla de configuraciones de rangos -->
+                    <div class="mb-3">
+                        <h6 class="mb-3">Configuraciones de Rangos</h6>
+                        <div class="table-responsive">
+                            <table class="table table-bordered" id="configRangosTable">
+                                <thead>
+                                    <tr>
+                                        <th>Edad Mínima</th>
+                                        <th>Edad Máxima</th>
+                                        <th>Dosis</th>
+                                        <th>Descripción</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="configRangosTableBody">
+                                    <!-- Las filas se agregarán dinámicamente -->
+                                </tbody>
+                            </table>
+                        </div>
+                        <div id="noConfiguraciones" class="text-muted text-center py-3">
+                            <i class="ri-information-line"></i> No hay configuraciones de rangos agregadas
+                        </div>
+                    </div>
+
                     <div class="text-end">
                        <a asp-action="Index" class="btn btn-secondary me-2">
                             <i class="ri-arrow-left-line me-1"></i> Cancelar
@@ -60,6 +84,11 @@
                         <button type="submit" class="btn btn-success">
                             <i class="ri-save-line me-1"></i> Guardar
                         </button> 
+                    </div>
+
+                    <!-- Inputs hidden para las configuraciones -->
+                    <div id="hiddenConfiguraciones">
+                        <!-- Se generarán dinámicamente -->
                     </div>
                 </form>
             </div>
@@ -69,20 +98,20 @@
     <div class="col-lg-4">
         <div class="card">
             <div class="card-header">
-                <h5 class="card-title mb-0">Configuración de Rangos</h5>
+                <h5 class="card-title mb-0">Agregar Configuración de Rango</h5>
             </div>
             <div class="card-body"> 
                 <div class="row">
                     <div class="col-md-5">
                         <div class="mb-3">
-                            <label asp-for="EdadMinima" class="form-label"></label>
-                            <input asp-for="EdadMinima" class="form-control" type="number" min="0" placeholder="Ej: 60">
+                            <label for="edadMinima" class="form-label">Edad Mínima</label>
+                            <input type="number" id="edadMinima" class="form-control" min="0" placeholder="Ej: 60">
                         </div>
                     </div>
                     <div class="col-md-7">
                         <div class="mb-3">
-                            <label asp-for="UnidadMedidaEdadMinima" class="form-label"></label>
-                            <select asp-for="UnidadMedidaEdadMinima" class="form-control" data-choices data-choices-search-false>
+                            <label for="unidadMedidaEdadMinima" class="form-label">Unidad Edad Mínima</label>
+                            <select id="unidadMedidaEdadMinima" class="form-control" data-choices data-choices-search-false>
                                 <option value="">Seleccionar unidad</option>
                                 <option value="Dias">días</option>
                                 <option value="Meses">meses</option>
@@ -94,14 +123,14 @@
                 <div class="row">
                     <div class="col-md-5">
                         <div class="mb-3">
-                            <label asp-for="EdadMinima" class="form-label"></label>
-                            <input asp-for="EdadMinima" class="form-control" type="number" min="0" placeholder="Ej: 60">
+                            <label for="edadMaxima" class="form-label">Edad Máxima</label>
+                            <input type="number" id="edadMaxima" class="form-control" min="0" placeholder="Ej: 5">
                         </div>
                     </div>
                    <div class="col-md-7">
                         <div class="mb-3">
-                            <label asp-for="UnidadMedidaEdadMaxima" class="form-label"></label>
-                            <select asp-for="UnidadMedidaEdadMaxima" class="form-control" data-choices data-choices-search-false>
+                            <label for="unidadMedidaEdadMaxima" class="form-label">Unidad Edad Máxima</label>
+                            <select id="unidadMedidaEdadMaxima" class="form-control" data-choices data-choices-search-false>
                                 <option value="">Seleccionar unidad</option>
                                 <option value="Dias">días</option>
                                 <option value="Meses">meses</option>
@@ -111,8 +140,8 @@
                     </div>
                 </div>
                 <div class="mb-3">
-                    <label asp-for="Dosis" class="form-label"></label>
-                    <select asp-for="Dosis" class="form-control" data-choices data-choices-search-false>
+                    <label for="dosis" class="form-label">Dosis</label>
+                    <select id="dosis" class="form-control" data-choices data-choices-search-false>
                         <option value="">Seleccionar dosis</option>
                         <option value="1ERA DOSIS">1ERA DOSIS</option>
                         <option value="2DA DOSIS">2DA DOSIS</option>
@@ -120,8 +149,13 @@
                     </select>
                 </div>
                  <div class="mb-3">
-                    <label asp-for="DescripcionRango" class="form-label"></label>
-                    <input asp-for="DescripcionRango" class="form-control" disabled placeholder="Ej: DE 2 MESES Y 5 AÑOS">
+                    <label for="descripcionRango" class="form-label">Descripción del Rango</label>
+                    <input type="text" id="descripcionRango" class="form-control" readonly placeholder="Se genera automáticamente">
+                </div>
+                <div class="text-end">
+                    <button type="button" id="btnAgregarConfig" class="btn btn-primary">
+                        <i class="ri-add-line me-1"></i> Agregar Configuración
+                    </button>
                 </div>
             </div>
         </div>
@@ -130,4 +164,164 @@
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    
+    <script>
+        let configuracionesRango = [];
+        let configIndex = 0;
+
+        $(document).ready(function() {
+            updateDescripcionRango();
+            updateTable();
+            
+            // Actualizar descripción cuando cambien los valores
+            $('#edadMinima, #edadMaxima, #unidadMedidaEdadMinima, #unidadMedidaEdadMaxima').on('change keyup', function() {
+                updateDescripcionRango();
+            });
+            
+            // Agregar configuración
+            $('#btnAgregarConfig').click(function() {
+                agregarConfiguracion();
+            });
+        });
+
+        function updateDescripcionRango() {
+            const edadMin = $('#edadMinima').val();
+            const edadMax = $('#edadMaxima').val();
+            const unidadMin = $('#unidadMedidaEdadMinima').val();
+            const unidadMax = $('#unidadMedidaEdadMaxima').val();
+            
+            let descripcion = '';
+            if (edadMin && unidadMin && edadMax && unidadMax) {
+                const unidadMinTexto = unidadMin === 'Dias' ? 'días' : unidadMin === 'Meses' ? 'meses' : 'años';
+                const unidadMaxTexto = unidadMax === 'Dias' ? 'días' : unidadMax === 'Meses' ? 'meses' : 'años';
+                descripcion = `DE ${edadMin} ${unidadMinTexto} A ${edadMax} ${unidadMaxTexto}`;
+            }
+            
+            $('#descripcionRango').val(descripcion.toUpperCase());
+        }
+
+        function agregarConfiguracion() {
+            const edadMin = $('#edadMinima').val();
+            const edadMax = $('#edadMaxima').val();
+            const unidadMin = $('#unidadMedidaEdadMinima').val();
+            const unidadMax = $('#unidadMedidaEdadMaxima').val();
+            const dosis = $('#dosis').val();
+            const descripcion = $('#descripcionRango').val();
+            
+            // Validaciones
+            if (!edadMin || !edadMax || !unidadMin || !unidadMax) {
+                alert('Por favor complete todos los campos obligatorios');
+                return;
+            }
+
+            if (parseInt(edadMin) >= parseInt(edadMax) && unidadMin === "meses" && unidadMax === "meses") {
+                alert('La edad máxima debe ser mayor que la edad mínima');
+                return;
+            }
+
+            if (parseInt(edadMin) >= parseInt(edadMax) && unidadMin === "meses" && unidadMax === "dias") {
+                alert('La edad máxima debe ser mayor que la edad mínima');
+                return;
+            }
+
+            if (parseInt(edadMin) >= parseInt(edadMax) && unidadMin === "años" && unidadMax === "dias") {
+                alert('La edad máxima debe ser mayor que la edad mínima');
+                return;
+            }
+            if (parseInt(edadMin) >= parseInt(edadMax) && unidadMin === "años" && unidadMax === "años") {
+                alert('La edad máxima debe ser mayor que la edad mínima');
+                return;
+            }
+
+            if (parseInt(edadMin) >= parseInt(edadMax) && unidadMin === "dias" && unidadMax === "dias") {
+                alert('La edad máxima debe ser mayor que la edad mínima');
+                return;
+            }
+            
+            // Crear objeto de configuración
+            const configuracion = {
+                index: configIndex++,
+                edadMinima: parseInt(edadMin),
+                edadMaxima: parseInt(edadMax),
+                unidadMedidaEdadMinima: unidadMin,
+                unidadMedidaEdadMaxima: unidadMax,
+                dosis: dosis || '',
+                descripcionRango: descripcion
+            };
+            
+            configuracionesRango.push(configuracion);
+            updateTable();
+            clearForm();
+        }
+
+        function eliminarConfiguracion(index) {
+            configuracionesRango = configuracionesRango.filter(c => c.index !== index);
+            updateTable();
+        }
+
+        function updateTable() {
+            const tableBody = $('#configRangosTableBody');
+            const noConfig = $('#noConfiguraciones');
+            const hiddenDiv = $('#hiddenConfiguraciones');
+            
+            tableBody.empty();
+            hiddenDiv.empty();
+            
+            if (configuracionesRango.length === 0) {
+                $('#configRangosTable').hide();
+                noConfig.show();
+            } else {
+                $('#configRangosTable').show();
+                noConfig.hide();
+                
+                configuracionesRango.forEach((config, arrayIndex) => {
+                    // Agregar fila a la tabla
+                    const unidadMinTexto = config.unidadMedidaEdadMinima === 'Dias' ? 'días' : config.unidadMedidaEdadMinima === 'Meses' ? 'meses' : 'años';
+                    const unidadMaxTexto = config.unidadMedidaEdadMaxima === 'Dias' ? 'días' : config.unidadMedidaEdadMaxima === 'Meses' ? 'meses' : 'años';
+                    
+                    const row = `
+                        <tr>
+                            <td>${config.edadMinima} ${unidadMinTexto}</td>
+                            <td>${config.edadMaxima} ${unidadMaxTexto}</td>
+                            <td>${config.dosis || '-'}</td>
+                            <td>${config.descripcionRango}</td>
+                            <td>
+                                <button type="button" class="btn btn-sm btn-danger" onclick="eliminarConfiguracion(${config.index})">
+                                    <i class="ri-delete-bin-line"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                    tableBody.append(row);
+                    
+                    // Agregar inputs hidden
+                    const hiddenInputs = `
+                        <input type="hidden" name="ConfiguracionesRango[${arrayIndex}].EdadMinima" value="${config.edadMinima}" />
+                        <input type="hidden" name="ConfiguracionesRango[${arrayIndex}].EdadMaxima" value="${config.edadMaxima}" />
+                        <input type="hidden" name="ConfiguracionesRango[${arrayIndex}].UnidadMedidaEdadMinima" value="${config.unidadMedidaEdadMinima}" />
+                        <input type="hidden" name="ConfiguracionesRango[${arrayIndex}].UnidadMedidaEdadMaxima" value="${config.unidadMedidaEdadMaxima}" />
+                        <input type="hidden" name="ConfiguracionesRango[${arrayIndex}].Dosis" value="${config.dosis}" />
+                        <input type="hidden" name="ConfiguracionesRango[${arrayIndex}].DescripcionRango" value="${config.descripcionRango}" />
+                    `;
+                    hiddenDiv.append(hiddenInputs);
+                });
+            }
+        }
+
+        function clearForm() {
+            $('#edadMinima, #edadMaxima, #descripcionRango').val('');
+            $('#unidadMedidaEdadMinima, #unidadMedidaEdadMaxima, #dosis').val('').trigger('change');
+            
+            // Si estás usando Choices.js, también actualizar esos selects
+            if (typeof Choices !== 'undefined') {
+                const selects = ['#unidadMedidaEdadMinima', '#unidadMedidaEdadMaxima', '#dosis'];
+                selects.forEach(selector => {
+                    const element = document.querySelector(selector);
+                    if (element && element.choices) {
+                        element.choices.setChoiceByValue('');
+                    }
+                });
+            }
+        }
+    </script>
 }

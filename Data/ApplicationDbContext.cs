@@ -25,6 +25,7 @@ namespace Highdmin.Data
         public DbSet<RegimenAfiliacion> RegimenesAfiliacion { get; set; }
         public DbSet<CentroAtencion> CentrosAtencion { get; set; }
         public DbSet<Insumo> Insumos { get; set; }
+        public DbSet<ConfiguracionRangoInsumo> ConfiguracionesRangoInsumo { get; set; }
         public DbSet<Entrada> Entradas { get; set; }
         public DbSet<RegistrosVacunacion> RegistrosVacunacion { get; set; }
         public DbSet<Paciente> Pacientes { get; set; }
@@ -284,6 +285,24 @@ namespace Highdmin.Data
                 entity.HasOne(a => a.RegistroVacunacion)
                       .WithMany(r => r.AntecedentesMedicos)
                       .HasForeignKey(a => a.RegistroVacunacionId)
+                      .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            // Configuración de la entidad ConfiguracionRangoInsumo
+            modelBuilder.Entity<ConfiguracionRangoInsumo>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.EdadMinima).IsRequired();
+                entity.Property(e => e.EdadMaxima).IsRequired();
+                entity.Property(e => e.UnidadMedidaEdadMinima).IsRequired().HasMaxLength(50);
+                entity.Property(e => e.UnidadMedidaEdadMaxima).IsRequired().HasMaxLength(50);
+                entity.Property(e => e.Dosis).HasMaxLength(100);
+                entity.Property(e => e.DescripcionRango).HasMaxLength(200);
+                
+                // Relación con Insumo
+                entity.HasOne(e => e.Insumo)
+                      .WithMany(i => i.ConfiguracionesRango)
+                      .HasForeignKey(e => e.InsumoId)
                       .OnDelete(DeleteBehavior.Cascade);
             });
 

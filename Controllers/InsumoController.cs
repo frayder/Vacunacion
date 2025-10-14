@@ -48,18 +48,18 @@ namespace Highdmin.Controllers
                         Codigo = i.Codigo,
                         Nombre = i.Nombre,
                         Descripcion = i.Descripcion,
+                        Tipo = i.Tipo,
+                        RangoDosis = i.RangoDosis,
                         Estado = i.Estado,
                         FechaCreacion = i.FechaCreacion
                     })
                     .ToListAsync();
 
-                var viewModel = new InsumoViewModel
+                var viewModel = new InsumoIndexViewModel
                 {
-                    TotalInsumos = insumos.Count,
-                    InsumosActivos = insumos.Count(i => i.Estado),
-                    InsumosInactivos = insumos.Count(i => !i.Estado),
                     Insumos = insumos,
                     CanCreate = permissions["Create"],
+                    CanRead =   permissions["Read"],
                     CanUpdate = permissions["Update"],
                     CanDelete = permissions["Delete"]
                 };
@@ -69,7 +69,7 @@ namespace Highdmin.Controllers
             catch (Exception ex)
             {
                 TempData["Error"] = "Error al cargar los insumos: " + ex.Message;
-                return View(new InsumoViewModel());
+                return View(new InsumoIndexViewModel());
             }
         }
 
@@ -224,11 +224,7 @@ namespace Highdmin.Controllers
                         Descripcion = viewModel.Descripcion,
                         Estado = viewModel.Estado,
                         FechaCreacion = DateTime.Now,
-                        EmpresaId = CurrentEmpresaId,
-                        EdadMinima = viewModel.EdadMinima,
-                        EdadMaxima = viewModel.EdadMaxima,
-                        UnidadMedidaEdadMinima = viewModel.UnidadMedidaEdadMinima,
-                        UnidadMedidaEdadMaxima = viewModel.UnidadMedidaEdadMaxima
+                        EmpresaId = CurrentEmpresaId
                     },
                     // Update mapper
                     (viewModel, existing) =>
@@ -255,41 +251,6 @@ namespace Highdmin.Controllers
             }
         }
 
-        // GET: Insumo/Details/5
-        public async Task<IActionResult> Details(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var insumo = await _context.Insumos
-                .FirstOrDefaultAsync(m => m.Id == id && m.EmpresaId == CurrentEmpresaId);
-
-            if (insumo == null)
-            {
-                return NotFound();
-            }
-
-            var viewModel = new InsumoItemViewModel
-            {
-                Id = insumo.Id,
-                Codigo = insumo.Codigo,
-                Nombre = insumo.Nombre,
-                Tipo = insumo.Tipo,
-                Descripcion = insumo.Descripcion,
-                RangoDosis = insumo.RangoDosis,
-                Estado = insumo.Estado,
-                FechaCreacion = insumo.FechaCreacion,
-                EdadMinima = insumo.EdadMinima,
-                EdadMaxima = insumo.EdadMaxima,
-                UnidadMedidaEdadMinima = insumo.UnidadMedidaEdadMinima,
-                UnidadMedidaEdadMaxima = insumo.UnidadMedidaEdadMaxima
-            };
-
-            return View(viewModel);
-        }
-
         // GET: Insumo/Create
         public IActionResult Create()
         {
@@ -305,41 +266,98 @@ namespace Highdmin.Controllers
             {
                 try
                 {
-                    // Verificar si el código ya existe
-                    var existeCodigo = await _context.Insumos
-                        .AnyAsync(i => i.Codigo == viewModel.Codigo && i.EmpresaId == CurrentEmpresaId);
-
-                    if (existeCodigo)
+                    // Usar la estrategia de ejecución de Entity Framework para manejar transacciones
+                    var strategy = _context.Database.CreateExecutionStrategy();
+                    
+                    await strategy.ExecuteAsync(async () =>
                     {
-                        ModelState.AddModelError("Codigo", "Ya existe un insumo con este código.");
-                        return View(viewModel);
-                    }
+                        using var transaction = await _context.Database.BeginTransactionAsync();
+                        
+                        try
+                        {
+                            // Verificar si el código ya existe
+                            var existeCodigo = await _context.Insumos
+                                .AnyAsync(i => i.Codigo == viewModel.Codigo && i.EmpresaId == CurrentEmpresaId);
 
-                    // Construir rango/dosis si se proporcionaron datos
-                    string? rangoDosis =  viewModel.EdadMinima + " " + viewModel.UnidadMedidaEdadMinima + " - " + viewModel.EdadMaxima + " " + viewModel.UnidadMedidaEdadMaxima;
-                 
+                            if (existeCodigo)
+                            {
+                                throw new InvalidOperationException("Ya existe un insumo con este código.");
+                            }
 
-                    var insumo = new Insumo
-                    {
-                        Codigo = viewModel.Codigo,
-                        Nombre = viewModel.Nombre,
-                        Tipo = viewModel.Tipo,
-                        Descripcion = viewModel.Descripcion,
-                        RangoDosis = rangoDosis,
-                        Estado = viewModel.Estado,
-                        FechaCreacion = DateTime.Now,
-                        EmpresaId = CurrentEmpresaId,
-                        EdadMinima = viewModel.EdadMinima,
-                        EdadMaxima = viewModel.EdadMaxima,
-                        UnidadMedidaEdadMinima = viewModel.UnidadMedidaEdadMinima,
-                        UnidadMedidaEdadMaxima = viewModel.UnidadMedidaEdadMaxima
-                    };
+                            // Validar que se hayan agregado configuraciones de rango
+                            if (viewModel.ConfiguracionesRango == null || !viewModel.ConfiguracionesRango.Any())
+                            {
+                                throw new InvalidOperationException("Debe agregar al menos una configuración de rango.");
+                            }
 
-                    _context.Add(insumo);
-                    await _context.SaveChangesAsync();
+                            // Validar configuraciones de rango
+                            for (int i = 0; i < viewModel.ConfiguracionesRango.Count; i++)
+                            {
+                                var config = viewModel.ConfiguracionesRango[i];
+                                
+                                if (config.EdadMinima >= config.EdadMaxima)
+                                {
+                                    throw new InvalidOperationException("La edad máxima debe ser mayor que la edad mínima.");
+                                }
 
-                    TempData["Success"] = "Insumo creado exitosamente.";
+                                if (string.IsNullOrEmpty(config.UnidadMedidaEdadMinima) || 
+                                    string.IsNullOrEmpty(config.UnidadMedidaEdadMaxima))
+                                {
+                                    throw new InvalidOperationException("Las unidades de medida son obligatorias.");
+                                }
+                            }
+
+                            // Crear el insumo principal
+                            var insumo = new Insumo
+                            {
+                                Codigo = viewModel.Codigo,
+                                Nombre = viewModel.Nombre,
+                                Tipo = viewModel.Tipo,
+                                Descripcion = viewModel.Descripcion,
+                                RangoDosis = GenerarResumenRangos(viewModel.ConfiguracionesRango),
+                                Estado = viewModel.Estado,
+                                FechaCreacion = DateTime.Now,
+                                EmpresaId = CurrentEmpresaId
+                            };
+
+                            _context.Add(insumo);
+                            await _context.SaveChangesAsync(); // Guardar para obtener el ID del insumo
+
+                            // Crear las configuraciones de rango
+                            foreach (var configViewModel in viewModel.ConfiguracionesRango)
+                            {
+                                var configuracionRango = new ConfiguracionRangoInsumo
+                                {
+                                    InsumoId = insumo.Id,
+                                    EdadMinima = configViewModel.EdadMinima,
+                                    EdadMaxima = configViewModel.EdadMaxima,
+                                    UnidadMedidaEdadMinima = configViewModel.UnidadMedidaEdadMinima,
+                                    UnidadMedidaEdadMaxima = configViewModel.UnidadMedidaEdadMaxima,
+                                    Dosis = configViewModel.Dosis,
+                                    DescripcionRango = configViewModel.DescripcionRango,
+                                    FechaCreacion = DateTime.Now,
+                                    Estado = true
+                                };
+
+                                _context.ConfiguracionesRangoInsumo.Add(configuracionRango);
+                            }
+
+                            await _context.SaveChangesAsync();
+                            await transaction.CommitAsync();
+                        }
+                        catch
+                        {
+                            await transaction.RollbackAsync();
+                            throw;
+                        }
+                    });
+
+                    TempData["Success"] = $"Insumo creado exitosamente con {viewModel.ConfiguracionesRango.Count} configuración(es) de rango.";
                     return RedirectToAction(nameof(Index));
+                }
+                catch (InvalidOperationException ex)
+                {
+                    ModelState.AddModelError("", ex.Message);
                 }
                 catch (Exception ex)
                 {
@@ -358,7 +376,10 @@ namespace Highdmin.Controllers
                 return NotFound();
             }
 
-            var insumo = await _context.Insumos.FirstOrDefaultAsync(m => m.Id == id && m.EmpresaId == CurrentEmpresaId);
+            var insumo = await _context.Insumos
+                .Include(i => i.ConfiguracionesRango.Where(cr => cr.Estado))
+                .FirstOrDefaultAsync(m => m.Id == id && m.EmpresaId == CurrentEmpresaId);
+                
             if (insumo == null)
             {
                 return NotFound();
@@ -371,13 +392,18 @@ namespace Highdmin.Controllers
                 Nombre = insumo.Nombre,
                 Tipo = insumo.Tipo,
                 Descripcion = insumo.Descripcion,
-                RangoDosis = insumo.RangoDosis,
                 Estado = insumo.Estado,
-                FechaCreacion = insumo.FechaCreacion,
-                EdadMinima = insumo.EdadMinima,
-                EdadMaxima = insumo.EdadMaxima,
-                UnidadMedidaEdadMinima = insumo.UnidadMedidaEdadMinima,
-                UnidadMedidaEdadMaxima = insumo.UnidadMedidaEdadMaxima
+                ConfiguracionesRango = insumo.ConfiguracionesRango.Select(cr => new ConfiguracionRangoInsumoViewModel
+                {
+                    Id = cr.Id,
+                    EdadMinima = cr.EdadMinima,
+                    EdadMaxima = cr.EdadMaxima,
+                    UnidadMedidaEdadMinima = cr.UnidadMedidaEdadMinima,
+                    UnidadMedidaEdadMaxima = cr.UnidadMedidaEdadMaxima,
+                    Dosis = cr.Dosis,
+                    DescripcionRango = cr.DescripcionRango,
+                    Estado = cr.Estado
+                }).ToList()
             };
 
             return View(viewModel);
@@ -395,9 +421,10 @@ namespace Highdmin.Controllers
 
             if (ModelState.IsValid)
             {
+                using var transaction = await _context.Database.BeginTransactionAsync();
                 try
                 {
-                    // Verificar si el código ya existe en otro registro
+                    // Verificar si el código ya existe en otro insumo
                     var existeCodigo = await _context.Insumos
                         .AnyAsync(i => i.Codigo == viewModel.Codigo && i.Id != id && i.EmpresaId == CurrentEmpresaId);
 
@@ -407,31 +434,58 @@ namespace Highdmin.Controllers
                         return View(viewModel);
                     }
 
-                    var insumo = await _context.Insumos.FirstOrDefaultAsync(m => m.Id == id && m.EmpresaId == CurrentEmpresaId);
+                    var insumo = await _context.Insumos
+                        .Include(i => i.ConfiguracionesRango)
+                        .FirstOrDefaultAsync(i => i.Id == id && i.EmpresaId == CurrentEmpresaId);
+
                     if (insumo == null)
                     {
                         return NotFound();
                     }
 
+                    // Actualizar propiedades del insumo
                     insumo.Codigo = viewModel.Codigo;
                     insumo.Nombre = viewModel.Nombre;
                     insumo.Tipo = viewModel.Tipo;
                     insumo.Descripcion = viewModel.Descripcion;
-                    insumo.RangoDosis = viewModel.RangoDosis;
                     insumo.Estado = viewModel.Estado;
-                    insumo.EdadMinima = viewModel.EdadMinima;
-                    insumo.EdadMaxima = viewModel.EdadMaxima;
-                    insumo.UnidadMedidaEdadMinima = viewModel.UnidadMedidaEdadMinima;
-                    insumo.UnidadMedidaEdadMaxima = viewModel.UnidadMedidaEdadMaxima;
+                    insumo.RangoDosis = GenerarResumenRangos(viewModel.ConfiguracionesRango);
+
+                    // Eliminar configuraciones existentes
+                    _context.ConfiguracionesRangoInsumo.RemoveRange(insumo.ConfiguracionesRango);
+
+                    // Agregar nuevas configuraciones
+                    if (viewModel.ConfiguracionesRango != null && viewModel.ConfiguracionesRango.Any())
+                    {
+                        foreach (var configViewModel in viewModel.ConfiguracionesRango)
+                        {
+                            var configuracionRango = new ConfiguracionRangoInsumo
+                            {
+                                InsumoId = insumo.Id,
+                                EdadMinima = configViewModel.EdadMinima,
+                                EdadMaxima = configViewModel.EdadMaxima,
+                                UnidadMedidaEdadMinima = configViewModel.UnidadMedidaEdadMinima,
+                                UnidadMedidaEdadMaxima = configViewModel.UnidadMedidaEdadMaxima,
+                                Dosis = configViewModel.Dosis,
+                                DescripcionRango = configViewModel.DescripcionRango,
+                                FechaCreacion = DateTime.Now,
+                                Estado = true
+                            };
+
+                            insumo.ConfiguracionesRango.Add(configuracionRango);
+                        }
+                    }
 
                     _context.Update(insumo);
                     await _context.SaveChangesAsync();
+                    await transaction.CommitAsync();
 
                     TempData["Success"] = "Insumo actualizado exitosamente.";
                     return RedirectToAction(nameof(Index));
                 }
                 catch (DbUpdateConcurrencyException)
                 {
+                    await transaction.RollbackAsync();
                     if (!InsumoExists(viewModel.Id))
                     {
                         return NotFound();
@@ -443,6 +497,7 @@ namespace Highdmin.Controllers
                 }
                 catch (Exception ex)
                 {
+                    await transaction.RollbackAsync();
                     ModelState.AddModelError("", "Error al actualizar el insumo: " + ex.Message);
                 }
             }
@@ -450,8 +505,18 @@ namespace Highdmin.Controllers
             return View(viewModel);
         }
 
-        // GET: Insumo/Delete/5
-        public async Task<IActionResult> Delete(int? id)
+        // Método auxiliar para generar resumen de rangos
+        private string GenerarResumenRangos(List<ConfiguracionRangoInsumoViewModel> configuraciones)
+        {
+            if (configuraciones == null || !configuraciones.Any())
+                return "Sin configuraciones";
+
+            var resumenes = configuraciones.Select(c => c.DescripcionRango).Where(d => !string.IsNullOrEmpty(d));
+            return string.Join(" | ", resumenes);
+        }
+
+        // GET: Insumo/Details/5
+        public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
             {
@@ -459,14 +524,15 @@ namespace Highdmin.Controllers
             }
 
             var insumo = await _context.Insumos
+                .Include(i => i.ConfiguracionesRango.Where(cr => cr.Estado))
                 .FirstOrDefaultAsync(m => m.Id == id && m.EmpresaId == CurrentEmpresaId);
-
+                
             if (insumo == null)
             {
                 return NotFound();
             }
 
-            var viewModel = new InsumoItemViewModel
+            var viewModel = new InsumoViewModel
             {
                 Id = insumo.Id,
                 Codigo = insumo.Codigo,
@@ -476,42 +542,23 @@ namespace Highdmin.Controllers
                 RangoDosis = insumo.RangoDosis,
                 Estado = insumo.Estado,
                 FechaCreacion = insumo.FechaCreacion,
-                EdadMinima = insumo.EdadMinima,
-                EdadMaxima = insumo.EdadMaxima,
-                UnidadMedidaEdadMinima = insumo.UnidadMedidaEdadMinima,
-                UnidadMedidaEdadMaxima = insumo.UnidadMedidaEdadMaxima
+                ConfiguracionesRango = insumo.ConfiguracionesRango.Select(cr => new ConfiguracionRangoInsumoViewModel
+                {
+                    Id = cr.Id,
+                    EdadMinima = cr.EdadMinima,
+                    EdadMaxima = cr.EdadMaxima,
+                    UnidadMedidaEdadMinima = cr.UnidadMedidaEdadMinima,
+                    UnidadMedidaEdadMaxima = cr.UnidadMedidaEdadMaxima,
+                    Dosis = cr.Dosis,
+                    DescripcionRango = cr.DescripcionRango,
+                    Estado = cr.Estado
+                }).ToList()
             };
 
             return View(viewModel);
         }
 
-        // POST: Insumo/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
-        {
-            try
-            {
-                var insumo = await _context.Insumos.FirstOrDefaultAsync(m => m.Id == id && m.EmpresaId == CurrentEmpresaId);
-                if (insumo != null)
-                {
-                    _context.Insumos.Remove(insumo);
-                    await _context.SaveChangesAsync();
-                    TempData["Success"] = "Insumo eliminado exitosamente.";
-                }
-                else
-                {
-                    TempData["Error"] = "No se encontró el insumo a eliminar.";
-                }
-            }
-            catch (Exception ex)
-            {
-                TempData["Error"] = "Error al eliminar el insumo: " + ex.Message;
-            }
-
-            return RedirectToAction(nameof(Index));
-        }
-
+        // Método auxiliar para verificar si existe el insumo
         private bool InsumoExists(int id)
         {
             return _context.Insumos.Any(e => e.Id == id);
@@ -538,11 +585,7 @@ namespace Highdmin.Controllers
                     Descripcion = insumo.Descripcion,
                     RangoDosis = insumo.RangoDosis,
                     Estado = insumo.Estado,
-                    FechaCreacion = insumo.FechaCreacion,
-                    EdadMinima = insumo.EdadMinima,
-                    EdadMaxima = insumo.EdadMaxima,
-                    UnidadMedidaEdadMinima = insumo.UnidadMedidaEdadMinima,
-                    UnidadMedidaEdadMaxima = insumo.UnidadMedidaEdadMaxima
+                    FechaCreacion = insumo.FechaCreacion
                 };
 
                 return Json(new { success = true, data = viewModel });
@@ -583,11 +626,7 @@ namespace Highdmin.Controllers
                     Tipo = viewModel.Tipo,
                     Descripcion = viewModel.Descripcion,
                     Estado = viewModel.Estado,
-                    FechaCreacion = DateTime.Now,
-                    EdadMinima = viewModel.EdadMinima,
-                    EdadMaxima = viewModel.EdadMaxima,
-                    UnidadMedidaEdadMinima = viewModel.UnidadMedidaEdadMinima,
-                    UnidadMedidaEdadMaxima = viewModel.UnidadMedidaEdadMaxima
+                    FechaCreacion = DateTime.Now
                 };
 
                 _context.Add(insumo);
@@ -635,11 +674,7 @@ namespace Highdmin.Controllers
                 insumo.Tipo = viewModel.Tipo;
                 insumo.Descripcion = viewModel.Descripcion;
                 insumo.RangoDosis = viewModel.RangoDosis;
-                insumo.Estado = viewModel.Estado;
-                insumo.EdadMinima = viewModel.EdadMinima;
-                insumo.EdadMaxima = viewModel.EdadMaxima;
-                insumo.UnidadMedidaEdadMinima = viewModel.UnidadMedidaEdadMinima;
-                insumo.UnidadMedidaEdadMaxima = viewModel.UnidadMedidaEdadMaxima;
+                insumo.Estado = viewModel.Estado; 
 
                 _context.Update(insumo);
                 await _context.SaveChangesAsync();
