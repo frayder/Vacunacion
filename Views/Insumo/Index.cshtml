@@ -288,7 +288,7 @@
                                 <span class="text-muted">@(item.Descripcion ?? "N/A")</span>
                             </td>
                             <td class="rango_dosis">
-                                <span class="text-muted">@(item.RangoDosis ?? "N/A")</span>
+                                <span class="text-muted">@(item.RangoDosis != null ? item.RangoDosis.Split('|')[0] + (item.RangoDosis?.Length > 20 ? "....." : "") : "N/A")</span>
                             </td>
                             <td class="estado">
                                 <span class="@item.EstadoClass">@item.EstadoTexto</span>

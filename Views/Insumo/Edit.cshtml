@@ -5,7 +5,7 @@
 } 
 
 <div class="row">
-    <div class="col-lg-8">
+    <div class="col-lg-7">
         <div class="card"> 
             <div class="card-body">
                 <form asp-action="Edit" method="post">
@@ -50,11 +50,6 @@
                     </div>
 
                     <div class="mb-3">
-                        <label asp-for="RangoDosis" class="form-label"></label>
-                        <input asp-for="RangoDosis" class="form-control">
-                    </div>
-
-                    <div class="mb-3">
                         <div class="form-check form-switch">
                             <input asp-for="Estado" class="form-check-input" type="checkbox">
                             <label asp-for="Estado" class="form-check-label"></label>
@@ -74,43 +69,389 @@
         </div>
     </div>
 
-    <div class="col-lg-4">
+    <div class="col-lg-5">
         <div class="card">
             <div class="card-header">
-                <h5 class="card-title mb-0">Información del Registro</h5>
+                <h5 class="card-title mb-0">Aquí se muestran los rangos de edad y dosis configurados para este insumo.</h5>
             </div>
-            <div class="card-body">
-                <div class="table-responsive">
-                    <table class="table table-borderless mb-0">
-                        <tbody>
-                            <tr>
-                                <th class="ps-0" scope="row">ID:</th>
-                                <td class="text-muted">@Model.Id</td>
-                            </tr>
-                            <tr>
-                                <th class="ps-0" scope="row">Código:</th>
-                                <td class="text-muted">@Model.Codigo</td>
-                            </tr>
-                            <tr>
-                                <th class="ps-0" scope="row">Estado:</th>
-                                <td>
-                                    <span class="@(Model.Estado ? "badge bg-success" : "badge bg-danger")">
-                                        @(Model.Estado ? "Activo" : "Inactivo")
-                                    </span>
-                                </td>
-                            </tr>
-                            <tr>
-                                <th class="ps-0" scope="row">Fecha Creación:</th>
-                                <td class="text-muted">@Model.FechaCreacion.ToString("dd/MM/yyyy HH:mm")</td>
-                            </tr>
-                        </tbody>
-                    </table>
+            <div class="card-body"> 
+                <div class="row" id="configuracionesContainer">
+            
+                    @foreach (var item in Model.ConfiguracionesRango)
+                    {
+                        <div class="d-flex col-lg-6 col-md-6 align-items-center mb-3 pr-1" style="border: 1px solid #e3e6f3; border-radius: 5px; padding: 10px;">
+                            <div class="flex-shrink-0 me-3">
+                                <i class="ri-checkbox-circle-line text-success fs-20"></i>
+                            </div>
+                            <div class="flex-grow-1">
+                                <h6 class="mb-1">@item.EdadMinima @item.UnidadMedidaEdadMinima - @item.EdadMaxima @item.UnidadMedidaEdadMaxima</h6>
+                                <p class="text-muted mb-0">Dosis: @item.Dosis</p>
+                            </div>
+                            <button class="btn btn-sm btn-danger ms-2" onclick="eliminarConfiguracion(@item.Id)">
+                                <i class="ri-delete-bin-5-line"></i>
+                            </button>
+                        </div>
+                    } 
                 </div>
+                <button class="btn btn-primary w-100" data-bs-toggle="modal" data-bs-target="#addRangeModal">
+                    <i class="ri-add-line me-1"></i> Agregar Rango de Edad y Dosis
+                </button>
             </div>
+        </div>
+    </div>
+    
+</div>
+
+<!-- Modal para agregar rango -->
+<div class="modal fade" id="addRangeModal" tabindex="-1" aria-labelledby="addRangeModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addRangeModalLabel">
+                    <i class="ri-add-circle-line me-2"></i>Agregar Rango de Edad y Dosis
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="formAgregarRango">
+                <div class="modal-body">
+                    <input type="hidden" id="insumoId" value="@Model.Id" />
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="edadMinima" class="form-label">Edad Mínima <span class="text-danger">*</span></label>
+                                <input type="number" id="edadMinima" class="form-control" min="0" placeholder="Ej: 60" required>
+                                <div class="invalid-feedback"></div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="unidadMedidaEdadMinima" class="form-label">Unidad Edad Mínima <span class="text-danger">*</span></label>
+                                <select id="unidadMedidaEdadMinima" class="form-control" data-choices data-choices-search-false required>
+                                    <option value="">Seleccionar unidad</option>
+                                    <option value="Dias">días</option>
+                                    <option value="Meses">meses</option>
+                                    <option value="Anos">años</option>
+                                </select>
+                                <div class="invalid-feedback"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="edadMaxima" class="form-label">Edad Máxima <span class="text-danger">*</span></label>
+                                <input type="number" id="edadMaxima" class="form-control" min="0" placeholder="Ej: 5" required>
+                                <div class="invalid-feedback"></div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="unidadMedidaEdadMaxima" class="form-label">Unidad Edad Máxima <span class="text-danger">*</span></label>
+                                <select id="unidadMedidaEdadMaxima" class="form-control" data-choices data-choices-search-false required>
+                                    <option value="">Seleccionar unidad</option>
+                                    <option value="Dias">días</option>
+                                    <option value="Meses">meses</option>
+                                    <option value="Anos">años</option>
+                                </select>
+                                <div class="invalid-feedback"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="dosis" class="form-label">Dosis</label>
+                        <select id="dosis" class="form-control" data-choices data-choices-search-false>
+                            <option value="">Seleccionar dosis</option>
+                            <option value="1ERA DOSIS">1ERA DOSIS</option>
+                            <option value="2DA DOSIS">2DA DOSIS</option>
+                            <option value="DOSIS UNICA">DOSIS UNICA</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="descripcionRango" class="form-label">Descripción del Rango</label>
+                        <input type="text" id="descripcionRango" class="form-control" readonly placeholder="Se genera automáticamente">
+                    </div>
+                    
+                    <div class="alert alert-info d-none" id="alertInfo">
+                        <i class="ri-information-line me-2"></i>
+                        <span id="alertMessage"></span>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="ri-close-line me-1"></i>Cancelar
+                    </button>
+                    <button type="submit" class="btn btn-primary" id="btnGuardarRango">
+                        <i class="ri-save-line me-1"></i>Agregar Rango
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    
+    <!-- SweetAlert2 for notifications -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+    <script>
+    $(document).ready(function() {
+        // Actualizar descripción cuando cambien los valores
+        $('#edadMinima, #edadMaxima, #unidadMedidaEdadMinima, #unidadMedidaEdadMaxima').on('change keyup', function() {
+            updateDescripcionRango();
+        });
+        
+        // Manejar envío del formulario
+        $('#formAgregarRango').on('submit', function(e) {
+            e.preventDefault();
+            agregarRangoConfiguracion();
+        });
+        
+        // Limpiar formulario cuando se abre el modal
+        $('#addRangeModal').on('show.bs.modal', function() {
+            limpiarFormularioRango();
+        });
+    });
+
+    function updateDescripcionRango() {
+        const edadMin = $('#edadMinima').val();
+        const edadMax = $('#edadMaxima').val();
+        const unidadMin = $('#unidadMedidaEdadMinima').val();
+        const unidadMax = $('#unidadMedidaEdadMaxima').val();
+        
+        let descripcion = '';
+        if (edadMin && unidadMin && edadMax && unidadMax) {
+            const unidadMinTexto = unidadMin === 'Dias' ? 'días' : unidadMin === 'Meses' ? 'meses' : 'años';
+            const unidadMaxTexto = unidadMax === 'Dias' ? 'días' : unidadMax === 'Meses' ? 'meses' : 'años';
+            descripcion = `DE ${edadMin} ${unidadMinTexto} A ${edadMax} ${unidadMaxTexto}`;
+        }
+        
+        $('#descripcionRango').val(descripcion.toUpperCase());
+    }
+
+    function limpiarFormularioRango() {
+        $('#formAgregarRango')[0].reset();
+        $('#descripcionRango').val('');
+        $('.is-invalid').removeClass('is-invalid');
+        $('#alertInfo').addClass('d-none');
+        
+        // Reinicializar los selects de Choices.js si están presentes
+        const selects = document.querySelectorAll('#addRangeModal .form-control[data-choices]');
+        selects.forEach(select => {
+            if (select.choices) {
+                select.choices.setChoiceByValue('');
+            }
+        });
+    }
+
+    function validarFormularioRango() {
+        let isValid = true;
+        const edadMin = parseInt($('#edadMinima').val());
+        const edadMax = parseInt($('#edadMaxima').val());
+        const unidadMin = $('#unidadMedidaEdadMinima').val();
+        const unidadMax = $('#unidadMedidaEdadMaxima').val();
+        
+        // Limpiar validaciones previas
+        $('.is-invalid').removeClass('is-invalid');
+        $('#alertInfo').addClass('d-none');
+        
+        // Validar campos requeridos
+        if (!edadMin || edadMin < 0) {
+            $('#edadMinima').addClass('is-invalid');
+            $('#edadMinima').siblings('.invalid-feedback').text('La edad mínima es obligatoria');
+            isValid = false;
+        }
+        
+        if (!edadMax || edadMax < 0) {
+            $('#edadMaxima').addClass('is-invalid');
+            $('#edadMaxima').siblings('.invalid-feedback').text('La edad máxima es obligatoria');
+            isValid = false;
+        }
+        
+        if (!unidadMin) {
+            $('#unidadMedidaEdadMinima').addClass('is-invalid');
+            $('#unidadMedidaEdadMinima').siblings('.invalid-feedback').text('La unidad de medida es obligatoria');
+            isValid = false;
+        }
+        
+        if (!unidadMax) {
+            $('#unidadMedidaEdadMaxima').addClass('is-invalid');
+            $('#unidadMedidaEdadMaxima').siblings('.invalid-feedback').text('La unidad de medida es obligatoria');
+            isValid = false;
+        }
+        
+        // Validar lógica de edades
+        if (isValid && edadMin >= edadMax) {
+            $('#alertInfo').removeClass('d-none');
+            $('#alertMessage').text('La edad máxima debe ser mayor que la edad mínima');
+            isValid = false;
+        }
+        
+        return isValid;
+    }
+
+    function agregarRangoConfiguracion() {
+        if (!validarFormularioRango()) {
+            return;
+        }
+        
+        const btnGuardar = $('#btnGuardarRango');
+        const originalText = btnGuardar.html();
+        
+        // Deshabilitar botón
+        btnGuardar.prop('disabled', true).html('<i class="ri-loader-2-line me-1 spinner"></i>Guardando...');
+        
+        const data = {
+            InsumoId: parseInt($('#insumoId').val()),
+            EdadMinima: parseInt($('#edadMinima').val()),
+            EdadMaxima: parseInt($('#edadMaxima').val()),
+            UnidadMedidaEdadMinima: $('#unidadMedidaEdadMinima').val(),
+            UnidadMedidaEdadMaxima: $('#unidadMedidaEdadMaxima').val(),
+            Dosis: $('#dosis').val() || null,
+            DescripcionRango: $('#descripcionRango').val()
+        };
+        
+        $.ajax({
+            url: '@Url.Action("AgregarConfiguracionRango", "Insumo")',
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify(data),
+            success: function(response) {
+                if (response.success) {
+                    // Cerrar modal
+                    $('#addRangeModal').modal('hide');
+                    
+                    // Mostrar mensaje de éxito
+                    Swal.fire({
+                        icon: 'success',
+                        title: '¡Éxito!',
+                        text: response.message,
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
+                    
+                    console.log("Configuración agregada:", response.configuracion);
+                    // Agregar la nueva configuración a la lista
+                    agregarConfiguracionALista(response.configuracion);
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: response.message
+                    });
+                }
+            },
+            error: function(xhr, status, error) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Error de conexión: ' + error
+                });
+            },
+            complete: function() {
+                // Rehabilitar botón
+                btnGuardar.prop('disabled', false).html(originalText);
+            }
+        });
+    }
+
+    function agregarConfiguracionALista(configuracion) {
+        const unidadMinTexto = configuracion.unidadMedidaEdadMinima === 'Dias' ? 'días' : 
+                              configuracion.unidadMedidaEdadMinima === 'Meses' ? 'meses' : 'años';
+        const unidadMaxTexto = configuracion.unidadMedidaEdadMaxima === 'Dias' ? 'días' : 
+                              configuracion.unidadMedidaEdadMaxima === 'Meses' ? 'meses' : 'años';
+        console.log("Agregando configuración a la lista:", configuracion);
+        const nuevoItem = `
+            <div class="d-flex col-lg-6 col-md-6 align-items-center mb-3 pr-1" style="border: 1px solid #e3e6f3; border-radius: 5px; padding: 10px;">
+                <div class="flex-shrink-0 me-3">
+                    <i class="ri-checkbox-circle-line text-success fs-20"></i>
+                </div>
+                <div class="flex-grow-1">
+                    <h6 class="mb-1">${configuracion.edadMinima} ${unidadMinTexto} - ${configuracion.edadMaxima} ${unidadMaxTexto}</h6>
+                    <p class="text-muted mb-0">Dosis: ${configuracion.dosis || 'N/A'}</p>
+                </div>
+                <button class="btn btn-sm btn-danger ms-2" onclick="eliminarConfiguracion(${configuracion.id})">
+                    <i class="ri-delete-bin-5-line"></i>
+                </button>
+            </div>
+        `;
+        
+        // Agregar al contenedor de configuraciones
+        $('#configuracionesContainer').append(nuevoItem);
+    }
+
+    function eliminarConfiguracion(id) {
+        Swal.fire({
+            title: '¿Está seguro?',
+            text: 'Esta acción eliminará la configuración de rango de edad y dosis.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Sí, eliminar',
+            cancelButtonText: 'Cancelar'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax({
+                    url: '@Url.Action("EliminarConfiguracionRango", "Insumo")',
+                    type: 'POST',
+                    data: { id: id },
+                    success: function(response) {
+                        if (response.success) {
+                            // Remover el elemento de la interfaz
+                            $(`button[onclick="eliminarConfiguracion(${id})"]`).closest('.d-flex').remove();
+                            
+                            Swal.fire({
+                                icon: 'success',
+                                title: '¡Eliminado!',
+                                text: response.message,
+                                timer: 2000,
+                                showConfirmButton: false
+                            });
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: response.message
+                            });
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'Error de conexión: ' + error
+                        });
+                    }
+                });
+            }
+        });
+    }
+    </script>
+
+    <style>
+    .spinner {
+        animation: spin 1s linear infinite;
+    }
+
+    @@keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
+    .is-invalid {
+        border-color: #dc3545;
+    }
+
+    .invalid-feedback {
+        display: block;
+        color: #dc3545;
+        font-size: 0.875em;
+    }
+    </style>
 }

@@ -708,5 +708,146 @@ namespace Highdmin.Controllers
                 return Json(new { success = false, message = "Error: " + ex.Message });
             }
         }
+
+        [HttpPost]
+        public async Task<JsonResult> AgregarConfiguracionRango([FromBody] AgregarConfiguracionRangoRequest request)
+        {
+            try
+            {
+                // Validar que el insumo existe y pertenece a la empresa actual
+                var insumo = await _context.Insumos
+                    .FirstOrDefaultAsync(i => i.Id == request.InsumoId && i.EmpresaId == CurrentEmpresaId);
+
+                if (insumo == null)
+                {
+                    return Json(new { success = false, message = "Insumo no encontrado" });
+                }
+
+                // Validaciones
+                if (request.EdadMinima >= request.EdadMaxima)
+                {
+                    return Json(new { success = false, message = "La edad máxima debe ser mayor que la edad mínima" });
+                }
+
+                if (string.IsNullOrEmpty(request.UnidadMedidaEdadMinima) || string.IsNullOrEmpty(request.UnidadMedidaEdadMaxima))
+                {
+                    return Json(new { success = false, message = "Las unidades de medida son obligatorias" });
+                }
+
+                // Crear la nueva configuración
+                var configuracionRango = new ConfiguracionRangoInsumo
+                {
+                    InsumoId = request.InsumoId,
+                    EdadMinima = request.EdadMinima,
+                    EdadMaxima = request.EdadMaxima,
+                    UnidadMedidaEdadMinima = request.UnidadMedidaEdadMinima,
+                    UnidadMedidaEdadMaxima = request.UnidadMedidaEdadMaxima,
+                    Dosis = request.Dosis,
+                    DescripcionRango = request.DescripcionRango,
+                    FechaCreacion = DateTime.Now,
+                    Estado = true
+                };
+
+                _context.ConfiguracionesRangoInsumo.Add(configuracionRango);
+                await _context.SaveChangesAsync();
+
+                // Actualizar el resumen de rangos del insumo
+                var configuraciones = await _context.ConfiguracionesRangoInsumo
+                    .Where(cr => cr.InsumoId == request.InsumoId && cr.Estado)
+                    .Select(cr => new ConfiguracionRangoInsumoViewModel
+                    {
+                        Id = cr.Id,
+                        EdadMinima = cr.EdadMinima,
+                        EdadMaxima = cr.EdadMaxima,
+                        UnidadMedidaEdadMinima = cr.UnidadMedidaEdadMinima,
+                        UnidadMedidaEdadMaxima = cr.UnidadMedidaEdadMaxima,
+                        Dosis = cr.Dosis,
+                        DescripcionRango = cr.DescripcionRango
+                    })
+                    .ToListAsync();
+
+                insumo.RangoDosis = GenerarResumenRangos(configuraciones);
+                await _context.SaveChangesAsync();
+
+                return Json(new 
+                { 
+                    success = true, 
+                    message = "Configuración agregada exitosamente",
+                    configuracion = new
+                    {
+                        Id = configuracionRango.Id,
+                        EdadMinima = configuracionRango.EdadMinima,
+                        EdadMaxima = configuracionRango.EdadMaxima,
+                        UnidadMedidaEdadMinima = configuracionRango.UnidadMedidaEdadMinima,
+                        UnidadMedidaEdadMaxima = configuracionRango.UnidadMedidaEdadMaxima,
+                        Dosis = configuracionRango.Dosis,
+                        DescripcionRango = configuracionRango.DescripcionRango
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "Error: " + ex.Message });
+            }
+        }
+
+        [HttpPost]
+        public async Task<JsonResult> EliminarConfiguracionRango(int id)
+        {
+            try
+            {
+                var configuracion = await _context.ConfiguracionesRangoInsumo
+                    .Include(cr => cr.Insumo)
+                    .FirstOrDefaultAsync(cr => cr.Id == id && cr.Insumo.EmpresaId == CurrentEmpresaId);
+
+                if (configuracion == null)
+                {
+                    return Json(new { success = false, message = "Configuración no encontrada" });
+                }
+
+                var insumoId = configuracion.InsumoId;
+                _context.ConfiguracionesRangoInsumo.Remove(configuracion);
+                await _context.SaveChangesAsync();
+
+                // Actualizar el resumen de rangos del insumo
+                var insumo = await _context.Insumos.FindAsync(insumoId);
+                if (insumo != null)
+                {
+                    var configuracionesRestantes = await _context.ConfiguracionesRangoInsumo
+                        .Where(cr => cr.InsumoId == insumoId && cr.Estado)
+                        .Select(cr => new ConfiguracionRangoInsumoViewModel
+                        {
+                            Id = cr.Id,
+                            EdadMinima = cr.EdadMinima,
+                            EdadMaxima = cr.EdadMaxima,
+                            UnidadMedidaEdadMinima = cr.UnidadMedidaEdadMinima,
+                            UnidadMedidaEdadMaxima = cr.UnidadMedidaEdadMaxima,
+                            Dosis = cr.Dosis,
+                            DescripcionRango = cr.DescripcionRango
+                        })
+                        .ToListAsync();
+
+                    insumo.RangoDosis = GenerarResumenRangos(configuracionesRestantes);
+                    await _context.SaveChangesAsync();
+                }
+
+                return Json(new { success = true, message = "Configuración eliminada exitosamente" });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "Error: " + ex.Message });
+            }
+        }
+
+        public class AgregarConfiguracionRangoRequest
+        {
+            public int InsumoId { get; set; }
+            public int EdadMinima { get; set; }
+            public int EdadMaxima { get; set; }
+            public string UnidadMedidaEdadMinima { get; set; } = string.Empty;
+            public string UnidadMedidaEdadMaxima { get; set; } = string.Empty;
+            public string? Dosis { get; set; }
+            public string DescripcionRango { get; set; } = string.Empty;
+        }
     }
 }

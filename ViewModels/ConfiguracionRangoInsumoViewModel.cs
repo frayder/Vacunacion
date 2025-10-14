@@ -32,5 +32,7 @@ namespace Highdmin.ViewModels
 
         [Display(Name = "Estado")]
         public bool Estado { get; set; } = true;
+
+        public int InsumoId { get; set; }
     }
 }
