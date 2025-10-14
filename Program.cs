@@ -46,6 +46,7 @@ builder.Services.AddScoped<Highdmin.Services.AuthorizationService>();
 builder.Services.AddScoped<Highdmin.Services.IImportExportService, Highdmin.Services.ImportExportService>();
 builder.Services.AddSingleton<Highdmin.Services.IEntityConfigurationService, Highdmin.Services.EntityConfigurationService>();
 builder.Services.AddScoped<Highdmin.Services.IDataPersistenceService, Highdmin.Services.DataPersistenceService>();
+builder.Services.AddScoped<Highdmin.Services.IControllerImportExportService, Highdmin.Services.ControllerImportExportService>();
 
 // Habilitar sesiones
 builder.Services.AddSession();
@@ -65,6 +66,8 @@ else
 }
 
 app.UseHttpsRedirection();
+app.UseStaticFiles();
+
 app.UseRouting();
 
 // Middleware personalizado para manejar errores de base de datos
@@ -95,13 +98,8 @@ app.Use(async (context, next) =>
 app.UseAuthentication();
 app.UseAuthorization();
 
-
-// Habilitar sesión (después del middleware principal)
 app.UseSession();
 
-app.MapStaticAssets();
-
-// Configurar rutas - redirigir raíz a login si no está autenticado
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Auth}/{action=Login}/{id?}")

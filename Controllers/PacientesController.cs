@@ -132,7 +132,7 @@ namespace Highdmin.Controllers
         {
             try
             {
-                var (redirect, permissions) = await ValidateAndGetPermissionsAsync("Pacientes", "Read");
+                var (redirect, permissions) = await ValidateAndGetPermissionsAsync("BaseDatosPacientes", "Read");
                 if (redirect != null) return redirect;
 
                 var query = _context.Pacientes.AsQueryable();

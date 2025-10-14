@@ -4,16 +4,31 @@ using Highdmin.Data;
 using Highdmin.Models;
 using Highdmin.ViewModels;
 using Highdmin.Services;
+using System.Security.Claims;
+using Newtonsoft.Json;
 
 namespace Highdmin.Controllers
 {
     public class InsumoController : BaseAuthorizationController
     {
         private readonly ApplicationDbContext _context;
+        private readonly IImportExportService _importExportService;
+        private readonly IEntityConfigurationService _configurationService;
+        private readonly IDataPersistenceService _persistenceService;
 
-        public InsumoController(ApplicationDbContext context, IEmpresaService empresaService, AuthorizationService authorizationService) : base(empresaService, authorizationService)
+        public InsumoController(
+            ApplicationDbContext context, 
+            IEmpresaService empresaService, 
+            AuthorizationService authorizationService,
+            IImportExportService importExportService,
+            IEntityConfigurationService configurationService,
+            IDataPersistenceService persistenceService) 
+            : base(empresaService, authorizationService)
         {
             _context = context;
+            _importExportService = importExportService;
+            _configurationService = configurationService;
+            _persistenceService = persistenceService;
         }
 
         // GET: Insumo
@@ -21,7 +36,6 @@ namespace Highdmin.Controllers
         {
             try
             {
-                // Validar permisos y obtener todos los permisos del módulo
                 var (redirect, permissions) = await ValidateAndGetPermissionsAsync("Insumos", "Read");
                 if (redirect != null) return redirect;
 
@@ -33,9 +47,7 @@ namespace Highdmin.Controllers
                         Id = i.Id,
                         Codigo = i.Codigo,
                         Nombre = i.Nombre,
-                        Tipo = i.Tipo,
                         Descripcion = i.Descripcion,
-                        RangoDosis = i.RangoDosis,
                         Estado = i.Estado,
                         FechaCreacion = i.FechaCreacion
                     })
@@ -47,7 +59,6 @@ namespace Highdmin.Controllers
                     InsumosActivos = insumos.Count(i => i.Estado),
                     InsumosInactivos = insumos.Count(i => !i.Estado),
                     Insumos = insumos,
-                    // Agregar permisos al ViewModel
                     CanCreate = permissions["Create"],
                     CanUpdate = permissions["Update"],
                     CanDelete = permissions["Delete"]
@@ -59,6 +70,188 @@ namespace Highdmin.Controllers
             {
                 TempData["Error"] = "Error al cargar los insumos: " + ex.Message;
                 return View(new InsumoViewModel());
+            }
+        }
+
+        // GET: Insumo/Exportar
+        public async Task<IActionResult> Exportar()
+        {
+            var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "0");
+            var hasExportPermission = await _authorizationService.HasPermissionAsync(userId, "Insumo", "Export") || 
+                                    await _authorizationService.HasPermissionAsync(userId, "Insumo", "Read");
+            
+            if (!hasExportPermission)
+            {
+                TempData["ErrorMessage"] = "No tiene permisos para exportar insumos.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            try
+            {
+                var insumos = await _context.Insumos
+                    .Where(i => i.EmpresaId == CurrentEmpresaId)
+                    .OrderBy(i => i.Codigo)
+                    .ToListAsync();
+
+                var exportConfig = _configurationService.GetExportConfiguration<Insumo>();
+                var excelData = await _importExportService.ExportToExcelAsync(insumos, exportConfig);
+                var fileName = $"{exportConfig.FileName}_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx";
+
+                return File(excelData, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = "Error al exportar los insumos: " + ex.Message;
+                return RedirectToAction(nameof(Index));
+            }
+        }
+
+        // GET: Insumo/ImportarPlantilla
+        public async Task<IActionResult> ImportarPlantilla()
+        {
+            var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "0");
+            var hasImportPermission = await _authorizationService.HasPermissionAsync(userId, "Insumo", "Import") || 
+                                    await _authorizationService.HasPermissionAsync(userId, "Insumo", "Create");
+            
+            if (!hasImportPermission)
+            {
+                TempData["ErrorMessage"] = "No tiene permisos para importar insumos.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            return View(new ImportarInsumoViewModel());
+        }
+
+        // GET: Insumo/DescargarPlantilla
+        [HttpGet]
+        [ActionName("DescargarPlantilla")]
+        public IActionResult DescargarPlantilla()
+        {
+            try
+            {
+                var importConfig = _configurationService.GetImportConfiguration<InsumoItemViewModel>();
+                var templateData = _importExportService.GenerateImportTemplate(importConfig);
+                var fileName = $"Plantilla_{importConfig.SheetName.Replace(" ", "")}_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx";
+
+                return File(templateData, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = "Error al generar la plantilla: " + ex.Message;
+                return RedirectToAction(nameof(ImportarPlantilla));
+            }
+        }
+
+        // POST: Insumo/ImportarPlantilla
+        [HttpPost]
+        [ActionName("ImportarPlantilla")]
+        public async Task<IActionResult> ImportarPlantilla(ImportarInsumoViewModel model)
+        {
+            var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "0");
+            var hasImportPermission = await _authorizationService.HasPermissionAsync(userId, "Insumo", "Import") || 
+                                    await _authorizationService.HasPermissionAsync(userId, "Insumo", "Create");
+            
+            if (!hasImportPermission)
+            {
+                TempData["ErrorMessage"] = "No tiene permisos para importar insumos.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            if (model.ArchivoExcel == null || model.ArchivoExcel.Length == 0)
+            {
+                ModelState.AddModelError("ArchivoExcel", "Debe seleccionar un archivo Excel.");
+                return View(model);
+            }
+
+            try
+            {
+                var importConfig = _configurationService.GetImportConfiguration<InsumoItemViewModel>();
+                var importResult = await _importExportService.ImportFromExcelAsync(model.ArchivoExcel, importConfig);
+
+                if (importResult.HasErrors)
+                {
+                    ViewBag.Errores = importResult.Errors;
+                    return View(model);
+                }
+
+                if (!importResult.Data.Any())
+                {
+                    ModelState.AddModelError("", "No se encontraron datos válidos para importar.");
+                    return View(model);
+                }
+
+                HttpContext.Session.SetString("InsumosCargados", JsonConvert.SerializeObject(importResult.Data));
+                model.InsumosCargados = importResult.Data;
+                TempData["Success"] = $"Se procesaron {importResult.Data.Count} insumos correctamente. Revise los datos y confirme la importación.";
+
+                return View(model);
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError("", "Error al procesar el archivo: " + ex.Message);
+                return View(model);
+            }
+        }
+
+        // POST: Insumo/GuardarInsumosImportados
+        [HttpPost]
+        public async Task<IActionResult> GuardarInsumosImportados()
+        {
+            var json = HttpContext.Session.GetString("InsumosCargados");
+            if (string.IsNullOrEmpty(json))
+            {
+                TempData["Error"] = "No hay datos para importar.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            try
+            {
+                var insumosCargados = JsonConvert.DeserializeObject<List<InsumoItemViewModel>>(json);
+                if (insumosCargados == null || !insumosCargados.Any())
+                {
+                    TempData["Error"] = "No hay datos para importar.";
+                    return RedirectToAction(nameof(Index));
+                }
+
+                var totalProcessed = await _persistenceService.SaveImportedDataAsync<Insumo, InsumoItemViewModel>(
+                    insumosCargados,
+                    CurrentEmpresaId,
+                    // Create mapper
+                    viewModel => new Insumo
+                    {
+                        Codigo = viewModel.Codigo.ToUpper(),
+                        Nombre = viewModel.Nombre,
+                        Descripcion = viewModel.Descripcion,
+                        Estado = viewModel.Estado,
+                        FechaCreacion = DateTime.Now,
+                        EmpresaId = CurrentEmpresaId,
+                        EdadMinima = viewModel.EdadMinima,
+                        EdadMaxima = viewModel.EdadMaxima,
+                        UnidadMedidaEdadMinima = viewModel.UnidadMedidaEdadMinima,
+                        UnidadMedidaEdadMaxima = viewModel.UnidadMedidaEdadMaxima
+                    },
+                    // Update mapper
+                    (viewModel, existing) =>
+                    {
+                        existing.Nombre = viewModel.Nombre;
+                        existing.Descripcion = viewModel.Descripcion;
+                        existing.Estado = viewModel.Estado;
+                        return existing;
+                    },
+                    // Find existing
+                    (viewModel, dbSet) => dbSet.FirstOrDefault(i => 
+                        i.EmpresaId == CurrentEmpresaId && 
+                        i.Codigo.ToUpper() == viewModel.Codigo.ToUpper())
+                );
+
+                HttpContext.Session.Remove("InsumosCargados");
+                TempData["Success"] = $"Importación completada: {totalProcessed} insumos procesados exitosamente.";
+                return RedirectToAction(nameof(Index));
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = "Error al guardar los insumos: " + ex.Message;
+                return RedirectToAction(nameof(Index));
             }
         }
 
@@ -87,7 +280,11 @@ namespace Highdmin.Controllers
                 Descripcion = insumo.Descripcion,
                 RangoDosis = insumo.RangoDosis,
                 Estado = insumo.Estado,
-                FechaCreacion = insumo.FechaCreacion
+                FechaCreacion = insumo.FechaCreacion,
+                EdadMinima = insumo.EdadMinima,
+                EdadMaxima = insumo.EdadMaxima,
+                UnidadMedidaEdadMinima = insumo.UnidadMedidaEdadMinima,
+                UnidadMedidaEdadMaxima = insumo.UnidadMedidaEdadMaxima
             };
 
             return View(viewModel);
@@ -119,29 +316,8 @@ namespace Highdmin.Controllers
                     }
 
                     // Construir rango/dosis si se proporcionaron datos
-                    string? rangoDosis = null;
-                    if (!string.IsNullOrEmpty(viewModel.DescripcionRango) || 
-                        viewModel.EdadMinimaDias.HasValue || 
-                        viewModel.EdadMaximaDias.HasValue || 
-                        !string.IsNullOrEmpty(viewModel.Dosis))
-                    {
-                        var rangoPartes = new List<string>();
-                        
-                        if (!string.IsNullOrEmpty(viewModel.DescripcionRango))
-                            rangoPartes.Add(viewModel.DescripcionRango);
-                            
-                        if (viewModel.EdadMinimaDias.HasValue && viewModel.EdadMaximaDias.HasValue)
-                            rangoPartes.Add($"{viewModel.EdadMinimaDias}-{viewModel.EdadMaximaDias} días");
-                        else if (viewModel.EdadMinimaDias.HasValue)
-                            rangoPartes.Add($"Desde {viewModel.EdadMinimaDias} días");
-                        else if (viewModel.EdadMaximaDias.HasValue)
-                            rangoPartes.Add($"Hasta {viewModel.EdadMaximaDias} días");
-                            
-                        if (!string.IsNullOrEmpty(viewModel.Dosis))
-                            rangoPartes.Add(viewModel.Dosis);
-                            
-                        rangoDosis = string.Join(" - ", rangoPartes);
-                    }
+                    string? rangoDosis =  viewModel.EdadMinima + " " + viewModel.UnidadMedidaEdadMinima + " - " + viewModel.EdadMaxima + " " + viewModel.UnidadMedidaEdadMaxima;
+                 
 
                     var insumo = new Insumo
                     {
@@ -152,7 +328,11 @@ namespace Highdmin.Controllers
                         RangoDosis = rangoDosis,
                         Estado = viewModel.Estado,
                         FechaCreacion = DateTime.Now,
-                        EmpresaId = CurrentEmpresaId
+                        EmpresaId = CurrentEmpresaId,
+                        EdadMinima = viewModel.EdadMinima,
+                        EdadMaxima = viewModel.EdadMaxima,
+                        UnidadMedidaEdadMinima = viewModel.UnidadMedidaEdadMinima,
+                        UnidadMedidaEdadMaxima = viewModel.UnidadMedidaEdadMaxima
                     };
 
                     _context.Add(insumo);
@@ -193,7 +373,11 @@ namespace Highdmin.Controllers
                 Descripcion = insumo.Descripcion,
                 RangoDosis = insumo.RangoDosis,
                 Estado = insumo.Estado,
-                FechaCreacion = insumo.FechaCreacion
+                FechaCreacion = insumo.FechaCreacion,
+                EdadMinima = insumo.EdadMinima,
+                EdadMaxima = insumo.EdadMaxima,
+                UnidadMedidaEdadMinima = insumo.UnidadMedidaEdadMinima,
+                UnidadMedidaEdadMaxima = insumo.UnidadMedidaEdadMaxima
             };
 
             return View(viewModel);
@@ -235,6 +419,10 @@ namespace Highdmin.Controllers
                     insumo.Descripcion = viewModel.Descripcion;
                     insumo.RangoDosis = viewModel.RangoDosis;
                     insumo.Estado = viewModel.Estado;
+                    insumo.EdadMinima = viewModel.EdadMinima;
+                    insumo.EdadMaxima = viewModel.EdadMaxima;
+                    insumo.UnidadMedidaEdadMinima = viewModel.UnidadMedidaEdadMinima;
+                    insumo.UnidadMedidaEdadMaxima = viewModel.UnidadMedidaEdadMaxima;
 
                     _context.Update(insumo);
                     await _context.SaveChangesAsync();
@@ -287,7 +475,11 @@ namespace Highdmin.Controllers
                 Descripcion = insumo.Descripcion,
                 RangoDosis = insumo.RangoDosis,
                 Estado = insumo.Estado,
-                FechaCreacion = insumo.FechaCreacion
+                FechaCreacion = insumo.FechaCreacion,
+                EdadMinima = insumo.EdadMinima,
+                EdadMaxima = insumo.EdadMaxima,
+                UnidadMedidaEdadMinima = insumo.UnidadMedidaEdadMinima,
+                UnidadMedidaEdadMaxima = insumo.UnidadMedidaEdadMaxima
             };
 
             return View(viewModel);
@@ -346,7 +538,11 @@ namespace Highdmin.Controllers
                     Descripcion = insumo.Descripcion,
                     RangoDosis = insumo.RangoDosis,
                     Estado = insumo.Estado,
-                    FechaCreacion = insumo.FechaCreacion
+                    FechaCreacion = insumo.FechaCreacion,
+                    EdadMinima = insumo.EdadMinima,
+                    EdadMaxima = insumo.EdadMaxima,
+                    UnidadMedidaEdadMinima = insumo.UnidadMedidaEdadMinima,
+                    UnidadMedidaEdadMaxima = insumo.UnidadMedidaEdadMaxima
                 };
 
                 return Json(new { success = true, data = viewModel });
@@ -387,7 +583,11 @@ namespace Highdmin.Controllers
                     Tipo = viewModel.Tipo,
                     Descripcion = viewModel.Descripcion,
                     Estado = viewModel.Estado,
-                    FechaCreacion = DateTime.Now
+                    FechaCreacion = DateTime.Now,
+                    EdadMinima = viewModel.EdadMinima,
+                    EdadMaxima = viewModel.EdadMaxima,
+                    UnidadMedidaEdadMinima = viewModel.UnidadMedidaEdadMinima,
+                    UnidadMedidaEdadMaxima = viewModel.UnidadMedidaEdadMaxima
                 };
 
                 _context.Add(insumo);
@@ -436,6 +636,10 @@ namespace Highdmin.Controllers
                 insumo.Descripcion = viewModel.Descripcion;
                 insumo.RangoDosis = viewModel.RangoDosis;
                 insumo.Estado = viewModel.Estado;
+                insumo.EdadMinima = viewModel.EdadMinima;
+                insumo.EdadMaxima = viewModel.EdadMaxima;
+                insumo.UnidadMedidaEdadMinima = viewModel.UnidadMedidaEdadMinima;
+                insumo.UnidadMedidaEdadMaxima = viewModel.UnidadMedidaEdadMaxima;
 
                 _context.Update(insumo);
                 await _context.SaveChangesAsync();

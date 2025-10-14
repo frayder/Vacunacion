@@ -1,7 +1,7 @@
 @using Highdmin.ViewComponents
 @model AseguradoraViewModel
 @{
-    ViewData["Title"] = "Configuración de Aseguradoras";
+    ViewData["Title"] = "Aseguradoras";
     Layout = "~/Views/Shared/_VerticalLayout.cshtml";
 } 
 
@@ -56,12 +56,18 @@
             </div>
             <div class="col-xxl-3 col-sm-8">
                 <div class="d-flex gap-2">
-                    <a asp-action="Create" class="btn btn-success add-btn">
-                        <i class="ri-add-line align-bottom me-1"></i> Agregar
-                    </a>
-                    <button type="button" class="btn btn-info">
-                        <i class="ri-file-download-line align-bottom me-1"></i> Importar
-                    </button> 
+                    @if (Model.CanCreate)
+                    {
+                        <a asp-action="Crear" class="btn btn-success add-btn">
+                            <i class="ri-add-line align-bottom me-1"></i> Agregar
+                        </a>
+                    } 
+                        <a asp-action="ImportarPlantilla" class="btn btn-info">
+                            <i class="ri-file-download-line align-bottom me-1"></i> Importar
+                        </a> 
+                        <a asp-action="Exportar" class="btn btn-warning">
+                            <i class="ri-file-upload-line align-bottom me-1"></i> Exportar
+                        </a> 
                 </div>
             </div>
         </div>

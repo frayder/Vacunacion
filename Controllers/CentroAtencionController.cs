@@ -4,16 +4,31 @@ using Highdmin.Data;
 using Highdmin.Models;
 using Highdmin.ViewModels;
 using Highdmin.Services;
+using System.Security.Claims;
+using Newtonsoft.Json;
 
 namespace Highdmin.Controllers
 {
     public class CentroAtencionController : BaseAuthorizationController
     {
-        private readonly ApplicationDbContext _context; 
+        private readonly ApplicationDbContext _context;
+        private readonly IImportExportService _importExportService;
+        private readonly IEntityConfigurationService _configurationService;
+        private readonly IDataPersistenceService _persistenceService;
 
-        public CentroAtencionController(ApplicationDbContext context, IEmpresaService empresaService, AuthorizationService authorizationService): base(empresaService, authorizationService)
+        public CentroAtencionController(
+            ApplicationDbContext context, 
+            IEmpresaService empresaService, 
+            AuthorizationService authorizationService,
+            IImportExportService importExportService,
+            IEntityConfigurationService configurationService,
+            IDataPersistenceService persistenceService) 
+            : base(empresaService, authorizationService)
         {
             _context = context;
+            _importExportService = importExportService;
+            _configurationService = configurationService;
+            _persistenceService = persistenceService;
         }
 
         // GET: CentroAtencion
@@ -59,6 +74,186 @@ namespace Highdmin.Controllers
             {
                 TempData["Error"] = "Error al cargar los centros de atención: " + ex.Message;
                 return View(new CentroAtencionViewModel());
+            }
+        }
+
+        // GET: CentroAtencion/Exportar
+        public async Task<IActionResult> Exportar()
+        {
+            var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "0");
+            var hasExportPermission = await _authorizationService.HasPermissionAsync(userId, "CentroAtencion", "Export") || 
+                                    await _authorizationService.HasPermissionAsync(userId, "CentroAtencion", "Read");
+            
+            if (!hasExportPermission)
+            {
+                TempData["ErrorMessage"] = "No tiene permisos para exportar centros de atención.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            try
+            {
+                var centros = await _context.CentrosAtencion
+                    .Where(c => c.EmpresaId == CurrentEmpresaId)
+                    .OrderBy(c => c.Codigo)
+                    .ToListAsync();
+
+                var exportConfig = _configurationService.GetExportConfiguration<CentroAtencion>();
+                var excelData = await _importExportService.ExportToExcelAsync(centros, exportConfig);
+                var fileName = $"{exportConfig.FileName}_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx";
+
+                return File(excelData, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = "Error al exportar los centros de atención: " + ex.Message;
+                return RedirectToAction(nameof(Index));
+            }
+        }
+
+        // GET: CentroAtencion/ImportarPlantilla
+        public async Task<IActionResult> ImportarPlantilla()
+        {
+            var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "0");
+            var hasImportPermission = await _authorizationService.HasPermissionAsync(userId, "CentroAtencion", "Import") || 
+                                    await _authorizationService.HasPermissionAsync(userId, "CentroAtencion", "Create");
+            
+            if (!hasImportPermission)
+            {
+                TempData["ErrorMessage"] = "No tiene permisos para importar centros de atención.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            return View(new ImportarCentroAtencionViewModel());
+        }
+
+        // GET: CentroAtencion/DescargarPlantilla
+        [HttpGet]
+        [ActionName("DescargarPlantilla")]
+        public IActionResult DescargarPlantilla()
+        {
+            try
+            {
+                var importConfig = _configurationService.GetImportConfiguration<CentroAtencionItemViewModel>();
+                var templateData = _importExportService.GenerateImportTemplate(importConfig);
+                var fileName = $"Plantilla_{importConfig.SheetName.Replace(" ", "")}_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx";
+
+                return File(templateData, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = "Error al generar la plantilla: " + ex.Message;
+                return RedirectToAction(nameof(ImportarPlantilla));
+            }
+        }
+
+        // POST: CentroAtencion/ImportarPlantilla
+        [HttpPost]
+        [ActionName("ImportarPlantilla")]
+        public async Task<IActionResult> ImportarPlantilla(ImportarCentroAtencionViewModel model)
+        {
+            var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "0");
+            var hasImportPermission = await _authorizationService.HasPermissionAsync(userId, "CentroAtencion", "Import") || 
+                                    await _authorizationService.HasPermissionAsync(userId, "CentroAtencion", "Create");
+            
+            if (!hasImportPermission)
+            {
+                TempData["ErrorMessage"] = "No tiene permisos para importar centros de atención.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            if (model.ArchivoExcel == null || model.ArchivoExcel.Length == 0)
+            {
+                ModelState.AddModelError("ArchivoExcel", "Debe seleccionar un archivo Excel.");
+                return View(model);
+            }
+
+            try
+            {
+                var importConfig = _configurationService.GetImportConfiguration<CentroAtencionItemViewModel>();
+                var importResult = await _importExportService.ImportFromExcelAsync(model.ArchivoExcel, importConfig);
+
+                if (importResult.HasErrors)
+                {
+                    ViewBag.Errores = importResult.Errors;
+                    return View(model);
+                }
+
+                if (!importResult.Data.Any())
+                {
+                    ModelState.AddModelError("", "No se encontraron datos válidos para importar.");
+                    return View(model);
+                }
+
+                HttpContext.Session.SetString("CentrosCargados", JsonConvert.SerializeObject(importResult.Data));
+                model.CentrosCargados = importResult.Data;
+                TempData["Success"] = $"Se procesaron {importResult.Data.Count} centros de atención correctamente. Revise los datos y confirme la importación.";
+
+                return View(model);
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError("", "Error al procesar el archivo: " + ex.Message);
+                return View(model);
+            }
+        }
+
+        // POST: CentroAtencion/GuardarCentrosImportados
+        [HttpPost]
+        public async Task<IActionResult> GuardarCentrosImportados()
+        {
+            var json = HttpContext.Session.GetString("CentrosCargados");
+            if (string.IsNullOrEmpty(json))
+            {
+                TempData["Error"] = "No hay datos para importar.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            try
+            {
+                var centrosCargados = JsonConvert.DeserializeObject<List<CentroAtencionItemViewModel>>(json);
+                if (centrosCargados == null || !centrosCargados.Any())
+                {
+                    TempData["Error"] = "No hay datos para importar.";
+                    return RedirectToAction(nameof(Index));
+                }
+
+                var totalProcessed = await _persistenceService.SaveImportedDataAsync<CentroAtencion, CentroAtencionItemViewModel>(
+                    centrosCargados,
+                    CurrentEmpresaId,
+                    // Create mapper
+                    viewModel => new CentroAtencion
+                    {
+                        Codigo = viewModel.Codigo.ToUpper(),
+                        Nombre = viewModel.Nombre,
+                        Tipo = viewModel.Tipo,
+                        Descripcion = viewModel.Descripcion,
+                        Estado = viewModel.Estado,
+                        FechaCreacion = DateTime.Now,
+                        EmpresaId = CurrentEmpresaId
+                    },
+                    // Update mapper
+                    (viewModel, existing) =>
+                    {
+                        existing.Nombre = viewModel.Nombre;
+                        existing.Tipo = viewModel.Tipo;
+                        existing.Descripcion = viewModel.Descripcion;
+                        existing.Estado = viewModel.Estado;
+                        return existing;
+                    },
+                    // Find existing
+                    (viewModel, dbSet) => dbSet.FirstOrDefault(c => 
+                        c.EmpresaId == CurrentEmpresaId && 
+                        c.Codigo.ToUpper() == viewModel.Codigo.ToUpper())
+                );
+
+                HttpContext.Session.Remove("CentrosCargados");
+                TempData["Success"] = $"Importación completada: {totalProcessed} centros de atención procesados exitosamente.";
+                return RedirectToAction(nameof(Index));
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = "Error al guardar los centros de atención: " + ex.Message;
+                return RedirectToAction(nameof(Index));
             }
         }
 

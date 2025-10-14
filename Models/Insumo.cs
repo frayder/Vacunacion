@@ -42,5 +42,24 @@ namespace Highdmin.Models
 
         [ForeignKey("EmpresaId")]
         public virtual Empresa? Empresa { get; set; }
+
+        // Unidades de medida para la edad mínima y máxima
+        [Required(ErrorMessage = "la unidad de medida es obligatoria")]
+        [Display(Name = "Unidad de Medida")]   
+        public string UnidadMedidaEdadMinima { get; set; }
+
+        [Required(ErrorMessage = "la unidad de medida es obligatoria")]
+        [Display(Name = "Unidad de Medida ")]
+        public string UnidadMedidaEdadMaxima { get; set; }
+
+        [Required(ErrorMessage = "la edad mínima es obligatoria")]
+        [Display(Name = "Edad Mínima")]
+        [Range(0, int.MaxValue, ErrorMessage = "La edad mínima debe ser un número positivo")]
+        public int EdadMinima { get; set; }
+
+        [Required(ErrorMessage = "la edad máxima es obligatoria")]
+        [Display(Name = "Edad Máxima")]
+        [Range(0, int.MaxValue, ErrorMessage = "La edad máxima debe ser un número positivo")]
+        public int EdadMaxima { get; set; }
     }
 }

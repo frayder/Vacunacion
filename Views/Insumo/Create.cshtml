@@ -71,27 +71,45 @@
             <div class="card-header">
                 <h5 class="card-title mb-0">Configuración de Rangos</h5>
             </div>
-            <div class="card-body">
-                <div class="mb-3">
-                    <label asp-for="DescripcionRango" class="form-label"></label>
-                    <input asp-for="DescripcionRango" class="form-control" placeholder="Ej: DE 2 MESES Y 5 AÑOS">
-                </div>
-
+            <div class="card-body"> 
                 <div class="row">
-                    <div class="col-md-12">
+                    <div class="col-md-5">
                         <div class="mb-3">
-                            <label asp-for="EdadMinimaDias" class="form-label"></label>
-                            <input asp-for="EdadMinimaDias" class="form-control" type="number" min="0" placeholder="Ej: 60">
+                            <label asp-for="EdadMinima" class="form-label"></label>
+                            <input asp-for="EdadMinima" class="form-control" type="number" min="0" placeholder="Ej: 60">
                         </div>
                     </div>
-                    <div class="col-md-12">
+                    <div class="col-md-7">
                         <div class="mb-3">
-                            <label asp-for="EdadMaximaDias" class="form-label"></label>
-                            <input asp-for="EdadMaximaDias" class="form-control" type="number" min="0" placeholder="Ej: 2189">
+                            <label asp-for="UnidadMedidaEdadMinima" class="form-label"></label>
+                            <select asp-for="UnidadMedidaEdadMinima" class="form-control" data-choices data-choices-search-false>
+                                <option value="">Seleccionar unidad</option>
+                                <option value="Dias">días</option>
+                                <option value="Meses">meses</option>
+                                <option value="Anos">años</option>
+                            </select>
                         </div>
                     </div>
                 </div>
-
+                <div class="row">
+                    <div class="col-md-5">
+                        <div class="mb-3">
+                            <label asp-for="EdadMinima" class="form-label"></label>
+                            <input asp-for="EdadMinima" class="form-control" type="number" min="0" placeholder="Ej: 60">
+                        </div>
+                    </div>
+                   <div class="col-md-7">
+                        <div class="mb-3">
+                            <label asp-for="UnidadMedidaEdadMaxima" class="form-label"></label>
+                            <select asp-for="UnidadMedidaEdadMaxima" class="form-control" data-choices data-choices-search-false>
+                                <option value="">Seleccionar unidad</option>
+                                <option value="Dias">días</option>
+                                <option value="Meses">meses</option>
+                                <option value="Anos">años</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
                 <div class="mb-3">
                     <label asp-for="Dosis" class="form-label"></label>
                     <select asp-for="Dosis" class="form-control" data-choices data-choices-search-false>
@@ -100,6 +118,10 @@
                         <option value="2DA DOSIS">2DA DOSIS</option>
                         <option value="DOSIS UNICA">DOSIS UNICA</option>
                     </select>
+                </div>
+                 <div class="mb-3">
+                    <label asp-for="DescripcionRango" class="form-label"></label>
+                    <input asp-for="DescripcionRango" class="form-control" disabled placeholder="Ej: DE 2 MESES Y 5 AÑOS">
                 </div>
             </div>
         </div>

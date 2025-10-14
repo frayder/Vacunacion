@@ -51,6 +51,26 @@ namespace Highdmin.ViewModels
         public string EstadoTexto => Estado ? "Activo" : "Inactivo";
         public string EstadoClass => Estado ? "badge bg-success" : "badge bg-danger";
 
+        [Required(ErrorMessage = "la edad mínima es obligatoria")]
+        [Display(Name = "Edad Mínima")]
+        [Range(0, int.MaxValue, ErrorMessage = "La edad mínima debe ser un número positivo")]
+        public int EdadMinima { get; set; }
+
+        [Required(ErrorMessage = "la edad máxima es obligatoria")]
+        [Display(Name = "Edad Máxima")]
+        [Range(0, int.MaxValue, ErrorMessage = "La edad máxima debe ser un número positivo")]
+        public int EdadMaxima { get; set; }
+
+        // Unidades de medida para la edad mínima y máxima
+        [Required(ErrorMessage = "la unidad de medida es obligatoria")]
+        [Display(Name = "Unidad de Medida")]   
+        public string UnidadMedidaEdadMinima { get; set; }
+
+        [Required(ErrorMessage = "la unidad de medida es obligatoria")]
+        [Display(Name = "Unidad de Medida ")]
+        public string UnidadMedidaEdadMaxima { get; set; }
+    
+
         // Propiedades para mostrar el tipo con badge
         public string TipoBadgeClass => Tipo?.ToLower() switch
         {
@@ -92,16 +112,27 @@ namespace Highdmin.ViewModels
         [Display(Name = "Descripción del Rango")]
         public string? DescripcionRango { get; set; }
 
-        [Display(Name = "Edad Mínima (días)")]
+        [Required(ErrorMessage = "la edad mínima es obligatoria")]
+        [Display(Name = "Edad Mínima")]
         [Range(0, int.MaxValue, ErrorMessage = "La edad mínima debe ser un número positivo")]
-        public int? EdadMinimaDias { get; set; }
+        public int EdadMinima { get; set; }
 
-        [Display(Name = "Edad Máxima (días)")]
+        [Required(ErrorMessage = "la edad máxima es obligatoria")]
+        [Display(Name = "Edad Máxima")]
         [Range(0, int.MaxValue, ErrorMessage = "La edad máxima debe ser un número positivo")]
-        public int? EdadMaximaDias { get; set; }
+        public int EdadMaxima { get; set; }
 
         [Display(Name = "Dosis")]
         public string? Dosis { get; set; }
+
+        // Unidades de medida para la edad mínima y máxima
+        [Required(ErrorMessage = "la unidad de medida es obligatoria")]
+        [Display(Name = "Unidad de Medida")]   
+        public string UnidadMedidaEdadMinima { get; set; }
+
+        [Required(ErrorMessage = "la unidad de medida es obligatoria")]
+        [Display(Name = "Unidad de Medida ")]
+        public string UnidadMedidaEdadMaxima { get; set; }
     }
 
     public class InsumoEditViewModel
@@ -135,6 +166,23 @@ namespace Highdmin.ViewModels
 
         [Display(Name = "Fecha Creación")]
         public DateTime FechaCreacion { get; set; }
+
+        // Unidades de medida para la edad mínima y máxima
+        [Display(Name = "Unidad de Medida")]   
+        public string? UnidadMedidaEdadMinima { get; set; }
+
+        [Display(Name = "Unidad de Medida ")]
+        public string? UnidadMedidaEdadMaxima { get; set; }
+
+        [Required(ErrorMessage = "la edad mínima es obligatoria")]
+        [Display(Name = "Edad Mínima")]
+        [Range(0, int.MaxValue, ErrorMessage = "La edad mínima debe ser un número positivo")]
+        public int EdadMinima { get; set; }
+
+        [Required(ErrorMessage = "la edad máxima es obligatoria")]
+        [Display(Name = "Edad Máxima")]
+        [Range(0, int.MaxValue, ErrorMessage = "La edad máxima debe ser un número positivo")]
+        public int EdadMaxima { get; set; }
     }
 
     public class RangoEdadDosis
@@ -142,15 +190,22 @@ namespace Highdmin.ViewModels
         [Display(Name = "Descripción del Rango")]
         public string? Descripcion { get; set; }
 
-        [Display(Name = "Edad Mínima (días)")]
+        [Display(Name = "Edad Mínima")]
         [Range(0, int.MaxValue, ErrorMessage = "La edad mínima debe ser un número positivo")]
-        public int? EdadMinimaDias { get; set; }
+        public int? EdadMinima { get; set; }
 
-        [Display(Name = "Edad Máxima (días)")]
+        [Display(Name = "Edad Máxima")]
         [Range(0, int.MaxValue, ErrorMessage = "La edad máxima debe ser un número positivo")]
-        public int? EdadMaximaDias { get; set; }
+        public int? EdadMaxima { get; set; }
 
         [Display(Name = "Dosis")]
         public string? Dosis { get; set; }
+
+        // Unidades de medida para la edad mínima y máxima
+        [Display(Name = "Unidad de Medida")]   
+        public string? UnidadMedidaEdadMinima { get; set; }
+
+        [Display(Name = "Unidad de Medida ")]
+        public string? UnidadMedidaEdadMaxima { get; set; }
     }
 }

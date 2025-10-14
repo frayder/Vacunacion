@@ -298,7 +298,7 @@
                                 <td>
                                     @await Component.InvokeAsync("ActionButtons", 
                                         ActionButtonsHelper
-                                            .CreateDefault(item.Id, "Insumos", $"Código: {item.Codigo}")
+                                            .CreateDefault(item.Id, "Insumo", $"Código: {item.Codigo}")
                                             .WithEdit(Model.CanUpdate)
                                             .WithDelete(Model.CanDelete, "¿Está seguro de que desea eliminar este Insumo?")
                                     )
