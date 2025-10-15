@@ -100,7 +100,7 @@ namespace Highdmin.Controllers
             parameter.ParameterName = "@EmpresaId";
             parameter.Value = CurrentEmpresaId;
             command.Parameters.Add(parameter);
-            
+
             await _context.Database.OpenConnectionAsync();
             var result = await command.ExecuteScalarAsync();
             await _context.Database.CloseConnectionAsync();
@@ -154,6 +154,135 @@ namespace Highdmin.Controllers
             catch (Exception ex)
             {
                 return Json(new { error = "Error al cargar aseguradoras: " + ex.Message });
+            }
+        }
+
+        // API endpoints para cargar datos de los dropdowns
+        [HttpGet]
+        public async Task<IActionResult> GetInsumos()
+        {
+            try
+            {
+                var insumos = await _context.Insumos
+                    .Where(a => a.Estado && a.EmpresaId == CurrentEmpresaId) // filtrar por empresa si aplica
+                    .OrderBy(a => a.Nombre)
+                    .Select(a => new
+                    {
+                        value = a.Id,
+                        text = a.Nombre,
+                        codigo = a.Codigo,
+                        tipo = a.Tipo,
+                        descripcion = a.Descripcion,
+                        rangoDosis = a.RangoDosis,
+                        // Incluir configuraciones de rango activas
+                        configuracionesRango = a.ConfiguracionesRango
+                            .Where(cr => cr.Estado)
+                            .Select(cr => new
+                            {
+                                id = cr.Id,
+                                edadMinima = cr.EdadMinima,
+                                edadMaxima = cr.EdadMaxima,
+                                unidadMedidaEdadMinima = cr.UnidadMedidaEdadMinima,
+                                unidadMedidaEdadMaxima = cr.UnidadMedidaEdadMaxima,
+                                dosis = cr.Dosis,
+                                descripcionRango = cr.DescripcionRango
+                            })
+                            .ToList()
+                    })
+                    .ToListAsync();
+
+                return Json(insumos);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { error = "Error al cargar insumos: " + ex.Message });
+            }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetDosisByVacuna(int vacunaId, string fechaNacimiento)
+        {
+            try
+            {
+                if (vacunaId <= 0)
+                    return Json(new { error = "vacunaId inválido" });
+                Console.WriteLine($"GetDosisByVacuna llamado con vacunaId={vacunaId}, fechaNacimiento={fechaNacimiento}");
+                if (string.IsNullOrEmpty(fechaNacimiento))
+                    return Json(new { error = "fechaNacimiento es requerida" });
+
+                if (!DateTime.TryParse(fechaNacimiento, out var fechaNac))
+                    return Json(new { error = "fechaNacimiento inválida" });
+
+                // Edad del paciente en días (referencia: hoy)
+                var hoy = DateTime.UtcNow.Date;
+                var edadDays = (hoy - fechaNac.Date).TotalDays;
+
+                // Helper local para convertir un valor+unidad a días (double)
+                double ConvertToDays(int valor, string unidad)
+                {
+                    if (string.IsNullOrWhiteSpace(unidad)) unidad = "Anos";
+                        unidad = unidad.Trim().ToLowerInvariant();
+                    // Soportar variantes comunes
+                    if (unidad == "dias" || unidad == "d") // dias, d
+                        return valor;
+                    if (unidad == "meses" || unidad == "mes") // meses, mes
+                        return valor * 30.436875; // promedio de días por mes
+                    if (unidad == "anos" || unidad == "a") // años, años, y
+                        return valor * 365.2425; // promedio con años bisiestos
+                    return valor * 365.2425;
+                }
+
+                // Obtener las configuraciones activas para la vacuna (insumo)
+                var configs = await _context.ConfiguracionesRangoInsumo
+                    .Where(cr => cr.Estado && cr.InsumoId == vacunaId)
+                    .Select(cr => new
+                    {
+                        Id = cr.Id,
+                        DosisText = (cr.Dosis ?? cr.DescripcionRango ?? ("Dosis " + cr.Id)).Trim(),
+                        EdadMin = cr.EdadMinima,
+                        EdadMax = cr.EdadMaxima,
+                        UnidadMin = cr.UnidadMedidaEdadMinima,
+                        UnidadMax = cr.UnidadMedidaEdadMaxima
+                    })
+                    .ToListAsync();
+
+                // Filtrar según edad del paciente (convertimos límites a días y comparamos con edadDays)
+                var filtrados = configs
+                    .Where(c =>
+                    {
+                        try
+                        {
+                            var minDays = ConvertToDays(c.EdadMin, c.UnidadMin);
+                            var maxDays = ConvertToDays(c.EdadMax, c.UnidadMax);
+                            // Si por alguna razón max < min, invertir o rechazar; aquí ignoramos esa configuración
+                            if (maxDays < minDays) return false;
+
+                            return edadDays >= minDays && edadDays <= maxDays;
+                        }
+                        catch
+                        {
+                            return false;
+                        }
+                    })
+                    .ToList();
+
+                // Agrupar por texto de dosis para evitar duplicados
+                var result = filtrados
+                    .GroupBy(f => f.DosisText)
+                    .Select(g => new
+                    {
+                        value = g.First().Id,   // puedes cambiar a text si prefieres enviar el texto como value
+                        text = g.Key
+                    })
+                    .OrderBy(x => x.text)
+                    .ToList();
+
+                return Json(result);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error en GetDosisByVacuna: " + ex.Message);
+                return Json(new { error = "Error al cargar dosis: " + ex.Message });
             }
         }
 

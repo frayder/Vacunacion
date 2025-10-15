@@ -38,40 +38,11 @@
                 <div class="row">
                     <div class="col-md-6">
                         <div class="mb-3">
-                            <label class="form-label">Seleccionar Vacunas <span class="text-danger">*</span></label>
-                            <select class="form-select" name="Vacuna" id="VacunaSeleccionada" required
-                                onchange="document.getElementById('detallesVacuna').style.display = this.value ? 'block' : 'none'">
-                                <option value="">Seleccione la vacuna aplicada</option>
-                                <optgroup label="Vacunas del PAI">
-                                    <option value="BCG">BCG (Bacilo de Calmette y Guérin)</option>
-                                    <option value="HEPATITIS_B">Hepatitis B</option>
-                                    <option value="PENTAVALENTE">Pentavalente (DPT + HepB + Hib)</option>
-                                    <option value="POLIO_IPV">Polio IPV (Inactivada)</option>
-                                    <option value="POLIO_OPV">Polio OPV (Oral)</option>
-                                    <option value="ROTAVIRUS">Rotavirus</option>
-                                    <option value="NEUMOCOCO">Neumococo</option>
-                                    <option value="INFLUENZA">Influenza</option>
-                                    <option value="SRP">SRP (Sarampión, Rubéola, Parotiditis)</option>
-                                    <option value="VARICELA">Varicela</option>
-                                    <option value="HEPATITIS_A">Hepatitis A</option>
-                                    <option value="DPT">DPT (Difteria, Pertussis, Tétanos)</option>
-                                    <option value="TD">Td (Tétanos, Difteria)</option>
-                                    <option value="VPH">VPH (Virus del Papiloma Humano)</option>
-                                </optgroup>
-                                <optgroup label="Vacunas Especiales">
-                                    <option value="COVID19_PFIZER">COVID-19 Pfizer</option>
-                                    <option value="COVID19_MODERNA">COVID-19 Moderna</option>
-                                    <option value="COVID19_ASTRAZENECA">COVID-19 AstraZeneca</option>
-                                    <option value="COVID19_JANSSEN">COVID-19 Janssen</option>
-                                    <option value="COVID19_SINOVAC">COVID-19 Sinovac</option>
-                                    <option value="FIEBRE_AMARILLA">Fiebre Amarilla</option>
-                                    <option value="MENINGITIS">Meningitis</option>
-                                    <option value="ENCEFALITIS_JAPONESA">Encefalitis Japonesa</option>
-                                </optgroup>
-                                <optgroup label="Otras">
-                                    <option value="OTRA">Otra vacuna</option>
-                                </optgroup>
-                            </select>
+                            <label class="form-label fw-bold">Seleccionar Vacuna</label>
+                            <select class="form-select" name="Vacuna"  id="VacunaSeleccionada">
+                                <option value="">Seleccione vacuna...</option>
+                                <!-- Opciones se cargarán dinámicamente -->
+                            </select> 
                         </div>
                     </div>
                     <div class="col-md-6" id="detallesVacuna">
@@ -108,27 +79,28 @@
                                     <small>Al marcar como perdida, la vacuna se descontará del inventario pero no se registrará como aplicada al paciente.</small>
                                 </div>
                             </div>
+                            <!-- Motivo de la pérdida (oculto por defecto) -->
+                            <div class="row" id="motivoPerdidaContainer" style="display: none;">
+                                <div class="col-12">
+                                    <div class="mb-3">
+                                        <label class="form-label">Motivo de la pérdida <span class="text-danger">*</span></label>
+                                        <select class="form-select" name="MotivoPerdida" id="MotivoPerdida">
+                                            <option value="">Seleccione el motivo de la pérdida</option>
+                                            <option value="VENCIMIENTO">Vencimiento</option>
+                                            <option value="RUPTURA">Ruptura del frasco</option>
+                                            <option value="CADENA_FRIO">Ruptura de cadena de frío</option>
+                                            <option value="CONTAMINACION">Contaminación</option>
+                                            <option value="ERROR_PREPARACION">Error en la preparación</option>
+                                            <option value="OTRO">Otro motivo</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div> 
 
-                <!-- Motivo de la pérdida (oculto por defecto) -->
-                <div class="row" id="motivoPerdidaContainer" style="display: none;">
-                    <div class="col-12">
-                        <div class="mb-3">
-                            <label class="form-label">Motivo de la pérdida <span class="text-danger">*</span></label>
-                            <select class="form-select" name="MotivoPerdida" id="MotivoPerdida">
-                                <option value="">Seleccione el motivo de la pérdida</option>
-                                <option value="VENCIMIENTO">Vencimiento</option>
-                                <option value="RUPTURA">Ruptura del frasco</option>
-                                <option value="CADENA_FRIO">Ruptura de cadena de frío</option>
-                                <option value="CONTAMINACION">Contaminación</option>
-                                <option value="ERROR_PREPARACION">Error en la preparación</option>
-                                <option value="OTRO">Otro motivo</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
+                
 
                 <!-- Información de rangos de edad (se muestra al seleccionar vacuna) -->
                 <div id="informacionRangosEdad">
@@ -212,7 +184,7 @@
                 toggleDetalles();
             };
         }
-    }
+    }   
 
     // Función para toggle del motivo de pérdida
     function toggleMotivoPerdida() {

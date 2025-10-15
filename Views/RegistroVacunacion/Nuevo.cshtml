@@ -442,7 +442,7 @@
 
                 // Cargar datos específicos para el paso 6 (Esquema Vacunación)
                 if (currentStep === 6) {
-                   loadTiposCarnet().then(() => {
+                   ListarDatosEsquemaVacunacion().then(() => {
                         // Restaurar datos después de cargar las opciones
                         setTimeout(() => {
                             restoreCurrentStepData();
@@ -460,6 +460,139 @@
                         }, 100);
                     });
                     return;
+                }
+            }
+
+            async function ListarDatosEsquemaVacunacion() {
+                try {
+                    await loadTiposCarnet();
+                    await listarInsumos();
+                    
+                } catch (error) {
+                    // Error silenciado intencionalmente
+                }
+            }
+
+            async function listarInsumos() {
+               try {
+                   const response = await fetch('/RegistroVacunacion/GetInsumos');
+                   if (!response.ok) {
+                       throw new Error(`HTTP error! status: ${response.status}`);
+                   }
+                   const data = await response.json();
+
+                   // Poblar el select "Vacuna"
+                   populateSelect('Vacuna', data, 'Seleccione vacuna');
+
+                   // Obtener el select por name (puede que exista con id distinto)
+                   const vacunaSelect = document.querySelector('select[name="Vacuna"]');
+                   if (!vacunaSelect) {
+                       return;
+                   }
+
+                   // Si ya hay un valor seleccionado (por restoreCurrentStepData), cargar las dosis para esa vacuna
+                   const currentVacuna = vacunaSelect.value;
+                   if (currentVacuna) {
+                       // Llamar a listarInsumosDosis con el id actual
+                       listarInsumosDosis(currentVacuna);
+                   }
+
+                   // Agregar listener para actualizar las dosis cuando el usuario cambie la vacuna
+                   // Antes de agregar, remover cualquier listener previo (defensivo) usando cloneNode
+                   const newSelect = vacunaSelect.cloneNode(true);
+                   vacunaSelect.parentNode.replaceChild(newSelect, vacunaSelect);
+
+                   newSelect.addEventListener('change', function () {
+                       const vacunaId = this.value;
+                       listarInsumosDosis(vacunaId);
+                   });
+
+               } catch (error) {
+                   // Error silenciado intencionalmente
+                   console.error('Error en listarInsumos:', error);
+               }
+            }
+
+            function listarInsumosDosis(vacunaId) {
+                const dosisSelect = document.querySelector('select[name="Dosis"]');
+                if (!dosisSelect) return;
+                console.log('Cargando dosis para vacunaId:', vacunaId);
+
+                // Limpiar opciones existentes excepto la primera
+                while (dosisSelect.children.length > 1) {
+                    dosisSelect.removeChild(dosisSelect.lastChild);
+                }
+                console.log('Opciones de dosis limpiadas');
+                if (!vacunaId) return;
+                console.log('VacunaId válido, procediendo a cargar dosis');
+                // Obtener fecha de nacimiento: preferir lo guardado en formData/localStorage, si existe
+                let fechaNacimiento = null;
+
+                try {
+                     // 1) Usar la variable in-memory 'formData' si existe y tiene la propiedad
+                    if (typeof formData !== 'undefined' && formData) {
+                        if (formData.FechaNacimiento) fechaNacimiento = formData.FechaNacimiento;
+                        else if (formData.fechaNacimiento) fechaNacimiento = formData.fechaNacimiento;
+                    }
+                    // 2) Intentar stepData_1 (datos guardados por paso)
+                    if (!fechaNacimiento) {
+                        const step1 = localStorage.getItem('stepData_1');
+                        if (step1) {
+                            try {
+                                const parsed = JSON.parse(step1);
+                                fechaNacimiento = parsed.FechaNacimiento || parsed.fechaNacimiento || fechaNacimiento;
+                            } catch { /* ignore */ }
+                        }
+                    }
+                    // 3) Intentar el objeto global 'vacunacionFormData'
+                    if (!fechaNacimiento) {
+                        const stored = localStorage.getItem('vacunacionFormData');
+                        if (stored) {
+                            try {
+                                const parsed = JSON.parse(stored);
+                                fechaNacimiento = parsed.FechaNacimiento || parsed.fechaNacimiento || fechaNacimiento;
+                            } catch { /* ignore */ }
+                        }
+                    }
+                    // 4) Intentar leer directamente del input (por si el paso 1 está en DOM)
+                    if (!fechaNacimiento) {
+                        const fechaInput = document.querySelector('input[name="FechaNacimiento"], input[id="FechaNacimiento"], input[name="fechaNacimiento"]');
+                        if (fechaInput && fechaInput.value) fechaNacimiento = fechaInput.value;
+                    }
+                    // Normalizar formatos: convertir dd/mm/yyyy -> yyyy-mm-dd
+                    if (fechaNacimiento && /^\d{2}\/\d{2}\/\d{4}$/.test(fechaNacimiento)) {
+                        const parts = fechaNacimiento.split('/');
+                        fechaNacimiento = `${parts[2]}-${parts[1].padStart(2,'0')}-${parts[0].padStart(2,'0')}`; // yyyy-mm-dd
+                    } 
+                    if (!fechaNacimiento) {
+                        console.warn('Fecha de nacimiento no encontrada en localStorage/variables/DOM. No se filtrarán las dosis por edad.');
+                        return; // o hacer fetch sin fecha si prefieres
+                    }
+
+                    const url = `/RegistroVacunacion/GetDosisByVacuna?vacunaId=${encodeURIComponent(vacunaId)}&fechaNacimiento=${encodeURIComponent(fechaNacimiento)}`;
+                    fetch(url)
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data && !data.error && Array.isArray(data)) {
+                                data.forEach(item => {
+                                    const option = document.createElement('option');
+                                    option.value = item.value;
+                                    option.textContent = item.text;
+                                    dosisSelect.appendChild(option);
+                                });
+                            } else {
+                                // Si el backend devuelve { error: ... } y quieres fallback, puedes llamar sin fecha aquí
+                                if (data && data.error) {
+                                    console.warn('GetDosisByVacuna error:', data.error);
+                                }
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error al cargar dosis:', error);
+                        });
+
+                } catch (err) {
+                    console.error('Error preparando petición de dosis:', err);
                 }
             }
 
