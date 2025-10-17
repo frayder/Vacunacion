@@ -63,15 +63,17 @@
                             <i class="ri-add-line align-bottom me-1"></i> Agregar
                         </a>
                     }
-                    @* <button type="button" class="btn btn-info">
-                        <i class="ri-file-download-line align-bottom me-1"></i> Importar
-                    </button>  *@
-                        <a asp-action="ImportarPlantilla" class="btn btn-info">
-                            <i class="ri-file-download-line align-bottom me-1"></i> Importar
-                        </a> 
-                        <a asp-action="Exportar" class="btn btn-warning">
-                            <i class="ri-file-upload-line align-bottom me-1"></i> Exportar
-                        </a> 
+                    @await Component.InvokeAsync("ImportExportButtons", new {
+                        controller = "TipoCarnet",
+                        importAction = "ImportarPlantilla",
+                        exportAction = "Exportar",
+                        importLabel = "Importar",
+                        exportLabel = "Exportar",
+                        importClass = "btn btn-info",
+                        exportClass = "btn btn-warning",
+                        showImport = true,
+                        showExport = true
+                    })
                 </div>
             </div>
         </div>

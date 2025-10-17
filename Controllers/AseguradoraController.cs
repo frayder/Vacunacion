@@ -4,11 +4,13 @@ using Highdmin.Data;
 using Highdmin.Models;
 using Highdmin.ViewModels;
 using Highdmin.Services;
+using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
 using Newtonsoft.Json;
 
 namespace Highdmin.Controllers
 {
+    [Authorize]
     public class AseguradoraController : BaseAuthorizationController
     {
         private readonly ApplicationDbContext _context;
@@ -76,12 +78,12 @@ namespace Highdmin.Controllers
         }
 
         // GET: Aseguradora/Exportar
-        public async Task<IActionResult> Exportar()
+         public async Task<IActionResult> Exportar()
         {
             var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "0");
-            var hasExportPermission = await _authorizationService.HasPermissionAsync(userId, "Aseguradora", "Export") || 
-                                    await _authorizationService.HasPermissionAsync(userId, "Aseguradora", "Read");
-            
+            var hasExportPermission = await _authorizationService.HasPermissionAsync(userId, "Aseguradoras", "Export") || 
+                                    await _authorizationService.HasPermissionAsync(userId, "Aseguradoras", "Read");
+
             if (!hasExportPermission)
             {
                 TempData["ErrorMessage"] = "No tiene permisos para exportar aseguradoras.";
@@ -91,8 +93,8 @@ namespace Highdmin.Controllers
             try
             {
                 var aseguradoras = await _context.Aseguradoras
-                    .Where(a => a.EmpresaId == CurrentEmpresaId)
-                    .OrderBy(a => a.Codigo)
+                    .Where(t => t.EmpresaId == CurrentEmpresaId)
+                    .OrderBy(t => t.Codigo)
                     .ToListAsync();
 
                 var exportConfig = _configurationService.GetExportConfiguration<Aseguradora>();
@@ -103,7 +105,7 @@ namespace Highdmin.Controllers
             }
             catch (Exception ex)
             {
-                TempData["Error"] = "Error al exportar las aseguradoras: " + ex.Message;
+                TempData["Error"] = "Error al exportar los tipos de carnet: " + ex.Message;
                 return RedirectToAction(nameof(Index));
             }
         }
@@ -112,9 +114,10 @@ namespace Highdmin.Controllers
         public async Task<IActionResult> ImportarPlantilla()
         {
             var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "0");
-            var hasImportPermission = await _authorizationService.HasPermissionAsync(userId, "Aseguradora", "Import") || 
-                                    await _authorizationService.HasPermissionAsync(userId, "Aseguradora", "Create");
-            
+            var hasImportPermission = await _authorizationService.HasPermissionAsync(userId, "Aseguradoras", "Import") || 
+                                    await _authorizationService.HasPermissionAsync(userId, "Aseguradoras", "Create");
+
+            Console.WriteLine("Has Import Permission: " + hasImportPermission);
             if (!hasImportPermission)
             {
                 TempData["ErrorMessage"] = "No tiene permisos para importar aseguradoras.";
@@ -123,6 +126,7 @@ namespace Highdmin.Controllers
 
             return View(new ImportarAseguradoraViewModel());
         }
+
 
         // GET: Aseguradora/DescargarPlantilla
         [HttpGet]
@@ -150,9 +154,9 @@ namespace Highdmin.Controllers
         public async Task<IActionResult> ImportarPlantilla(ImportarAseguradoraViewModel model)
         {
             var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "0");
-            var hasImportPermission = await _authorizationService.HasPermissionAsync(userId, "Aseguradora", "Import") || 
-                                    await _authorizationService.HasPermissionAsync(userId, "Aseguradora", "Create");
-            
+            var hasImportPermission = await _authorizationService.HasPermissionAsync(userId, "Aseguradoras", "Import") || 
+                                    await _authorizationService.HasPermissionAsync(userId, "Aseguradoras", "Create");
+
             if (!hasImportPermission)
             {
                 TempData["ErrorMessage"] = "No tiene permisos para importar aseguradoras.";
@@ -199,13 +203,14 @@ namespace Highdmin.Controllers
         [HttpPost]
         public async Task<IActionResult> GuardarAseguradorasImportadas()
         {
+            Console.WriteLine("Guardando aseguradoras importadas...");
             var json = HttpContext.Session.GetString("AseguradorasCargadas");
             if (string.IsNullOrEmpty(json))
             {
                 TempData["Error"] = "No hay datos para importar.";
                 return RedirectToAction(nameof(Index));
             }
-
+            Console.WriteLine("Datos JSON encontrados en la sesión.");
             try
             {
                 var aseguradorasCargadas = JsonConvert.DeserializeObject<List<AseguradoraItemViewModel>>(json);
@@ -214,7 +219,7 @@ namespace Highdmin.Controllers
                     TempData["Error"] = "No hay datos para importar.";
                     return RedirectToAction(nameof(Index));
                 }
-
+                Console.WriteLine($"Cantidad de aseguradoras a importar: {aseguradorasCargadas.Count}");
                 var totalProcessed = await _persistenceService.SaveImportedDataAsync<Aseguradora, AseguradoraItemViewModel>(
                     aseguradorasCargadas,
                     CurrentEmpresaId,
@@ -248,6 +253,7 @@ namespace Highdmin.Controllers
             }
             catch (Exception ex)
             {
+                Console.WriteLine("Error al guardar las aseguradoras: " + ex.Message);
                 TempData["Error"] = "Error al guardar las aseguradoras: " + ex.Message;
                 return RedirectToAction(nameof(Index));
             }
@@ -283,8 +289,17 @@ namespace Highdmin.Controllers
         }
 
         // GET: Aseguradora/Create
-        public IActionResult Create()
+       public async Task<IActionResult> Create()
         {
+            var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "0"); 
+            var hasCreatePermission = await _authorizationService.HasPermissionAsync(userId, "Aseguradoras", "Create");
+            Console.WriteLine("Has Create Permission: " + hasCreatePermission);
+            if (!hasCreatePermission)
+            {
+                TempData["ErrorMessage"] = "No tiene permisos para exportar aseguradoras.";
+                return RedirectToAction(nameof(Index));
+            }
+
             return View( new AseguradoraCreateViewModel());  
         }
 

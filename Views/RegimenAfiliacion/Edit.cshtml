@@ -4,6 +4,15 @@
     Layout = "~/Views/Shared/_VerticalLayout.cshtml";
 } 
 
+<!-- Info Card -->
+@await Component.InvokeAsync("GradientCard", new { 
+    title = "Configuración de Régimen de Afiliación",
+    description = "Administre los regímenes de afiliación del sistema de salud.",
+    icon = "ri-user-settings-line",
+    startColor = "#667eea",
+    endColor = "#764ba2"
+}) 
+
 <div class="row">
     <div class="col-12">
         <div class="card"> 

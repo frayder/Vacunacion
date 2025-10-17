@@ -31,7 +31,7 @@
     </div>
     <div class="card-body">
         <!-- Search and Filter Bar -->
-        <div class="row g-3 mb-4">
+        <div class="d-flex g-3 mb-4">
             <div class="col-xxl-5 col-sm-6">
                 <div class="search-box">
                     <input type="text" class="form-control search" placeholder="Buscar por código o nombre...">
@@ -46,23 +46,30 @@
                     </select>
                 </div>
             </div>
-            <div class="col-xxl-2 col-sm-4">
+            <div class="col-xxl-2 col-sm-4 mx-1">
                 <div>
                     <button type="button" class="btn btn-primary w-100" onclick="SearchData();">
                         <i class="ri-equalizer-fill me-1 align-bottom"></i> Filtros
                     </button>
                 </div>
             </div>
-            <div class="col-xxl-3 col-sm-8">
-                <div class="d-flex gap-2">
-                    <a asp-action="Create" class="btn btn-success add-btn">
-                        <i class="ri-add-line align-bottom me-1"></i> Agregar
-                    </a>
-                    <button type="button" class="btn btn-info">
-                        <i class="ri-file-download-line align-bottom me-1"></i> Importar
-                    </button>
-                </div>
-            </div>
+             @if (Model.CanCreate)
+            {
+                <a asp-action="Create" class="btn btn-success add-btn">
+                    <i class="ri-add-line align-bottom me-1"></i> Agregar
+                </a> 
+                @await Component.InvokeAsync("ImportExportButtons", new {
+                    controller = "RegimenAfiliacion",
+                    importAction = "ImportarPlantilla",
+                    exportAction = "Exportar",
+                    importLabel = "Importar",
+                    exportLabel = "Exportar",
+                    importClass = "btn btn-info",
+                    exportClass = "btn btn-warning",
+                    showImport = true,
+                    showExport = true
+                })
+            } 
         </div>
 
         <!-- Alerts -->

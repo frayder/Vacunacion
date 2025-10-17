@@ -4,6 +4,14 @@
     Layout = "~/Views/Shared/_VerticalLayout.cshtml";
 }
  
+<!-- Info Card -->
+@await Component.InvokeAsync("GradientCard", new { 
+    title = "Configuración de Pertenencia Étnica",
+    description = "Administre las pertenencias étnicas del sistema de salud.",
+    icon = "ri-group-line",
+    startColor = "#667eea",
+    endColor = "#764ba2"
+})   
 
 <div class="row">
     <div class="col-12">

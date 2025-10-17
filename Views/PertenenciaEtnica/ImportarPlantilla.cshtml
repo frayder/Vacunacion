@@ -1,6 +1,6 @@
-@model Highdmin.ViewModels.ImportarCentroAtencionViewModel
+@model Highdmin.ViewModels.ImportarPertenenciaEtnicaViewModel
 @{
-    ViewData["Title"] = "Importar Centros de Atención";
+    ViewData["Title"] = "Importar Pertenencias Étnicas";
     Layout = "~/Views/Shared/_VerticalLayout.cshtml";
 }
 
@@ -10,7 +10,7 @@
     DownloadAction = "DescargarPlantilla",
     IndexAction = "Index",
     ImportAction = "ImportarPlantilla",
-    SaveAction = "GuardarCentrosImportados",
-    loadedCollection = "CentrosCargados",
-    Controller = "CentroAtencion"
+    SaveAction = "GuardarPertenenciasImportadas",
+    loadedCollection = "PertenenciasCargadas",
+    Controller = "PertenenciaEtnica"
 })

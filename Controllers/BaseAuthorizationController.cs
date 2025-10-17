@@ -87,6 +87,7 @@ namespace Highdmin.Controllers
             {
                 "CondicionUsuaria" => "las condiciones usuarias",
                 "TipoCarnet" => "los tipos de carnet",
+                "Aseguradoras" => "las aseguradoras",
                 "RegimenAfiliacion" => "los regímenes de afiliación",
                 "PertenenciaEtnica" => "las pertenencias étnicas",
                 "Pacientes" => "los pacientes",

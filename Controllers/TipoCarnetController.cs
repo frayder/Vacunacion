@@ -151,6 +151,7 @@ namespace Highdmin.Controllers
         [ActionName("ImportarPlantilla")]
         public async Task<IActionResult> ImportarPlantilla(ImportarTipoCarnetViewModel model)
         {
+            Console.WriteLine("Iniciando importación de plantilla.. tipocarnet.");
             var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "0");
             var hasImportPermission = await _authorizationService.HasPermissionAsync(userId, "TipoCarnet", "Import") || 
                                     await _authorizationService.HasPermissionAsync(userId, "TipoCarnet", "Create");
@@ -186,7 +187,7 @@ namespace Highdmin.Controllers
 
                 // Guardar en sesión para confirmar
                 HttpContext.Session.SetString("TiposCargados", JsonConvert.SerializeObject(importResult.Data));
-                model.TiposCargados = importResult.Data;
+                model.TiposCarnetCargados = importResult.Data;
                 TempData["Success"] = $"Se procesaron {importResult.Data.Count} tipos de carnet correctamente. Revise los datos y confirme la importación.";
 
                 return View(model);
@@ -202,6 +203,7 @@ namespace Highdmin.Controllers
         [HttpPost]
         public async Task<IActionResult> GuardarTiposImportados()
         {
+            Console.WriteLine("Guardando tipos importados...");
             var json = HttpContext.Session.GetString("TiposCargados");
             if (string.IsNullOrEmpty(json))
             {

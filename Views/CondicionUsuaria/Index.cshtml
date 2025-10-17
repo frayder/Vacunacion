@@ -58,9 +58,17 @@
                     <a asp-action="Create" class="btn btn-success add-btn">
                         <i class="ri-add-line align-bottom me-1"></i> Agregar
                     </a>
-                    <button type="button" class="btn btn-info">
-                        <i class="ri-file-download-line align-bottom me-1"></i> Importar
-                    </button>
+                    @await Component.InvokeAsync("ImportExportButtons", new {
+                        controller = "CondicionUsuaria",
+                        importAction = "ImportarPlantilla",
+                        exportAction = "Exportar",
+                        importLabel = "Importar",
+                        exportLabel = "Exportar",
+                        importClass = "btn btn-info",
+                        exportClass = "btn btn-warning",
+                        showImport = true,
+                        showExport = true
+                    })
                 </div>
             </div>
         </div>

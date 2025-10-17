@@ -4,6 +4,14 @@
     Layout = "~/Views/Shared/_VerticalLayout.cshtml";
 }
  
+ <!-- Info Card -->
+@await Component.InvokeAsync("GradientCard", new { 
+    title = "Configuración de Centros de Atención",
+    description = "Administre los centros de atención del sistema de salud.",
+    icon = "ri-building-line",
+    startColor = "#667eea",
+    endColor = "#764ba2"
+}) 
 
 <div class="row">
     <div class="col-12">

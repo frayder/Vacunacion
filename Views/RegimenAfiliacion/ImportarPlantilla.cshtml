@@ -1,6 +1,6 @@
-@model Highdmin.ViewModels.ImportarCentroAtencionViewModel
+@model Highdmin.ViewModels.ImportarRegimenAfiliacionViewModel
 @{
-    ViewData["Title"] = "Importar Centros de Atención";
+    ViewData["Title"] = "Importar Regímenes de Afiliación";
     Layout = "~/Views/Shared/_VerticalLayout.cshtml";
 }
 
@@ -10,7 +10,7 @@
     DownloadAction = "DescargarPlantilla",
     IndexAction = "Index",
     ImportAction = "ImportarPlantilla",
-    SaveAction = "GuardarCentrosImportados",
-    loadedCollection = "CentrosCargados",
-    Controller = "CentroAtencion"
+    SaveAction = "GuardarRegimenesImportados",
+    loadedCollection = "RegimenesCargados",
+    Controller = "RegimenAfiliacion"
 })

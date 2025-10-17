@@ -38,7 +38,7 @@ namespace Highdmin.Controllers
             { 
 
                 // Validar permisos y obtener todos los permisos del módulo
-                var (redirect, permissions) = await ValidateAndGetPermissionsAsync("CentroAtencion", "Read");
+                var (redirect, permissions) = await ValidateAndGetPermissionsAsync("CentrosAtencion", "Read");
                 if (redirect != null) return redirect;
 
                 var centrosAtencion = await _context.CentrosAtencion
@@ -81,8 +81,8 @@ namespace Highdmin.Controllers
         public async Task<IActionResult> Exportar()
         {
             var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "0");
-            var hasExportPermission = await _authorizationService.HasPermissionAsync(userId, "CentroAtencion", "Export") || 
-                                    await _authorizationService.HasPermissionAsync(userId, "CentroAtencion", "Read");
+            var hasExportPermission = await _authorizationService.HasPermissionAsync(userId, "CentrosAtencion", "Export") || 
+                                    await _authorizationService.HasPermissionAsync(userId, "CentrosAtencion", "Read");
             
             if (!hasExportPermission)
             {
@@ -114,8 +114,8 @@ namespace Highdmin.Controllers
         public async Task<IActionResult> ImportarPlantilla()
         {
             var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "0");
-            var hasImportPermission = await _authorizationService.HasPermissionAsync(userId, "CentroAtencion", "Import") || 
-                                    await _authorizationService.HasPermissionAsync(userId, "CentroAtencion", "Create");
+            var hasImportPermission = await _authorizationService.HasPermissionAsync(userId, "CentrosAtencion", "Import") || 
+                                    await _authorizationService.HasPermissionAsync(userId, "CentrosAtencion", "Create");
             
             if (!hasImportPermission)
             {
@@ -152,8 +152,8 @@ namespace Highdmin.Controllers
         public async Task<IActionResult> ImportarPlantilla(ImportarCentroAtencionViewModel model)
         {
             var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "0");
-            var hasImportPermission = await _authorizationService.HasPermissionAsync(userId, "CentroAtencion", "Import") || 
-                                    await _authorizationService.HasPermissionAsync(userId, "CentroAtencion", "Create");
+            var hasImportPermission = await _authorizationService.HasPermissionAsync(userId, "CentrosAtencion", "Import") || 
+                                    await _authorizationService.HasPermissionAsync(userId, "CentrosAtencion", "Create");
             
             if (!hasImportPermission)
             {

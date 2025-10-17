@@ -36,7 +36,7 @@ namespace Highdmin.Controllers
         {
             try
             {
-                var (redirect, permissions) = await ValidateAndGetPermissionsAsync("CondicionUsuarias", "Read");
+                var (redirect, permissions) = await ValidateAndGetPermissionsAsync("CondicionUsuaria", "Read");
                 if (redirect != null) return redirect;
 
                 var condiciones = await _context.CondicionesUsuarias

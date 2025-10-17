@@ -49,4 +49,12 @@ namespace Highdmin.ViewModels
 
         public List<RegimenAfiliacionItemViewModel>? RegimenesCargados { get; set; }
     }
+
+    public class ImportarTipoCarnetViewModel
+    {
+        [Display(Name = "Archivo Excel")]
+        public IFormFile ArchivoExcel { get; set; } = null!;
+
+        public List<TipoCarnetItemViewModel>? TiposCarnetCargados { get; set; }
+    }
 }
