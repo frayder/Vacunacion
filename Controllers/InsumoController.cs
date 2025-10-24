@@ -262,6 +262,7 @@ namespace Highdmin.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(InsumoCreateViewModel viewModel)
         {
+            Console.WriteLine("Received ViewModel: " + ModelState.IsValid);
             if (ModelState.IsValid)
             {
                 try
@@ -278,20 +279,16 @@ namespace Highdmin.Controllers
                             // Verificar si el código ya existe
                             var existeCodigo = await _context.Insumos
                                 .AnyAsync(i => i.Codigo == viewModel.Codigo && i.EmpresaId == CurrentEmpresaId);
-
+                            Console.WriteLine("Existe código: " + existeCodigo);
                             if (existeCodigo)
                             {
                                 throw new InvalidOperationException("Ya existe un insumo con este código.");
                             }
 
-                            // Validar que se hayan agregado configuraciones de rango
-                            if (viewModel.ConfiguracionesRango == null || !viewModel.ConfiguracionesRango.Any())
-                            {
-                                throw new InvalidOperationException("Debe agregar al menos una configuración de rango.");
-                            }
+                            
 
                             // Validar configuraciones de rango
-                            for (int i = 0; i < viewModel.ConfiguracionesRango.Count; i++)
+                            for (int i = 0; i < viewModel.ConfiguracionesRango?.Count; i++)
                             {
                                 var config = viewModel.ConfiguracionesRango[i];
                                 
