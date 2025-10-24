@@ -42,7 +42,7 @@ namespace Highdmin.Models
         public string DescripcionRango { get; set; } = string.Empty;
 
         [Display(Name = "Fecha Creación")]
-        public DateTime FechaCreacion { get; set; } = DateTime.Now;
+        public DateTime FechaCreacion { get; set; } = DateTime.UtcNow;
 
         [Display(Name = "Estado")]
         public bool Estado { get; set; } = true;

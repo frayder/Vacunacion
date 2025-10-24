@@ -92,11 +92,19 @@ namespace Highdmin.Controllers
         {
             if (string.IsNullOrEmpty(value)) return null;
 
-            if (DateTime.TryParseExact(value, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out var date))
-                return date;
+            DateTime result;
+            
+            if (DateTime.TryParseExact(value, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out result))
+            {
+                // ✅ Especificar que es UTC
+                return DateTime.SpecifyKind(result, DateTimeKind.Utc);
+            }
 
-            if (DateTime.TryParse(value, out var date2))
-                return date2;
+            if (DateTime.TryParse(value, out result))
+            {
+                // ✅ Especificar que es UTC
+                return DateTime.SpecifyKind(result, DateTimeKind.Utc);
+            }
 
             return null;
         }
@@ -267,7 +275,7 @@ namespace Highdmin.Controllers
                         Telefono = viewModel.Telefono,
                         Email = viewModel.Email,
                         Estado = viewModel.Estado,
-                        FechaCreacion = DateTime.Now,
+                        FechaCreacion = DateTime.UtcNow,
                         EmpresaId = CurrentEmpresaId
                     };
 
@@ -303,6 +311,7 @@ namespace Highdmin.Controllers
                 {
                     var pacienteExistente = await _context.Pacientes
                         .FirstOrDefaultAsync(x => x.Identificacion == p.Identificacion && x.EmpresaId == CurrentEmpresaId);
+                    
                     if (pacienteExistente != null)
                     {
                         // 🔁 Actualizar información del paciente existente
@@ -311,12 +320,17 @@ namespace Highdmin.Controllers
                         pacienteExistente.SegundoNombre = p.SegundoNombre ?? pacienteExistente.SegundoNombre;
                         pacienteExistente.PrimerApellido = p.PrimerApellido ?? pacienteExistente.PrimerApellido;
                         pacienteExistente.SegundoApellido = p.SegundoApellido ?? pacienteExistente.SegundoApellido;
-                        pacienteExistente.FechaNacimiento = p.FechaNacimiento;
+                        // ✅ Convertir a UTC si no es null
+                        if (p.FechaNacimiento != null)
+                        {
+                            pacienteExistente.FechaNacimiento = DateTime.SpecifyKind(p.FechaNacimiento, DateTimeKind.Utc);
+                        }
                         pacienteExistente.Sexo = p.Sexo ?? pacienteExistente.Sexo;
                         pacienteExistente.Genero = p.Genero ?? pacienteExistente.Genero;
                         pacienteExistente.Eps = p.Eps ?? pacienteExistente.Eps;
                         pacienteExistente.Estado = true;
-                        pacienteExistente.FechaActualizacion = DateTime.Now; // Si tienes este campo en tu modelo
+                        // ✅ Asegurar que FechaActualizacion sea UTC
+                        pacienteExistente.FechaActualizacion = DateTime.UtcNow;
 
                         _context.Pacientes.Update(pacienteExistente);
                         existentes++;
@@ -331,12 +345,15 @@ namespace Highdmin.Controllers
                         SegundoNombre = p.SegundoNombre,
                         PrimerApellido = p.PrimerApellido,
                         SegundoApellido = p.SegundoApellido,
-                        FechaNacimiento = p.FechaNacimiento,
+                        // ✅ Convertir FechaNacimiento a UTC
+                        FechaNacimiento = DateTime.SpecifyKind(p.FechaNacimiento, DateTimeKind.Utc),
                         Sexo = p.Sexo,
                         Genero = p.Genero,
                         Eps = p.Eps,
                         Estado = true,
-                        FechaCreacion = DateTime.Now
+                        // ✅ Asegurar que FechaCreacion sea UTC
+                        FechaCreacion = DateTime.UtcNow,
+                        EmpresaId = CurrentEmpresaId
                     };
 
                     _context.Pacientes.Add(paciente);
@@ -350,11 +367,13 @@ namespace Highdmin.Controllers
                 var historial = new HistorialCargaPacientes
                 {
                     Usuario = usuario,
-                    FechaCarga = DateTime.Now,
+                    // ✅ Asegurar que FechaCarga sea UTC
+                    FechaCarga = DateTime.UtcNow,
                     TotalCargados = nuevos,
                     TotalExistentes = existentes,
                     ArchivoNombre = "Carga desde Excel",
-                    Observaciones = $"{nuevos} nuevos, {existentes} ya existían."
+                    Observaciones = $"{nuevos} nuevos, {existentes} ya existían.",
+                    EmpresaId = CurrentEmpresaId
                 };
                 _context.HistorialCargas.Add(historial);
                 await _context.SaveChangesAsync();
@@ -449,7 +468,7 @@ namespace Highdmin.Controllers
                     paciente.Email = viewModel.Email;
                     paciente.Genero = viewModel.Genero;
                     paciente.Estado = viewModel.Estado;
-                    paciente.FechaActualizacion = DateTime.Now;
+                    paciente.FechaActualizacion = DateTime.UtcNow;
 
                     _context.Update(paciente);
                     await _context.SaveChangesAsync();
@@ -478,32 +497,15 @@ namespace Highdmin.Controllers
             return View(viewModel);
         }
 
-        // GET: Pacientes/Delete/5
-        public async Task<IActionResult> Delete(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var paciente = await _context.Pacientes
-                .FirstOrDefaultAsync(m => m.Id == id && m.EmpresaId == CurrentEmpresaId);
-
-            if (paciente == null)
-            {
-                return NotFound();
-            }
-
-            return View(paciente);
-        }
+         
 
         // POST: Pacientes/Delete/5
-        [HttpPost, ActionName("Delete")]
+        [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
+        public async Task<IActionResult> Eliminar(int id)
         {
             try
-            {
+            { 
                 var paciente = await _context.Pacientes.FirstOrDefaultAsync(m => m.Id == id && m.EmpresaId == CurrentEmpresaId);
                 if (paciente != null)
                 {
@@ -725,11 +727,11 @@ namespace Highdmin.Controllers
                         SegundoNombre = segundoNombre,
                         PrimerApellido = primerApellido,
                         SegundoApellido = segundoApellido,
-                        FechaNacimiento = ParseDate(fechaNacStr) ?? DateTime.MinValue,
+                        FechaNacimiento = ParseDate(fechaNacStr) ?? DateTime.UtcNow,
                         Sexo = sexo,
                         Eps = eps,
                         Estado = true,
-                        FechaCreacion = DateTime.Now,
+                        FechaCreacion = DateTime.UtcNow,
                         EmpresaId = CurrentEmpresaId
                     };
 
@@ -773,6 +775,70 @@ namespace Highdmin.Controllers
                 _logger.LogError(ex, "Error al importar la plantilla de pacientes");
                 ModelState.AddModelError("", "Error al procesar el archivo Excel. Por favor, verifique el formato del archivo.");
                 return View(model);
+            }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> BuscarPorIdentificacion(string identificacion)
+        {
+            if (string.IsNullOrWhiteSpace(identificacion))
+            {
+                return Json(new { success = false, message = "Identificación vacía" });
+            }
+
+            try
+            {
+                var paciente = await _context.Pacientes
+                    .Where(p => p.Identificacion == identificacion && p.EmpresaId == CurrentEmpresaId)
+                    .Select(p => new
+                    {
+                        p.Identificacion,
+                        TipoIdentificacion = p.TipoIdentificacion,
+                        p.PrimerNombre,
+                        p.SegundoNombre,
+                        p.PrimerApellido,
+                        p.SegundoApellido,
+                        FechaNacimiento = p.FechaNacimiento, // devolveremos la fecha como DateTime y la formateamos en el cliente
+                        p.Sexo,
+                        p.Telefono,
+                        p.Email,
+                        p.Eps
+                    })
+                    .FirstOrDefaultAsync();
+
+                if (paciente == null)
+                {
+                    return Json(new { success = false, message = "Paciente no encontrado" });
+                }
+
+                // Normalizar fecha en formato yyyy-MM-dd para input type="date"
+                var fechaStr = paciente.FechaNacimiento != null
+                    ? ((DateTime)paciente.FechaNacimiento).ToString("yyyy-MM-dd")
+                    : string.Empty;
+
+                return Json(new
+                {
+                    success = true,
+                    data = new
+                    {
+                        paciente.Identificacion,
+                        paciente.TipoIdentificacion,
+                        paciente.PrimerNombre,
+                        paciente.SegundoNombre,
+                        paciente.PrimerApellido,
+                        paciente.SegundoApellido,
+                        FechaNacimiento = fechaStr,
+                        paciente.Sexo,
+                        paciente.Telefono,
+                        paciente.Email,
+                        paciente.Eps
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error al buscar paciente por identificación {Identificacion}", identificacion);
+                return Json(new { success = false, message = "Ocurrió un error al buscar el paciente" });
             }
         }
 

@@ -54,7 +54,7 @@ namespace Highdmin.Controllers
         {
             if (ModelState.IsValid)
             {
-                empresa.FechaCreacion = DateTime.Now;
+                empresa.FechaCreacion = DateTime.UtcNow;
                 _context.Add(empresa);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
@@ -92,7 +92,7 @@ namespace Highdmin.Controllers
             {
                 try
                 {
-                    empresa.FechaActualizacion = DateTime.Now;
+                    empresa.FechaActualizacion = DateTime.UtcNow;
                     _context.Update(empresa);
                     await _context.SaveChangesAsync();
                 }

@@ -230,7 +230,7 @@ namespace Highdmin.Controllers
                         Nombre = viewModel.Nombre,
                         Descripcion = viewModel.Descripcion,
                         Estado = viewModel.Estado,
-                        FechaCreacion = DateTime.Now,
+                        FechaCreacion = DateTime.UtcNow,
                         EmpresaId = CurrentEmpresaId
                     },
                     // Update mapper
@@ -307,7 +307,7 @@ namespace Highdmin.Controllers
                         Nombre = model.Nombre,
                         Descripcion = model.Descripcion,
                         Estado = model.Estado,
-                        FechaCreacion = DateTime.Now,
+                        FechaCreacion = DateTime.UtcNow,
                         EmpresaId = CurrentEmpresaId
                     };
 
@@ -319,15 +319,15 @@ namespace Highdmin.Controllers
                 }
                 catch (Exception ex)
                 {
-                    ModelState.AddModelError("", "Error al crear el tipo de carnet: " + ex.Message);
+                    ModelState.AddModelError("", "Error al crear el tipo de carnet: " + ex.InnerException?.Message);
                 }
             }
 
             return View(model);
         }
 
-        // GET: TipoCarnet/Editar/5
-        public async Task<IActionResult> Editar(int? id)
+        // GET: TipoCarnet/Edit/5
+        public async Task<IActionResult> Edit(int? id)
         {
             var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "0");
             var hasUpdatePermission = await _authorizationService.HasPermissionAsync(userId, "TipoCarnet", "Update");

@@ -95,7 +95,7 @@ namespace Highdmin.ViewModels
 
         [Display(Name = "Fecha de Creación")]
         [DataType(DataType.Date)]
-        public DateTime FechaCreacion { get; set; } = DateTime.Now;
+        public DateTime FechaCreacion { get; set; } = DateTime.UtcNow;
 
         [Display(Name = "Fecha de Modificación")]
         [DataType(DataType.Date)]

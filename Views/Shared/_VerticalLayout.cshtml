@@ -1,3 +1,4 @@
+@using Highdmin.ViewComponents
 <!DOCTYPE html>
 
 @{
@@ -6,33 +7,58 @@
 
 <html lang="en" @html_attributes>
 
-    <head>
-      @await Html.PartialAsync("~/Views/Shared/Partials/_TitleMeta.cshtml")
-      @RenderSection("styles", false)
-      @await Html.PartialAsync("~/Views/Shared/Partials/_HeadCSS.cshtml")
-    </head>
+<head>
+  @await Html.PartialAsync("~/Views/Shared/Partials/_TitleMeta.cshtml")
+  @RenderSection("styles", false)
+  @await Html.PartialAsync("~/Views/Shared/Partials/_HeadCSS.cshtml")
+</head>
 
-    <body>
+<body>
 
-        <div class="wrapper" style="margin:0px !important; padding:0px !important;">
+  <div class="wrapper" style="margin:0px !important; padding:0px !important;">
 
-        @await Html.PartialAsync("~/Views/Shared/Partials/_Topbar.cshtml")
-        @await Html.PartialAsync("~/Views/Shared/Partials/_Sidenav.cshtml")
+    @await Html.PartialAsync("~/Views/Shared/Partials/_Topbar.cshtml")
+    @await Html.PartialAsync("~/Views/Shared/Partials/_Sidenav.cshtml")
 
-            <div class="page-content">
-                <div class="page-container">
-                   @RenderBody()
-                </div>
+    <div class="page-content">
+      <div class="page-container">
+        @RenderBody()
+      </div>
 
-                @await Html.PartialAsync("~/Views/Shared/Partials/_Footer.cshtml")
+      @await Html.PartialAsync("~/Views/Shared/Partials/_Footer.cshtml")
 
-            </div>
-        </div>
+       @await Component.InvokeAsync("DeleteModal", new Highdmin.ViewComponents.DeleteModalOptions
+        {
+            Message = "¿Está seguro de que desea eliminar el registro seleccionado?"
+        })
 
-        @await Html.PartialAsync("~/Views/Shared/Partials/_Customizer.cshtml")
-        @await Html.PartialAsync("~/Views/Shared/Partials/_FooterScripts.cshtml")
-        @RenderSection("scripts", required: false)
+    </div>
+  </div>
 
-    </body>
+  @await Html.PartialAsync("~/Views/Shared/Partials/_Customizer.cshtml")
+  @await Html.PartialAsync("~/Views/Shared/Partials/_FooterScripts.cshtml")
+  @RenderSection("scripts", required: false)
+
+  <!-- Script del helper -->
+  <script>
+    const deleteModalHelper = {
+      setupForController: function (url, controllerName) {
+        console.log("Setting up delete modal for controller: 222222222", controllerName, "with URL:", url);
+        this.deleteUrl = url;
+        this.controller = controllerName;
+      },
+      confirmDelete: function (id, recordText) {
+        const modal = new bootstrap.Modal(document.getElementById('deleteRecordModal'));
+        const recordTextEl = document.getElementById('delete-record-text');
+        if (recordTextEl) recordTextEl.innerText = recordText;
+        const form = document.getElementById('deleteForm');
+        console.log("Form element:", this.deleteUrl);
+        if (form) form.action = `${this.deleteUrl}/${id}`;
+        modal.show();
+      }
+    };
+  </script>
+
+</body>
 
 </html>

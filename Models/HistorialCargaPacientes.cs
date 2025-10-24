@@ -11,7 +11,7 @@ namespace Highdmin.Models
         public int Id { get; set; }
 
         [Required]
-        public DateTime FechaCarga { get; set; } = DateTime.Now;
+        public DateTime FechaCarga { get; set; } = DateTime.UtcNow;
 
         [Required]
         [StringLength(100)]

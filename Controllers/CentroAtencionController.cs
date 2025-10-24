@@ -228,7 +228,7 @@ namespace Highdmin.Controllers
                         Tipo = viewModel.Tipo,
                         Descripcion = viewModel.Descripcion,
                         Estado = viewModel.Estado,
-                        FechaCreacion = DateTime.Now,
+                        FechaCreacion = DateTime.UtcNow,
                         EmpresaId = CurrentEmpresaId
                     },
                     // Update mapper
@@ -319,7 +319,7 @@ namespace Highdmin.Controllers
                         Tipo = viewModel.Tipo,
                         Estado = viewModel.Estado,
                         Descripcion = viewModel.Descripcion,
-                        FechaCreacion = DateTime.Now,
+                        FechaCreacion = DateTime.UtcNow,
                         EmpresaId = CurrentEmpresaId
                     };
 
@@ -428,40 +428,12 @@ namespace Highdmin.Controllers
             return View(viewModel);
         }
 
-        // GET: CentroAtencion/Delete/5
-        public async Task<IActionResult> Delete(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var centroAtencion = await _context.CentrosAtencion
-                .FirstOrDefaultAsync(m => m.Id == id && m.EmpresaId == CurrentEmpresaId);
-
-            if (centroAtencion == null)
-            {
-                return NotFound();
-            }
-
-            var viewModel = new CentroAtencionItemViewModel
-            {
-                Id = centroAtencion.Id,
-                Codigo = centroAtencion.Codigo,
-                Nombre = centroAtencion.Nombre,
-                Tipo = centroAtencion.Tipo,
-                Estado = centroAtencion.Estado,
-                FechaCreacion = centroAtencion.FechaCreacion,
-                Descripcion = centroAtencion.Descripcion
-            };
-
-            return View(viewModel);
-        }
+       
 
         // POST: CentroAtencion/Delete/5
-        [HttpPost, ActionName("Delete")]
+        [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
+        public async Task<IActionResult> Eliminar(int id)
         {
             try
             {

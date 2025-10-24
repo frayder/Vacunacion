@@ -49,7 +49,7 @@ namespace Highdmin.Models
         [Required(ErrorMessage = "La fecha de nacimiento es obligatoria")]
         [Display(Name = "Fecha de Nacimiento")]
         [DataType(DataType.Date)]
-        public DateTime FechaNacimiento { get; set; }
+        public DateTime FechaNacimiento { get; set; } = DateTime.UtcNow;
 
         [Required(ErrorMessage = "El sexo es obligatorio")]
         [StringLength(10, ErrorMessage = "El sexo no puede tener más de 10 caracteres")]
@@ -69,7 +69,7 @@ namespace Highdmin.Models
         public bool Estado { get; set; } = true;
 
         [Display(Name = "Fecha de Creación")]
-        public DateTime FechaCreacion { get; set; } = DateTime.Now;
+        public DateTime FechaCreacion { get; set; } = DateTime.UtcNow;
 
         [Display(Name = "Fecha de Actualización")]
         public DateTime? FechaActualizacion { get; set; }

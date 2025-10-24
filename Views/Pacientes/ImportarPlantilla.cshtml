@@ -221,6 +221,7 @@
         })
         .then(response => {
             if (response.ok) {
+                console.log("Pacientes guardados correctamente.", response);
                 alert("Pacientes guardados correctamente.");
                 window.location.href = '@Url.Action("Index", "Pacientes")';
             } else {

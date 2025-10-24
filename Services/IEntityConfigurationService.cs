@@ -93,7 +93,7 @@ namespace Highdmin.Services
             var estado = rowData["Estado"]?.ToLower() == "activo" || rowData["Estado"]?.ToLower() == "true" || rowData["Estado"] == "1";
             return new ViewModels.TipoCarnetItemViewModel
             {
-                Codigo = rowData["Codigo"].ToUpper(), Nombre = rowData["Nombre"], Descripcion = rowData["Descripcion"], Estado = estado, FechaCreacion = DateTime.Now
+                Codigo = rowData["Codigo"].ToUpper(), Nombre = rowData["Nombre"], Descripcion = rowData["Descripcion"], Estado = estado, FechaCreacion = DateTime.UtcNow
             };
         }
 
@@ -143,7 +143,7 @@ namespace Highdmin.Services
         {
             if (string.IsNullOrEmpty(rowData["Codigo"]) || string.IsNullOrEmpty(rowData["Nombre"])) return null;
             var estado = rowData["Estado"]?.ToLower() == "activo" || rowData["Estado"]?.ToLower() == "true" || rowData["Estado"] == "1";
-            return new ViewModels.AseguradoraItemViewModel { Codigo = rowData["Codigo"].ToUpper(), Nombre = rowData["Nombre"], Descripcion = rowData["Descripcion"], Estado = estado, FechaCreacion = DateTime.Now };
+            return new ViewModels.AseguradoraItemViewModel { Codigo = rowData["Codigo"].ToUpper(), Nombre = rowData["Nombre"], Descripcion = rowData["Descripcion"], Estado = estado, FechaCreacion = DateTime.UtcNow };
         }
 
         private List<string> ValidateAseguradora(ViewModels.AseguradoraItemViewModel item, int rowNumber)
@@ -187,7 +187,7 @@ namespace Highdmin.Services
         {
             if (string.IsNullOrEmpty(rowData["Codigo"]) || string.IsNullOrEmpty(rowData["Nombre"])) return null;
             var estado = rowData["Estado"]?.ToLower() == "activo" || rowData["Estado"]?.ToLower() == "true" || rowData["Estado"] == "1";
-            return new ViewModels.CentroAtencionItemViewModel { Codigo = rowData["Codigo"].ToUpper(), Nombre = rowData["Nombre"], Tipo = rowData["Tipo"], Descripcion = rowData["Descripcion"], Estado = estado, FechaCreacion = DateTime.Now };
+            return new ViewModels.CentroAtencionItemViewModel { Codigo = rowData["Codigo"].ToUpper(), Nombre = rowData["Nombre"], Tipo = rowData["Tipo"], Descripcion = rowData["Descripcion"], Estado = estado, FechaCreacion = DateTime.UtcNow };
         }
 
         private List<string> ValidateCentroAtencion(ViewModels.CentroAtencionItemViewModel item, int rowNumber)
@@ -226,7 +226,7 @@ namespace Highdmin.Services
         {
             if (string.IsNullOrEmpty(rowData["Codigo"]) || string.IsNullOrEmpty(rowData["Nombre"])) return null;
             var estado = rowData["Estado"]?.ToLower() == "activo" || rowData["Estado"]?.ToLower() == "true" || rowData["Estado"] == "1";
-            return new ViewModels.CondicionUsuariaItemViewModel { Codigo = rowData["Codigo"].ToUpper(), Nombre = rowData["Nombre"], Descripcion = rowData["Descripcion"], Estado = estado, FechaCreacion = DateTime.Now };
+            return new ViewModels.CondicionUsuariaItemViewModel { Codigo = rowData["Codigo"].ToUpper(), Nombre = rowData["Nombre"], Descripcion = rowData["Descripcion"], Estado = estado, FechaCreacion = DateTime.UtcNow };
         }
 
         private List<string> ValidateCondicionUsuaria(ViewModels.CondicionUsuariaItemViewModel item, int rowNumber) => new();
@@ -259,7 +259,7 @@ namespace Highdmin.Services
         {
             if (string.IsNullOrEmpty(rowData["Codigo"]) || string.IsNullOrEmpty(rowData["Nombre"])) return null;
             var estado = rowData["Estado"]?.ToLower() == "activo" || rowData["Estado"]?.ToLower() == "true" || rowData["Estado"] == "1";
-            return new ViewModels.InsumoItemViewModel { Codigo = rowData["Codigo"].ToUpper(), Nombre = rowData["Nombre"], Descripcion = rowData["Descripcion"], Estado = estado, FechaCreacion = DateTime.Now };
+            return new ViewModels.InsumoItemViewModel { Codigo = rowData["Codigo"].ToUpper(), Nombre = rowData["Nombre"], Descripcion = rowData["Descripcion"], Estado = estado, FechaCreacion = DateTime.UtcNow };
         }
 
         private List<string> ValidateInsumo(ViewModels.InsumoItemViewModel item, int rowNumber) => new();
@@ -292,7 +292,7 @@ namespace Highdmin.Services
         {
             if (string.IsNullOrEmpty(rowData["Codigo"]) || string.IsNullOrEmpty(rowData["Nombre"])) return null;
             var estado = rowData["Estado"]?.ToLower() == "activo" || rowData["Estado"]?.ToLower() == "true" || rowData["Estado"] == "1";
-            return new ViewModels.PertenenciaEtnicaItemViewModel { Codigo = rowData["Codigo"].ToUpper(), Nombre = rowData["Nombre"], Descripcion = rowData["Descripcion"], Estado = estado, FechaCreacion = DateTime.Now };
+            return new ViewModels.PertenenciaEtnicaItemViewModel { Codigo = rowData["Codigo"].ToUpper(), Nombre = rowData["Nombre"], Descripcion = rowData["Descripcion"], Estado = estado, FechaCreacion = DateTime.UtcNow };
         }
 
         private List<string> ValidatePertenenciaEtnica(ViewModels.PertenenciaEtnicaItemViewModel item, int rowNumber) => new();
@@ -325,7 +325,7 @@ namespace Highdmin.Services
         {
             if (string.IsNullOrEmpty(rowData["Codigo"]) || string.IsNullOrEmpty(rowData["Nombre"])) return null;
             var estado = rowData["Estado"]?.ToLower() == "activo" || rowData["Estado"]?.ToLower() == "true" || rowData["Estado"] == "1";
-            return new ViewModels.RegimenAfiliacionItemViewModel { Codigo = rowData["Codigo"].ToUpper(), Nombre = rowData["Nombre"], Descripcion = rowData["Descripcion"], Estado = estado, FechaCreacion = DateTime.Now };
+            return new ViewModels.RegimenAfiliacionItemViewModel { Codigo = rowData["Codigo"].ToUpper(), Nombre = rowData["Nombre"], Descripcion = rowData["Descripcion"], Estado = estado, FechaCreacion = DateTime.UtcNow };
         }
 
         private List<string> ValidateRegimenAfiliacion(ViewModels.RegimenAfiliacionItemViewModel item, int rowNumber) => new();

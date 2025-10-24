@@ -223,7 +223,7 @@ namespace Highdmin.Controllers
                         Nombre = viewModel.Nombre,
                         Descripcion = viewModel.Descripcion,
                         Estado = viewModel.Estado,
-                        FechaCreacion = DateTime.Now,
+                        FechaCreacion = DateTime.UtcNow,
                         EmpresaId = CurrentEmpresaId
                     },
                     // Update mapper
@@ -311,7 +311,7 @@ namespace Highdmin.Controllers
                         Nombre = viewModel.Nombre,
                         Descripcion = viewModel.Descripcion,
                         Estado = viewModel.Estado,
-                        FechaCreacion = DateTime.Now,
+                        FechaCreacion = DateTime.UtcNow,
                         EmpresaId = CurrentEmpresaId
                     };
 
@@ -418,39 +418,11 @@ namespace Highdmin.Controllers
             return View(viewModel);
         }
 
-        // GET: PertenenciaEtnica/Delete/5
-        public async Task<IActionResult> Delete(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
 
-            var pertenenciaEtnica = await _context.PertenenciasEtnicas
-                .FirstOrDefaultAsync(m => m.Id == id && m.EmpresaId == CurrentEmpresaId);
-
-            if (pertenenciaEtnica == null)
-            {
-                return NotFound();
-            }
-
-            var viewModel = new PertenenciaEtnicaItemViewModel
-            {
-                Id = pertenenciaEtnica.Id,
-                Codigo = pertenenciaEtnica.Codigo,
-                Nombre = pertenenciaEtnica.Nombre,
-                Descripcion = pertenenciaEtnica.Descripcion,
-                Estado = pertenenciaEtnica.Estado,
-                FechaCreacion = pertenenciaEtnica.FechaCreacion
-            };
-
-            return View(viewModel);
-        }
-
-        // POST: PertenenciaEtnica/Delete/5
-        [HttpPost, ActionName("Delete")]
+        // POST: PertenenciaEtnica/Eliminar/5
+        [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
+        public async Task<IActionResult> Eliminar(int id)
         {
             try
             {

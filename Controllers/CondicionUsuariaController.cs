@@ -223,7 +223,7 @@ namespace Highdmin.Controllers
                         Nombre = viewModel.Nombre,
                         Descripcion = viewModel.Descripcion,
                         Estado = viewModel.Estado,
-                        FechaCreacion = DateTime.Now,
+                        FechaCreacion = DateTime.UtcNow,
                         EmpresaId = CurrentEmpresaId
                     },
                     // Update mapper
@@ -315,7 +315,7 @@ namespace Highdmin.Controllers
                         Nombre = viewModel.Nombre,
                         Descripcion = viewModel.Descripcion,
                         Estado = viewModel.Estado,
-                        FechaCreacion = DateTime.Now,
+                        FechaCreacion = DateTime.UtcNow,
                         EmpresaId = CurrentEmpresaId
                     };
 
@@ -431,43 +431,10 @@ namespace Highdmin.Controllers
             return View(viewModel);
         }
 
-        // GET: CondicionUsuaria/Delete/5
-        public async Task<IActionResult> Delete(int? id)
-        {
-             // Validar permiso de eliminación
-            var redirect = await ValidatePermissionAsync("CondicionUsuaria", "Delete");
-            if (redirect != null) return redirect;
-
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var condicionUsuaria = await _context.CondicionesUsuarias
-                .FirstOrDefaultAsync(m => m.Id == id && m.EmpresaId == CurrentEmpresaId);
-
-            if (condicionUsuaria == null)
-            {
-                return NotFound();
-            }
-
-            var viewModel = new CondicionUsuariaItemViewModel
-            {
-                Id = condicionUsuaria.Id,
-                Codigo = condicionUsuaria.Codigo,
-                Nombre = condicionUsuaria.Nombre,
-                Descripcion = condicionUsuaria.Descripcion,
-                Estado = condicionUsuaria.Estado,
-                FechaCreacion = condicionUsuaria.FechaCreacion
-            };
-
-            return View(viewModel);
-        }
-
         // POST: CondicionUsuaria/Delete/5
-        [HttpPost, ActionName("Delete")]
+        [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
+        public async Task<IActionResult> Eliminar(int id)
         {
             try
             {

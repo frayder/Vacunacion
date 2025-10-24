@@ -26,7 +26,7 @@ namespace Highdmin.Models
         public bool Estado { get; set; } = true;
 
         [Display(Name = "Fecha Creación")]
-        public DateTime FechaCreacion { get; set; } = DateTime.Now;
+        public DateTime FechaCreacion { get; set; } = DateTime.UtcNow;
 
         [Required(ErrorMessage = "La empresa es obligatoria")]
         [Display(Name = "Empresa")]

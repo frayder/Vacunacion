@@ -137,7 +137,7 @@ namespace Highdmin.Controllers
                         Nombre = viewModel.Nombre,
                         Descripcion = viewModel.Descripcion,
                         Estado = viewModel.Estado,
-                        FechaCreacion = DateTime.Now,
+                        FechaCreacion = DateTime.UtcNow,
                         EmpresaId = CurrentEmpresaId
                     };
 
@@ -246,39 +246,11 @@ namespace Highdmin.Controllers
             return View(viewModel);
         }
 
-        // GET: RegimenAfiliacion/Delete/5
-        public async Task<IActionResult> Delete(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
 
-            var regimenAfiliacion = await _context.RegimenesAfiliacion
-                .FirstOrDefaultAsync(m => m.Id == id && m.EmpresaId == CurrentEmpresaId);
-
-            if (regimenAfiliacion == null)
-            {
-                return NotFound();
-            }
-
-            var viewModel = new RegimenAfiliacionItemViewModel
-            {
-                Id = regimenAfiliacion.Id,
-                Codigo = regimenAfiliacion.Codigo,
-                Nombre = regimenAfiliacion.Nombre,
-                Descripcion = regimenAfiliacion.Descripcion,
-                Estado = regimenAfiliacion.Estado,
-                FechaCreacion = regimenAfiliacion.FechaCreacion
-            };
-
-            return View(viewModel);
-        }
-
-        // POST: RegimenAfiliacion/Delete/5
-        [HttpPost, ActionName("Delete")]
+        // POST: RegimenAfiliacion/Eliminar/5
+        [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
+        public async Task<IActionResult> Eliminar(int id)
         {
             try
             {
@@ -477,7 +449,7 @@ namespace Highdmin.Controllers
                         Nombre = viewModel.Nombre,
                         Descripcion = viewModel.Descripcion,
                         Estado = viewModel.Estado,
-                        FechaCreacion = DateTime.Now,
+                        FechaCreacion = DateTime.UtcNow,
                         EmpresaId = CurrentEmpresaId
                     },
                     // Update mapper

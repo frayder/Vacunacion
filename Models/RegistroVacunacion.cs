@@ -256,7 +256,7 @@ namespace Highdmin.Models
         public bool Estado { get; set; } = true;
 
         [Display(Name = "Fecha de Creación")]
-        public DateTime FechaCreacion { get; set; } = DateTime.Now;
+        public DateTime FechaCreacion { get; set; } = DateTime.UtcNow;
 
         [Display(Name = "Fecha de Modificación")]
         public DateTime? FechaModificacion { get; set; }

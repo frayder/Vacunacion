@@ -280,7 +280,7 @@ namespace Highdmin.Data
                 entity.Property(e => e.Observaciones).HasMaxLength(500);
                 entity.Property(e => e.FechaRegistro).IsRequired();
                 entity.Property(e => e.Activo).HasDefaultValue(true);
-                entity.Property(e => e.FechaCreacion).HasDefaultValueSql("GETDATE()");
+                entity.Property(e => e.FechaCreacion).HasDefaultValueSql("CURRENT_TIMESTAMP");
 
                 // Relación con RegistroVacunacion
                 entity.HasOne(a => a.RegistroVacunacion)

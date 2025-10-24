@@ -41,7 +41,7 @@ namespace Highdmin.ViewModels
         public string? Descripcion { get; set; }
 
         [Display(Name = "Fecha Creación")]
-        public DateTime FechaCreacion { get; set; } = DateTime.Now; 
+        public DateTime FechaCreacion { get; set; } = DateTime.UtcNow; 
 
         // Propiedades calculadas para mostrar en la vista
         public string EstadoTexto => Estado ? "Activo" : "Inactivo";

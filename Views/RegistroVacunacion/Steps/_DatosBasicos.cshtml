@@ -51,11 +51,16 @@
                     <div class="text-danger small validation-message" style="display: none;">Este campo es obligatorio</div>
                 </div>
             </div>
-            <div class="col-md-6">
-                <div class="mb-3">
+            <div class="col-md-6 d-flex">
+                <div class="mb-3 col-md-7">
                     <label asp-for="NumeroDocumento" class="form-label">Número de identificación <span class="text-danger">*</span></label>
                     <input asp-for="NumeroDocumento" type="number" class="form-control" id="NumeroDocumento" placeholder="Número de documento" required>
                     <div class="text-danger small validation-message" style="display: none;">Este campo es obligatorio</div>
+                </div>
+                <div class="mb-3 col-md-5 text-center">
+                    <button type="button" class="btn btn-primary" style="margin-top: 28px;" size="sm" id="nextBtnBuscar">
+                        <i class="ri-search-line ms-1"></i> Buscar
+                    </button>
                 </div>
             </div>
             <div class="col-md-6">

@@ -6,7 +6,8 @@
     "scripts": {
         "start": "gulp",
         "dev": "dotnet watch run",
-        "build": "gulp build"
+        "build": "gulp build",
+        "public": "dotnet publish -c Release -o ./publish"
     },
     "author": "coderthemes",
     "private": true,

@@ -31,11 +31,11 @@ END
 IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='Usuarios' AND xtype='U')
 BEGIN
     CREATE TABLE [AnulacionFacturas].[Usuarios] (
-        Id INT PRIMARY KEY IDENTITY(1,1),
-        Username NVARCHAR(50) UNIQUE NOT NULL,
-        Password NVARCHAR(255) NOT NULL,
-        Email NVARCHAR(100),
-        Role NVARCHAR(50) DEFAULT 'User',
+        Id INT PRIMARY KEY SERIAL(1,1),
+        Username varchar(50) UNIQUE NOT NULL,
+        Password varchar(255) NOT NULL,
+        Email varchar(100),
+        Role varchar(50) DEFAULT 'User',
         CreatedAt DATETIME2 DEFAULT GETDATE(),
         IsActive BIT DEFAULT 1
     )
@@ -46,13 +46,13 @@ END
 IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='Peticiones' AND xtype='U')
 BEGIN
     CREATE TABLE [AnulacionFacturas].[Peticiones] (
-        Id INT PRIMARY KEY IDENTITY(1,1),
-        NumeroPeticion NVARCHAR(50) UNIQUE NOT NULL,
-        Estado NVARCHAR(50) DEFAULT 'Pendiente',
+        Id INT PRIMARY KEY SERIAL(1,1),
+        NumeroPeticion varchar(50) UNIQUE NOT NULL,
+        Estado varchar(50) DEFAULT 'Pendiente',
         FechaCreacion DATETIME2 DEFAULT GETDATE(),
         FechaActualizacion DATETIME2 DEFAULT GETDATE(),
         UsuarioId INT,
-        Observaciones NVARCHAR(MAX),
+        Observaciones varchar(MAX),
         FOREIGN KEY (UsuarioId) REFERENCES [AnulacionFacturas].[Usuarios](Id)
     )
     PRINT 'Tabla Peticiones creada.'
@@ -62,14 +62,14 @@ END
 IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='Pacientes' AND xtype='U')
 BEGIN
     CREATE TABLE [AnulacionFacturas].[Pacientes] (
-        Id INT PRIMARY KEY IDENTITY(1,1),
-        Nombre NVARCHAR(100) NOT NULL,
-        Apellido NVARCHAR(100) NOT NULL,
-        Cedula NVARCHAR(20) UNIQUE NOT NULL,
-        Telefono NVARCHAR(20),
-        Email NVARCHAR(100),
+        Id INT PRIMARY KEY SERIAL(1,1),
+        Nombre varchar(100) NOT NULL,
+        Apellido varchar(100) NOT NULL,
+        Cedula varchar(20) UNIQUE NOT NULL,
+        Telefono varchar(20),
+        Email varchar(100),
         FechaNacimiento DATE,
-        Direccion NVARCHAR(255),
+        Direccion varchar(255),
         CreatedAt DATETIME2 DEFAULT GETDATE()
     )
     PRINT 'Tabla Pacientes creada.'
@@ -79,14 +79,14 @@ END
 IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='Facturas' AND xtype='U')
 BEGIN
     CREATE TABLE [AnulacionFacturas].[Facturas] (
-        Id INT PRIMARY KEY IDENTITY(1,1),
-        NumeroFactura NVARCHAR(50) UNIQUE NOT NULL,
+        Id INT PRIMARY KEY SERIAL(1,1),
+        NumeroFactura varchar(50) UNIQUE NOT NULL,
         PacienteId INT,
         Monto DECIMAL(18,2) NOT NULL,
         FechaEmision DATE NOT NULL,
         FechaVencimiento DATE,
-        Estado NVARCHAR(50) DEFAULT 'Pendiente',
-        Descripcion NVARCHAR(MAX),
+        Estado varchar(50) DEFAULT 'Pendiente',
+        Descripcion varchar(MAX),
         CreatedAt DATETIME2 DEFAULT GETDATE(),
         FOREIGN KEY (PacienteId) REFERENCES [AnulacionFacturas].[Pacientes](Id)
     )

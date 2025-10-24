@@ -45,6 +45,7 @@ namespace Highdmin.Controllers
                 var usuario = await _context.Users
                     .Include(u => u.UserRoles)
                     .ThenInclude(ur => ur.Role)
+                    .Include(u => u.Empresa) // <-- Agrega esta línea
                     .FirstOrDefaultAsync(u => u.UserName == nombreUsuario || u.Email == nombreUsuario);
 
                 if (usuario == null)
@@ -79,7 +80,8 @@ namespace Highdmin.Controllers
             }
             catch (Exception ex)
             {
-                ViewBag.Error = "Error interno del servidor. Inténtelo de nuevo.";
+                
+                ViewBag.Error = "Error interno del servidor. Inténtelo de nuevo." + ex.Message;
                 return View();
             }
         }

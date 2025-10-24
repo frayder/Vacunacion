@@ -102,7 +102,7 @@ namespace Highdmin.Controllers
                 @"IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = 'AnulacionFacturas' AND TABLE_NAME = 'MenuItems')
                 BEGIN
                     CREATE TABLE [AnulacionFacturas].[MenuItems] (
-                        [Id] int IDENTITY(1,1) NOT NULL,
+                        [Id] int SERIAL(1,1) NOT NULL,
                         [Name] nvarchar(100) NOT NULL,
                         [Resource] nvarchar(255) NOT NULL,
                         CONSTRAINT [PK_MenuItems] PRIMARY KEY ([Id])
@@ -114,7 +114,7 @@ namespace Highdmin.Controllers
                 @"IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = 'AnulacionFacturas' AND TABLE_NAME = 'Roles')
                 BEGIN
                     CREATE TABLE [AnulacionFacturas].[Roles] (
-                        [Id] int IDENTITY(1,1) NOT NULL,
+                        [Id] int SERIAL(1,1) NOT NULL,
                         [Nombre] nvarchar(100) NOT NULL,
                         [Descripcion] nvarchar(255) NULL,
                         CONSTRAINT [PK_Roles] PRIMARY KEY ([Id])
@@ -125,7 +125,7 @@ namespace Highdmin.Controllers
                 @"IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = 'AnulacionFacturas' AND TABLE_NAME = 'Permissions')
                 BEGIN
                     CREATE TABLE [AnulacionFacturas].[Permissions] (
-                        [PermissionId] int IDENTITY(1,1) NOT NULL,
+                        [PermissionId] int SERIAL(1,1) NOT NULL,
                         [Resource] nvarchar(255) NOT NULL,
                         [Action] nvarchar(50) NOT NULL,
                         CONSTRAINT [PK_Permissions] PRIMARY KEY ([PermissionId])
@@ -140,18 +140,18 @@ namespace Highdmin.Controllers
                         [RoleId] int NOT NULL,
                         [MenuItemId] int NOT NULL,
                         [PermissionId] int NULL,
-                        [CanCreate] bit NOT NULL DEFAULT 0,
-                        [CanRead] bit NOT NULL DEFAULT 0,
-                        [CanUpdate] bit NOT NULL DEFAULT 0,
-                        [CanDelete] bit NOT NULL DEFAULT 0,
-                        [CanApprove] bit NOT NULL DEFAULT 0,
-                        [CanReject] bit NOT NULL DEFAULT 0,
-                        [CanAssign] bit NOT NULL DEFAULT 0,
-                        [CanComment] bit NOT NULL DEFAULT 0,
-                        [CanAnnull] bit NOT NULL DEFAULT 0,
-                        [CanProcess] bit NOT NULL DEFAULT 0,
-                        [CanActivate] bit NOT NULL DEFAULT 0,
-                        [CanResetPassword] bit NOT NULL DEFAULT 0,
+                        [CanCreate] boolean NOT NULL DEFAULT 0,
+                        [CanRead] boolean NOT NULL DEFAULT 0,
+                        [CanUpdate] boolean NOT NULL DEFAULT 0,
+                        [CanDelete] boolean NOT NULL DEFAULT 0,
+                        [CanApprove] boolean NOT NULL DEFAULT 0,
+                        [CanReject] boolean NOT NULL DEFAULT 0,
+                        [CanAssign] boolean NOT NULL DEFAULT 0,
+                        [CanComment] boolean NOT NULL DEFAULT 0,
+                        [CanAnnull] boolean NOT NULL DEFAULT 0,
+                        [CanProcess] boolean NOT NULL DEFAULT 0,
+                        [CanActivate] boolean NOT NULL DEFAULT 0,
+                        [CanResetPassword] boolean NOT NULL DEFAULT 0,
                         CONSTRAINT [PK_RolePermissions] PRIMARY KEY ([RoleId], [MenuItemId]),
                         CONSTRAINT [FK_RolePermissions_Roles_RoleId] FOREIGN KEY ([RoleId]) REFERENCES [AnulacionFacturas].[Roles] ([Id]) ON DELETE CASCADE,
                         CONSTRAINT [FK_RolePermissions_MenuItems_MenuItemId] FOREIGN KEY ([MenuItemId]) REFERENCES [AnulacionFacturas].[MenuItems] ([Id]) ON DELETE CASCADE,

@@ -1556,6 +1556,79 @@
                 });
             } 
 
+            const buscarBtn = document.getElementById('nextBtnBuscar');
+            if (!buscarBtn) return;
+
+            buscarBtn.addEventListener('click', async function (e) {
+                e.preventDefault();
+
+                const numeroInput = document.getElementById('NumeroDocumento');
+                const tipoSelect = document.querySelector('select[name="TipoDocumento"]') || document.getElementById('TipoDocumento');
+                const primerNombre = document.getElementById('PrimerNombre');
+                const segundoNombre = document.getElementById('segundoNombre'); // ojo: en la vista está con minúscula inicial
+                const primerApellido = document.getElementById('PrimerApellido');
+                const segundoApellido = document.getElementById('SegundoApellido');
+                const fechaNacimiento = document.getElementById('FechaNacimiento');
+
+                if (!numeroInput) {
+                    console.error('Input NumeroDocumento no encontrado');
+                    return;
+                }
+
+                const identificacion = numeroInput.value && numeroInput.value.toString().trim();
+                if (!identificacion) {
+                    // mostrar validación simple
+                    const vm = numeroInput.parentElement.querySelector('.validation-message');
+                    if (vm) vm.style.display = 'block';
+                    numeroInput.classList.add('is-invalid');
+                    return;
+                }
+
+                // Llamada al endpoint
+                try {
+                    const url = `/Pacientes/BuscarPorIdentificacion?identificacion=${encodeURIComponent(identificacion)}`;
+                    const resp = await fetch(url, { method: 'GET', headers: { 'Accept': 'application/json' } });
+                    if (!resp.ok) {
+                        console.error('Respuesta no OK', resp.status);
+                        alert('Error al consultar el paciente.');
+                        return;
+                    }
+                    const json = await resp.json();
+                    if (!json.success) {
+                        alert(json.message || 'Paciente no encontrado.');
+                        // Opcional: limpiar campos o permitir ingreso manual
+                        return;
+                    }
+
+                    const data = json.data || {};
+                    // Rellenar campos si existen
+                    if (tipoSelect && data.TipoIdentificacion) {
+                        // Intentar seleccionar la opción (valores: CC, TI, RC, PA, CE)
+                        tipoSelect.value = data.TipoIdentificacion;
+                        // disparar evento change si hay listeners
+                        tipoSelect.dispatchEvent(new Event('change', { bubbles: true }));
+                    }
+                    console.log('Datos del paciente recibido:', data);
+
+                    if (primerNombre && data.primerNombre) primerNombre.value = data.primerNombre;
+                    if (segundoNombre && data.segundoNombre) segundoNombre.value = data.segundoNombre;
+                    if (primerApellido && data.primerApellido) primerApellido.value = data.primerApellido;
+                    if (segundoApellido && data.segundoApellido) segundoApellido.value = data.segundoApellido;
+                    if (fechaNacimiento && data.fechaNacimiento) fechaNacimiento.value = data.fechaNacimiento;
+
+                    // Limpiar validaciones visuales
+                    [numeroInput, primerNombre, primerApellido, fechaNacimiento, tipoSelect].forEach(el => {
+                        if (!el) return;
+                        el.classList.remove('is-invalid');
+                        const vm = el.parentElement?.querySelector('.validation-message');
+                        if (vm) vm.style.display = 'none';
+                    });
+
+                } catch (err) {
+                    console.error('Error consultando paciente:', err);
+                    alert('Ocurrió un error al buscar el paciente. Revise la consola para más detalles.');
+                }
+            });
             
             
         })

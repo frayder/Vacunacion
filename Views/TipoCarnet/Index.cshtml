@@ -3,16 +3,16 @@
 @{
     ViewData["Title"] = "Configuración de Tipos de Carnet";
     Layout = "~/Views/Shared/_VerticalLayout.cshtml";
-} 
+}
 
 <!-- Info Card -->
-@await Component.InvokeAsync("GradientCard", new { 
-    title = "Configuración de Tipos de Carnet",
-    description = "Administre los tipos de carnet disponibles para el registro de vacunación.",
-    icon = "ri-file-list-3-line",
-    startColor = "#667eea",
-    endColor = "#764ba2"
-})   
+@await Component.InvokeAsync("GradientCard", new {
+title = "Configuración de Tipos de Carnet",
+description = "Administre los tipos de carnet disponibles para el registro de vacunación.",
+icon = "ri-file-list-3-line",
+startColor = "#667eea",
+endColor = "#764ba2"
+})
 
 <!-- Main Content Card -->
 <div class="card">
@@ -36,12 +36,13 @@
         <div class="row g-3 mb-4">
             <div class="col-xxl-5 col-sm-6">
                 <div class="search-box">
-                    <input type="text" class="form-control search" placeholder="Buscar por código o nombre..."> 
+                    <input type="text" class="form-control search" placeholder="Buscar por código o nombre...">
                 </div>
             </div>
             <div class="col-xxl-2 col-sm-6">
                 <div>
-                    <select class="form-control" data-plugin="choices" data-choices data-choices-search-false name="choices-single-default" id="idStatus">
+                    <select class="form-control" data-plugin="choices" data-choices data-choices-search-false
+                        name="choices-single-default" id="idStatus">
                         <option value="">Todos los estados</option>
                         <option value="true" selected>Activo</option>
                         <option value="false">Inactivo</option>
@@ -64,16 +65,16 @@
                         </a>
                     }
                     @await Component.InvokeAsync("ImportExportButtons", new {
-                        controller = "TipoCarnet",
-                        importAction = "ImportarPlantilla",
-                        exportAction = "Exportar",
-                        importLabel = "Importar",
-                        exportLabel = "Exportar",
-                        importClass = "btn btn-info",
-                        exportClass = "btn btn-warning",
-                        showImport = true,
-                        showExport = true
-                    })
+                    controller = "TipoCarnet",
+                                        importAction = "ImportarPlantilla",
+                                        exportAction = "Exportar",
+                                        importLabel = "Importar",
+                                        exportLabel = "Exportar",
+                                        importClass = "btn btn-info",
+                                        exportClass = "btn btn-warning",
+                                        showImport = true,
+                                        showExport = true
+                                        })
                 </div>
             </div>
         </div>
@@ -135,7 +136,8 @@
                                 <td class="descripcion">
                                     @if (!string.IsNullOrEmpty(item.Descripcion))
                                     {
-                                        <span>@(item.Descripcion.Length > 50 ? item.Descripcion.Substring(0, 50) + "..." : item.Descripcion)</span>
+                                        <span>@(item.Descripcion.Length > 50 ? item.Descripcion.Substring(0, 50) + "..." :
+                                                                            item.Descripcion)</span>
                                     }
                                     else
                                     {
@@ -145,18 +147,17 @@
                                 <td class="estado">
                                     <span class="@item.EstadoClass">@item.EstadoTexto</span>
                                 </td>
-                                <td class="fecha">@item.FechaCreacion.ToString("dd/MM/yyyy")</td> 
+                                <td class="fecha">@item.FechaCreacion.ToString("dd/MM/yyyy")</td>
                                 @if (Model.CanUpdate || Model.CanDelete)
                                 {
                                     <td>
-                                        @await Component.InvokeAsync("ActionButtons", 
-                                            ActionButtonsHelper
-                                                .CreateDefault(item.Id, "TipoCarnet", $"Código: {item.Codigo}")
-                                                .WithEdit(Model.CanUpdate)
-                                                .WithDelete(Model.CanDelete, "¿Está seguro de que desea eliminar este tipo de carnet?")
-                                        )
+                                        @await Component.InvokeAsync("ActionButtons",
+                                        ActionButtonsHelper
+                                        .CreateDefault(item.Id, "TipoCarnet", $"Código: {item.Codigo}")
+                                        .WithEdit(Model.CanUpdate)
+                                        .WithDelete(Model.CanDelete, "¿Está seguro de que desea eliminar este tipo de carnet?")) 
                                     </td>
-                                }  
+                                }
                             </tr>
                         }
                     }
@@ -199,73 +200,60 @@
 
 
 @if (Model.CanDelete)
-{
+{ 
     @await Component.InvokeAsync("DeleteModal", new Highdmin.ViewComponents.DeleteModalOptions
     {
         Message = "¿Está seguro de que desea eliminar este tipo de carnet?"
     })
 }
 
-@section Scripts {
-    <script src="~/libs/list.js/list.min.js"></script>
-    <script src="~/libs/list.pagination.js/list.pagination.min.js"></script>
-    
-   <script>
+@section Scripts { 
+
+    <script>
+
         @if (Model.CanUpdate)
-        {
-            <text>
-            function editarTipoCarnet(id) {
-                window.location.href = '@Url.Action("Editar", "TipoCarnet")/' + id;
-            }
-            </text>
-        }
-
-        @if (Model.CanDelete)
-        {
-            <text>
-            function eliminarTipoCarnet(id, codigo) {
-                document.getElementById('delete-record-text').innerText = 'Código: ' + codigo;
-                document.getElementById('deleteForm').action = '@Url.Action("Eliminar", "TipoCarnet")/' + id;
-                var deleteModal = new bootstrap.Modal(document.getElementById('deleteRecordModal'));
-                deleteModal.show();
-            }
-            </text>
-        }
-
-        // Initialize list.js for search and pagination
-        var options = {
-            valueNames: ['codigo', 'nombre', 'descripcion', 'estado', 'fecha'],
-            page: 10,
-            pagination: true
-        };
-
-        var contactList = new List('customerTable', options);
-
-        // Search functionality
-        document.querySelector('.search').addEventListener('input', function(e) {
-            contactList.search(e.target.value);
-        });
-
-        // Counter animation
-        document.addEventListener('DOMContentLoaded', function() {
-            const counters = document.querySelectorAll('.counter-value');
-            counters.forEach(counter => {
-                const target = parseInt(counter.getAttribute('data-target'));
-                const increment = target / 100;
-                let current = 0;
-                
-                const updateCounter = () => {
-                    if (current < target) {
-                        current += increment;
-                        counter.textContent = Math.ceil(current);
-                        setTimeout(updateCounter, 20);
-                    } else {
-                        counter.textContent = target;
+            {
+                <text>
+                    function editarTipoCarnet(id) {
+                        window.location.href = '@Url.Action("Edit", "TipoCarnet")/' + id;
                     }
-                };
-                
-                updateCounter();
+                </text>
+        }
+ 
+
+                // Initialize list.js for search and pagination
+            var options = {
+                valueNames: ['codigo', 'nombre', 'descripcion', 'estado', 'fecha'],
+                page: 10,
+                pagination: true
+            };
+ 
+
+            // Search functionality
+            document.querySelector('.search').addEventListener('input', function (e) {
+                contactList.search(e.target.value);
             });
-        });
+
+            // Counter animation
+            document.addEventListener('DOMContentLoaded', function () {
+                const counters = document.querySelectorAll('.counter-value');
+                counters.forEach(counter => {
+                    const target = parseInt(counter.getAttribute('data-target'));
+                    const increment = target / 100;
+                    let current = 0;
+
+                    const updateCounter = () => {
+                        if (current < target) {
+                            current += increment;
+                            counter.textContent = Math.ceil(current);
+                            setTimeout(updateCounter, 20);
+                        } else {
+                            counter.textContent = target;
+                        }
+                    };
+
+                    updateCounter();
+                });
+            });
     </script>
 }

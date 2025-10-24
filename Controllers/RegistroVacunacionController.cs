@@ -76,17 +76,17 @@ namespace Highdmin.Controllers
             var año = DateTime.Now.Year;
             var sql = $@"
         BEGIN TRANSACTION;
-        DECLARE @Ultimo NVARCHAR(50);
-        SELECT TOP 1 @Ultimo = Consecutivo  
+        DECLARE @Ultimo varchar(50);
+        SELECT LIMIT 1 @Ultimo = Consecutivo  
         FROM RegistrosVacunacion WITH (UPDLOCK, HOLDLOCK)
         WHERE Consecutivo LIKE 'VAC-{año}-%' AND EmpresaId = @EmpresaId
         ORDER BY Consecutivo DESC;
 
-        DECLARE @Nuevo NVARCHAR(50);
+        DECLARE @Nuevo varchar(50);
         IF @Ultimo IS NULL
             SET @Nuevo = 'VAC-{año}-000001';
         ELSE
-            SET @Nuevo = 'VAC-{año}-' + RIGHT('000000' + CAST(CAST(RIGHT(@Ultimo, 6) AS INT) + 1 AS NVARCHAR(6)), 6);
+            SET @Nuevo = 'VAC-{año}-' + RIGHT('000000' + CAST(CAST(RIGHT(@Ultimo, 6) AS INT) + 1 AS varchar(6)), 6);
 
         COMMIT TRANSACTION;
         SELECT @Nuevo;
@@ -503,7 +503,7 @@ namespace Highdmin.Controllers
                     // CAMPOS DE CONTROL
                     NotasFinales = modelo.NotasFinales,
                     Estado = true,
-                    FechaCreacion = DateTime.Now,
+                    FechaCreacion = DateTime.UtcNow,
                     FechaAtencion = modelo.FechaAtencion,
                     EsquemaCompleto = modelo.EsquemaCompleto,
                     UsuarioCreadorId = modelo.UsuarioCreadorId ?? 1 // Valor por defecto temporalmente
@@ -556,7 +556,7 @@ namespace Highdmin.Controllers
                         Observaciones = antecedente.Observaciones,
                         Activo = antecedente.Activo,
                         NumeroDocumentoPaciente = numeroDocumentoPaciente,
-                        FechaCreacion = DateTime.Now,
+                        FechaCreacion = DateTime.UtcNow,
                         EmpresaId = CurrentEmpresaId
                     };
 

@@ -51,7 +51,7 @@ sqlcmd -S . -d HighdminDB -E -i "Database\VerificarTablaRegistroVacunacion.sql"
 ## Estructura de la Tabla RegistroVacunacion
 
 ### Campos Principales
-- `Id`: Clave primaria (IDENTITY)
+- `Id`: Clave primaria (SERIAL)
 - `Consecutivo`: Código único (VAC-YYYY-000001)
 - `NombresApellidos`: Nombre completo del paciente
 - `TipoDocumento`, `NumeroDocumento`: Identificación

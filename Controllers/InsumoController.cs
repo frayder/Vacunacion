@@ -223,7 +223,7 @@ namespace Highdmin.Controllers
                         Nombre = viewModel.Nombre,
                         Descripcion = viewModel.Descripcion,
                         Estado = viewModel.Estado,
-                        FechaCreacion = DateTime.Now,
+                        FechaCreacion = DateTime.UtcNow,
                         EmpresaId = CurrentEmpresaId
                     },
                     // Update mapper
@@ -316,7 +316,7 @@ namespace Highdmin.Controllers
                                 Descripcion = viewModel.Descripcion,
                                 RangoDosis = GenerarResumenRangos(viewModel.ConfiguracionesRango),
                                 Estado = viewModel.Estado,
-                                FechaCreacion = DateTime.Now,
+                                FechaCreacion = DateTime.UtcNow,
                                 EmpresaId = CurrentEmpresaId
                             };
 
@@ -335,7 +335,7 @@ namespace Highdmin.Controllers
                                     UnidadMedidaEdadMaxima = configViewModel.UnidadMedidaEdadMaxima,
                                     Dosis = configViewModel.Dosis,
                                     DescripcionRango = configViewModel.DescripcionRango,
-                                    FechaCreacion = DateTime.Now,
+                                    FechaCreacion = DateTime.UtcNow,
                                     Estado = true
                                 };
 
@@ -468,7 +468,7 @@ namespace Highdmin.Controllers
                                 UnidadMedidaEdadMaxima = configViewModel.UnidadMedidaEdadMaxima,
                                 Dosis = configViewModel.Dosis,
                                 DescripcionRango = configViewModel.DescripcionRango,
-                                FechaCreacion = DateTime.Now,
+                                FechaCreacion = DateTime.UtcNow,
                                 Estado = true
                             };
 
@@ -626,7 +626,7 @@ namespace Highdmin.Controllers
                     Tipo = viewModel.Tipo,
                     Descripcion = viewModel.Descripcion,
                     Estado = viewModel.Estado,
-                    FechaCreacion = DateTime.Now
+                    FechaCreacion = DateTime.UtcNow
                 };
 
                 _context.Add(insumo);
@@ -744,7 +744,7 @@ namespace Highdmin.Controllers
                     UnidadMedidaEdadMaxima = request.UnidadMedidaEdadMaxima,
                     Dosis = request.Dosis,
                     DescripcionRango = request.DescripcionRango,
-                    FechaCreacion = DateTime.Now,
+                    FechaCreacion = DateTime.UtcNow,
                     Estado = true
                 };
 

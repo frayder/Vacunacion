@@ -95,8 +95,8 @@
     {
         <div class="remove">
             <button type="button" 
-                    class="@Model.DeleteButton.CssClass @sizeClass remove-item-btn"
-                    onclick="@(Model.DeleteButton.OnClick ?? $"deleteModalHelper.confirmDelete({Model.RecordId}, '{Model.RecordIdentifier}'); deleteModalHelper.setupForController('{Url.Action("Eliminar", Model.Controller)}', '{Model.Controller}');")"
+                    class="@Model.DeleteButton.CssClass @sizeClass remove-item-btn" 
+                    onclick="deleteModalHelper.setupForController('@Url.Action("Eliminar", Model.Controller)', '@Model.Controller'); deleteModalHelper.confirmDelete(@Model.RecordId, '@Model.RecordIdentifier');"
                     title="@Model.DeleteButton.Tooltip">
                     <i class="@($"{Model.DeleteButton.Icon} align-bottom {(Model.DeleteButton.Text != "" ? "me-2" : "")}")"></i>@if (@Model.DeleteButton.Text != null) { @Model.DeleteButton.Text }
             </button>

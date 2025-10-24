@@ -229,7 +229,7 @@
                                 <td>
                                     @await Component.InvokeAsync("ActionButtons", 
                                         ActionButtonsHelper
-                                            .CreateDefault(centro.Id, "Centro de Atención", $"Código: {centro.Codigo}")
+                                            .CreateDefault(centro.Id, "CentroAtencion", $"Código: {centro.Codigo}")
                                             .WithEdit(Model.CanUpdate)
                                             .WithDelete(Model.CanDelete, "¿Está seguro de que desea eliminar este Centro de Atención?")
                                     )
@@ -267,26 +267,12 @@
     </div>
 </div>
 
-<!-- Modal para Eliminar --> 
-@if (Model.CanDelete)
-{
-    @await Component.InvokeAsync("DeleteModal", new Highdmin.ViewComponents.DeleteModalOptions
-    {
-        Message = "¿Está seguro de que desea eliminar este centro de atención?"
-    })
-} 
-
+ 
 @section Scripts {
     <script src="~/libs/list.js/list.min.js"></script>
     <script src="~/libs/list.pagination.js/list.pagination.min.js"></script>
     
-    <script>
-        function eliminarCentro(id, codigo) {
-            document.getElementById('delete-record-text').innerText = 'Código: ' + codigo;
-            document.getElementById('deleteForm').action = '@Url.Action("Delete", "CentroAtencion")/' + id;
-            var deleteModal = new bootstrap.Modal(document.getElementById('deleteRecordModal'));
-            deleteModal.show();
-        }
+    <script> 
 
         // Initialize list.js for search and pagination
         var options = {

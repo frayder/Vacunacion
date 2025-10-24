@@ -24,15 +24,17 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
 // Configurar Entity Framework Core con SQL Server y manejo de errores
 builder.Services.AddDbContext<Highdmin.Data.ApplicationDbContext>(options =>
 {
-    options.UseSqlServer(
+    options.UseNpgsql(
         builder.Configuration.GetConnectionString("DefaultConnection"),
-        sqlOptions =>
+        npgsqlOptions =>
         {
-            sqlOptions.EnableRetryOnFailure(
+            // Habilitar reintentos (si quieres)
+            npgsqlOptions.EnableRetryOnFailure(
                 maxRetryCount: 5,
                 maxRetryDelay: TimeSpan.FromSeconds(30),
-                errorNumbersToAdd: null);
-            sqlOptions.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery);
+                errorCodesToAdd: null);
+            // QuerySplittingBehavior está disponible en EF Core relacional
+            npgsqlOptions.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery);
         });
 });
 
@@ -77,19 +79,20 @@ app.Use(async (context, next) =>
     {
         await next();
     }
+    catch (Npgsql.PostgresException)
+    {
+        context.Response.Redirect("/Error/DatabaseError");
+    }
     catch (Microsoft.Data.SqlClient.SqlException)
     {
-        // Manejar errores específicos de SQL Server
         context.Response.Redirect("/Error/DatabaseError");
     }
     catch (Microsoft.EntityFrameworkCore.DbUpdateException)
     {
-        // Manejar errores de Entity Framework
         context.Response.Redirect("/Error/DatabaseError");
     }
     catch (Exception)
     {
-        // Para otros errores, usar el manejador por defecto
         throw;
     }
 });

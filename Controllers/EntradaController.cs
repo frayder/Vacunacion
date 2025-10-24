@@ -79,7 +79,7 @@ namespace Highdmin.Controllers
         {
             var viewModel = new EntradaCreateViewModel
             {
-                FechaEntrada = DateTime.Now,
+                FechaEntrada = DateTime.UtcNow,
                 Mes = DateTime.Now.ToString("yyyy-MM")
             };
 
@@ -105,7 +105,7 @@ namespace Highdmin.Controllers
                         Mes = viewModel.Mes,
                         Notas = viewModel.Notas,
                         Estado = viewModel.Estado,
-                        FechaCreacion = DateTime.Now,
+                        FechaCreacion = DateTime.UtcNow,
                         EmpresaId = CurrentEmpresaId
                     };
 
@@ -249,46 +249,12 @@ namespace Highdmin.Controllers
             return View(viewModel);
         }
 
-        // GET: Entrada/Delete/5
-        public async Task<IActionResult> Delete(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
+        
 
-            var entrada = await _context.Entradas
-                .Include(e => e.Insumo)
-                .Include(e => e.Usuario)
-                .FirstOrDefaultAsync(m => m.Id == id && m.EmpresaId == CurrentEmpresaId);
-
-            if (entrada == null)
-            {
-                return NotFound();
-            }
-
-            var viewModel = new EntradaItemViewModel
-            {
-                Id = entrada.Id,
-                FechaEntrada = entrada.FechaEntrada,
-                InsumoNombre = entrada.Insumo?.Nombre ?? "N/A",
-                InsumoCodigo = entrada.Insumo?.Codigo ?? "N/A",
-                InsumoTipo = entrada.Insumo?.Tipo ?? "N/A",
-                Cantidad = entrada.Cantidad,
-                UsuarioNombre = entrada.Usuario?.UserName ?? "N/A",
-                Mes = entrada.Mes,
-                Notas = entrada.Notas,
-                Estado = entrada.Estado,
-                FechaCreacion = entrada.FechaCreacion
-            };
-
-            return View(viewModel);
-        }
-
-        // POST: Entrada/Delete/5
-        [HttpPost, ActionName("Delete")]
+        // POST: Entrada/Eliminar/5
+        [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
+        public async Task<IActionResult> Eliminar(int id)
         {
             try
             {

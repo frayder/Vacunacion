@@ -10,7 +10,7 @@ namespace Highdmin.Models
 
         [Required(ErrorMessage = "La fecha de entrada es obligatoria")]
         [Display(Name = "Fecha de Entrada")]
-        public DateTime FechaEntrada { get; set; } = DateTime.Now;
+        public DateTime FechaEntrada { get; set; } = DateTime.UtcNow;
 
         [Required(ErrorMessage = "El insumo es obligatorio")]
         [Display(Name = "Insumo")]

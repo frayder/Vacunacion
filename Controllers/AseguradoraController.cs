@@ -230,7 +230,7 @@ namespace Highdmin.Controllers
                         Nombre = viewModel.Nombre,
                         Descripcion = viewModel.Descripcion,
                         Estado = viewModel.Estado,
-                        FechaCreacion = DateTime.Now,
+                        FechaCreacion = DateTime.UtcNow,
                         EmpresaId = CurrentEmpresaId
                     },
                     // Update mapper
@@ -328,7 +328,7 @@ namespace Highdmin.Controllers
                         Nombre = viewModel.Nombre,
                         Descripcion = viewModel.Descripcion,
                         Estado = viewModel.Estado,
-                        FechaCreacion = DateTime.Now,
+                        FechaCreacion = DateTime.UtcNow,
                         EmpresaId = CurrentEmpresaId
                     };
 
@@ -434,40 +434,11 @@ namespace Highdmin.Controllers
 
             return View(viewModel);
         }
-
-        // GET: Aseguradora/Delete/5
-        public async Task<IActionResult> Delete(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var aseguradora = await _context.Aseguradoras
-                .FirstOrDefaultAsync(m => m.Id == id && m.EmpresaId == CurrentEmpresaId);
-
-            if (aseguradora == null)
-            {
-                return NotFound();
-            }
-
-            var viewModel = new AseguradoraItemViewModel
-            {
-                Id = aseguradora.Id,
-                Codigo = aseguradora.Codigo,
-                Nombre = aseguradora.Nombre,
-                Descripcion = aseguradora.Descripcion,
-                Estado = aseguradora.Estado,
-                FechaCreacion = aseguradora.FechaCreacion
-            };
-
-            return View(viewModel);
-        }
-
+ 
         // POST: Aseguradora/Delete/5
-        [HttpPost, ActionName("Delete")]
+        [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
+        public async Task<IActionResult> Eliminar(int id)
         {
             try
             {
