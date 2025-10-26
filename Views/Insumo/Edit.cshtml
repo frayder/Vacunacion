@@ -2,16 +2,16 @@
 @{
     ViewData["Title"] = "Editar Insumo";
     Layout = "~/Views/Shared/_VerticalLayout.cshtml";
-} 
+}
 
 <div class="row">
     <div class="col-lg-7">
-        <div class="card"> 
+        <div class="card">
             <div class="card-body">
                 <form asp-action="Edit" method="post">
                     <input asp-for="Id" type="hidden">
                     <input asp-for="FechaCreacion" type="hidden">
-                    
+
                     <div class="row">
                         <div class="col-md-6">
                             <div class="mb-3">
@@ -54,7 +54,7 @@
                             <input asp-for="Estado" class="form-check-input" type="checkbox">
                             <label asp-for="Estado" class="form-check-label"></label>
                         </div>
-                    </div> 
+                    </div>
 
                     <div class="text-end">
                         <a asp-action="Index" class="btn btn-secondary me-2">
@@ -72,26 +72,29 @@
     <div class="col-lg-5">
         <div class="card">
             <div class="card-header">
-                <h5 class="card-title mb-0">Aquí se muestran los rangos de edad y dosis configurados para este insumo.</h5>
+                <h5 class="card-title mb-0">Aquí se muestran los rangos de edad y dosis configurados para este insumo.
+                </h5>
             </div>
-            <div class="card-body"> 
+            <div class="card-body">
                 <div class="row" id="configuracionesContainer">
-            
+
                     @foreach (var item in Model.ConfiguracionesRango)
                     {
-                        <div class="d-flex col-lg-6 col-md-6 align-items-center mb-3 pr-1" style="border: 1px solid #e3e6f3; border-radius: 5px; padding: 10px;">
+                        <div class="d-flex col-lg-6 col-md-6 align-items-center mb-3 pr-1"
+                            style="border: 1px solid #e3e6f3; border-radius: 5px; padding: 10px;">
                             <div class="flex-shrink-0 me-3">
                                 <i class="ri-checkbox-circle-line text-success fs-20"></i>
                             </div>
                             <div class="flex-grow-1">
-                                <h6 class="mb-1">@item.EdadMinima @item.UnidadMedidaEdadMinima - @item.EdadMaxima @item.UnidadMedidaEdadMaxima</h6>
+                                <h6 class="mb-1">@item.EdadMinima @item.UnidadMedidaEdadMinima - @item.EdadMaxima
+                                    @item.UnidadMedidaEdadMaxima</h6>
                                 <p class="text-muted mb-0">Dosis: @item.Dosis</p>
                             </div>
                             <button class="btn btn-sm btn-danger ms-2" onclick="eliminarConfiguracion(@item.Id)">
                                 <i class="ri-delete-bin-5-line"></i>
                             </button>
                         </div>
-                    } 
+                    }
                 </div>
                 <button class="btn btn-primary w-100" data-bs-toggle="modal" data-bs-target="#addRangeModal">
                     <i class="ri-add-line me-1"></i> Agregar Rango de Edad y Dosis
@@ -99,7 +102,7 @@
             </div>
         </div>
     </div>
-    
+
 </div>
 
 <!-- Modal para agregar rango -->
@@ -115,19 +118,23 @@
             <form id="formAgregarRango">
                 <div class="modal-body">
                     <input type="hidden" id="insumoId" value="@Model.Id" />
-                    
+
                     <div class="row">
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label for="edadMinima" class="form-label">Edad Mínima <span class="text-danger">*</span></label>
-                                <input type="number" id="edadMinima" class="form-control" min="0" placeholder="Ej: 60" required>
+                                <label for="edadMinima" class="form-label">Edad Mínima <span
+                                        class="text-danger">*</span></label>
+                                <input type="number" id="edadMinima" class="form-control" min="0" placeholder="Ej: 60"
+                                    required>
                                 <div class="invalid-feedback"></div>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label for="unidadMedidaEdadMinima" class="form-label">Unidad Edad Mínima <span class="text-danger">*</span></label>
-                                <select id="unidadMedidaEdadMinima" class="form-control" data-choices data-choices-search-false required>
+                                <label for="unidadMedidaEdadMinima" class="form-label">Unidad Edad Mínima <span
+                                        class="text-danger">*</span></label>
+                                <select id="unidadMedidaEdadMinima" class="form-control" data-choices
+                                    data-choices-search-false required>
                                     <option value="">Seleccionar unidad</option>
                                     <option value="Dias">días</option>
                                     <option value="Meses">meses</option>
@@ -137,19 +144,23 @@
                             </div>
                         </div>
                     </div>
-                    
+
                     <div class="row">
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label for="edadMaxima" class="form-label">Edad Máxima <span class="text-danger">*</span></label>
-                                <input type="number" id="edadMaxima" class="form-control" min="0" placeholder="Ej: 5" required>
+                                <label for="edadMaxima" class="form-label">Edad Máxima <span
+                                        class="text-danger">*</span></label>
+                                <input type="number" id="edadMaxima" class="form-control" min="0" placeholder="Ej: 5"
+                                    required>
                                 <div class="invalid-feedback"></div>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label for="unidadMedidaEdadMaxima" class="form-label">Unidad Edad Máxima <span class="text-danger">*</span></label>
-                                <select id="unidadMedidaEdadMaxima" class="form-control" data-choices data-choices-search-false required>
+                                <label for="unidadMedidaEdadMaxima" class="form-label">Unidad Edad Máxima <span
+                                        class="text-danger">*</span></label>
+                                <select id="unidadMedidaEdadMaxima" class="form-control" data-choices
+                                    data-choices-search-false required>
                                     <option value="">Seleccionar unidad</option>
                                     <option value="Dias">días</option>
                                     <option value="Meses">meses</option>
@@ -159,25 +170,33 @@
                             </div>
                         </div>
                     </div>
-                    
+
                     <div class="mb-3">
                         <label for="dosis" class="form-label">Dosis</label>
                         <select id="dosis" class="form-control" data-choices data-choices-search-false>
                             <option value="">Seleccionar dosis</option>
+                            <option value="DOSIS UNICA">DOSIS ÚNICA</option>
                             <option value="1ERA DOSIS">1ERA DOSIS</option>
                             <option value="2DA DOSIS">2DA DOSIS</option>
                             <option value="3ERA DOSIS">3ERA DOSIS</option>
+                            <option value="4TA DOSIS">4TA DOSIS</option>
+                            <option value="5TA DOSIS">5TA DOSIS</option>
                             <option value="REFUERZO">REFUERZO</option>
+                            <option value="REFUERZO 1">REFUERZO 1</option>
+                            <option value="REFUERZO 2">REFUERZO 2</option>
                             <option value="PRIMERAS 12 HORAS">PRIMERAS 12 HORAS</option>
-                            <option value="DOSIS UNICA">DOSIS UNICA</option>
+                            <option value="REVACUNACIÓN">REVACUNACIÓN</option>
+                            <option value="DOSIS ADICIONAL">DOSIS ADICIONAL</option>
+                            <option value="ESQUEMA COMPLETO">ESQUEMA COMPLETO</option> 
                         </select>
                     </div>
-                    
+
                     <div class="mb-3">
                         <label for="descripcionRango" class="form-label">Descripción del Rango</label>
-                        <input type="text" id="descripcionRango" class="form-control" readonly placeholder="Se genera automáticamente">
+                        <input type="text" id="descripcionRango" class="form-control" readonly
+                            placeholder="Se genera automáticamente">
                     </div>
-                    
+
                     <div class="alert alert-info d-none" id="alertInfo">
                         <i class="ri-information-line me-2"></i>
                         <span id="alertMessage"></span>
@@ -197,264 +216,289 @@
 </div>
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
-    
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
     <!-- SweetAlert2 for notifications -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    
+
     <script>
-    $(document).ready(function() {
-        // Actualizar descripción cuando cambien los valores
-        $('#edadMinima, #edadMaxima, #unidadMedidaEdadMinima, #unidadMedidaEdadMaxima').on('change keyup', function() {
-            updateDescripcionRango();
-        });
-        
-        // Manejar envío del formulario
-        $('#formAgregarRango').on('submit', function(e) {
-            e.preventDefault();
-            agregarRangoConfiguracion();
-        });
-        
-        // Limpiar formulario cuando se abre el modal
-        $('#addRangeModal').on('show.bs.modal', function() {
-            limpiarFormularioRango();
-        });
-    });
+        $(document).ready(function () {
+            // Actualizar descripción cuando cambien los valores
+            $('#edadMinima, #edadMaxima, #unidadMedidaEdadMinima, #unidadMedidaEdadMaxima').on('change keyup', function () {
+                updateDescripcionRango();
+            });
 
-    function updateDescripcionRango() {
-        const edadMin = $('#edadMinima').val();
-        const edadMax = $('#edadMaxima').val();
-        const unidadMin = $('#unidadMedidaEdadMinima').val();
-        const unidadMax = $('#unidadMedidaEdadMaxima').val();
-        
-        let descripcion = '';
-        if (edadMin && unidadMin && edadMax && unidadMax) {
-            const unidadMinTexto = unidadMin === 'Dias' ? 'días' : unidadMin === 'Meses' ? 'meses' : 'años';
-            const unidadMaxTexto = unidadMax === 'Dias' ? 'días' : unidadMax === 'Meses' ? 'meses' : 'años';
-            descripcion = `DE ${edadMin} ${unidadMinTexto} A ${edadMax} ${unidadMaxTexto}`;
-        }
-        
-        $('#descripcionRango').val(descripcion.toUpperCase());
-    }
+            // Manejar envío del formulario
+            $('#formAgregarRango').on('submit', function (e) {
+                e.preventDefault();
+                agregarRangoConfiguracion();
+            });
 
-    function limpiarFormularioRango() {
-        $('#formAgregarRango')[0].reset();
-        $('#descripcionRango').val('');
-        $('.is-invalid').removeClass('is-invalid');
-        $('#alertInfo').addClass('d-none');
-        
-        // Reinicializar los selects de Choices.js si están presentes
-        const selects = document.querySelectorAll('#addRangeModal .form-control[data-choices]');
-        selects.forEach(select => {
-            if (select.choices) {
-                select.choices.setChoiceByValue('');
+            // Limpiar formulario cuando se abre el modal
+            $('#addRangeModal').on('show.bs.modal', function () {
+                limpiarFormularioRango();
+            });
+        });
+
+        function convertirADias(edad, unidad) {
+            switch (unidad) {
+                case 'Dias':
+                    return edad;
+                case 'Meses':
+                    return edad * 30; // Aproximadamente 30 días por mes
+                case 'Anos':
+                    return edad * 365; // Aproximadamente 365 días por año
+                default:
+                    return 0;
             }
-        });
-    }
+        }
 
-    function validarFormularioRango() {
-        let isValid = true;
-        const edadMin = parseInt($('#edadMinima').val());
-        const edadMax = parseInt($('#edadMaxima').val());
-        const unidadMin = $('#unidadMedidaEdadMinima').val();
-        const unidadMax = $('#unidadMedidaEdadMaxima').val();
-        
-        // Limpiar validaciones previas
-        $('.is-invalid').removeClass('is-invalid');
-        $('#alertInfo').addClass('d-none');
-        
-        // Validar campos requeridos
-        if (!edadMin || edadMin < 0) {
-            $('#edadMinima').addClass('is-invalid');
-            $('#edadMinima').siblings('.invalid-feedback').text('La edad mínima es obligatoria');
-            isValid = false;
-        }
-        
-        if (!edadMax || edadMax < 0) {
-            $('#edadMaxima').addClass('is-invalid');
-            $('#edadMaxima').siblings('.invalid-feedback').text('La edad máxima es obligatoria');
-            isValid = false;
-        }
-        
-        if (!unidadMin) {
-            $('#unidadMedidaEdadMinima').addClass('is-invalid');
-            $('#unidadMedidaEdadMinima').siblings('.invalid-feedback').text('La unidad de medida es obligatoria');
-            isValid = false;
-        }
-        
-        if (!unidadMax) {
-            $('#unidadMedidaEdadMaxima').addClass('is-invalid');
-            $('#unidadMedidaEdadMaxima').siblings('.invalid-feedback').text('La unidad de medida es obligatoria');
-            isValid = false;
-        }
-        
-        // Validar lógica de edades
-        if (isValid && edadMin >= edadMax) {
-            $('#alertInfo').removeClass('d-none');
-            $('#alertMessage').text('La edad máxima debe ser mayor que la edad mínima');
-            isValid = false;
-        }
-        
-        return isValid;
-    }
+        function updateDescripcionRango() {
+            const edadMin = $('#edadMinima').val();
+            const edadMax = $('#edadMaxima').val();
+            const unidadMin = $('#unidadMedidaEdadMinima').val();
+            const unidadMax = $('#unidadMedidaEdadMaxima').val();
 
-    function agregarRangoConfiguracion() {
-        if (!validarFormularioRango()) {
-            return;
+            let descripcion = '';
+            if (edadMin && unidadMin && edadMax && unidadMax) {
+                const unidadMinTexto = unidadMin === 'Dias' ? 'días' : unidadMin === 'Meses' ? 'meses' : 'años';
+                const unidadMaxTexto = unidadMax === 'Dias' ? 'días' : unidadMax === 'Meses' ? 'meses' : 'años';
+                descripcion = `DE ${edadMin} ${unidadMinTexto} A ${edadMax} ${unidadMaxTexto}`;
+            }
+
+            $('#descripcionRango').val(descripcion.toUpperCase());
         }
-        
-        const btnGuardar = $('#btnGuardarRango');
-        const originalText = btnGuardar.html();
-        
-        // Deshabilitar botón
-        btnGuardar.prop('disabled', true).html('<i class="ri-loader-2-line me-1 spinner"></i>Guardando...');
-        
-        const data = {
-            InsumoId: parseInt($('#insumoId').val()),
-            EdadMinima: parseInt($('#edadMinima').val()),
-            EdadMaxima: parseInt($('#edadMaxima').val()),
-            UnidadMedidaEdadMinima: $('#unidadMedidaEdadMinima').val(),
-            UnidadMedidaEdadMaxima: $('#unidadMedidaEdadMaxima').val(),
-            Dosis: $('#dosis').val() || null,
-            DescripcionRango: $('#descripcionRango').val()
-        };
-        
-        $.ajax({
-            url: '@Url.Action("AgregarConfiguracionRango", "Insumo")',
-            type: 'POST',
-            contentType: 'application/json',
-            data: JSON.stringify(data),
-            success: function(response) {
-                if (response.success) {
-                    // Cerrar modal
-                    $('#addRangeModal').modal('hide');
-                    
-                    // Mostrar mensaje de éxito
-                    Swal.fire({
-                        icon: 'success',
-                        title: '¡Éxito!',
-                        text: response.message,
-                        timer: 2000,
-                        showConfirmButton: false
-                    });
-                    
-                    console.log("Configuración agregada:", response.configuracion);
-                    // Agregar la nueva configuración a la lista
-                    agregarConfiguracionALista(response.configuracion);
-                } else {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error',
-                        text: response.message
-                    });
+
+        function limpiarFormularioRango() {
+            $('#formAgregarRango')[0].reset();
+            $('#descripcionRango').val('');
+            $('.is-invalid').removeClass('is-invalid');
+            $('#alertInfo').addClass('d-none');
+
+            // Reinicializar los selects de Choices.js si están presentes
+            const selects = document.querySelectorAll('#addRangeModal .form-control[data-choices]');
+            selects.forEach(select => {
+                if (select.choices) {
+                    select.choices.setChoiceByValue('');
                 }
-            },
-            error: function(xhr, status, error) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: 'Error de conexión: ' + error
-                });
-            },
-            complete: function() {
-                // Rehabilitar botón
-                btnGuardar.prop('disabled', false).html(originalText);
+            });
+        }
+
+        function validarFormularioRango() {
+            let isValid = true;
+            const edadMin = parseInt($('#edadMinima').val());
+            const edadMax = parseInt($('#edadMaxima').val());
+            const unidadMin = $('#unidadMedidaEdadMinima').val();
+            const unidadMax = $('#unidadMedidaEdadMaxima').val();
+
+            // Limpiar validaciones previas
+            $('.is-invalid').removeClass('is-invalid');
+            $('#alertInfo').addClass('d-none');
+
+            // Validar campos requeridos
+            if (!edadMin || edadMin < 0) {
+                $('#edadMinima').addClass('is-invalid');
+                $('#edadMinima').siblings('.invalid-feedback').text('La edad mínima es obligatoria');
+                isValid = false;
             }
-        });
-    }
 
-    function agregarConfiguracionALista(configuracion) {
-        const unidadMinTexto = configuracion.unidadMedidaEdadMinima === 'Dias' ? 'días' : 
-                              configuracion.unidadMedidaEdadMinima === 'Meses' ? 'meses' : 'años';
-        const unidadMaxTexto = configuracion.unidadMedidaEdadMaxima === 'Dias' ? 'días' : 
-                              configuracion.unidadMedidaEdadMaxima === 'Meses' ? 'meses' : 'años';
-        console.log("Agregando configuración a la lista:", configuracion);
-        const nuevoItem = `
-            <div class="d-flex col-lg-6 col-md-6 align-items-center mb-3 pr-1" style="border: 1px solid #e3e6f3; border-radius: 5px; padding: 10px;">
-                <div class="flex-shrink-0 me-3">
-                    <i class="ri-checkbox-circle-line text-success fs-20"></i>
-                </div>
-                <div class="flex-grow-1">
-                    <h6 class="mb-1">${configuracion.edadMinima} ${unidadMinTexto} - ${configuracion.edadMaxima} ${unidadMaxTexto}</h6>
-                    <p class="text-muted mb-0">Dosis: ${configuracion.dosis || 'N/A'}</p>
-                </div>
-                <button class="btn btn-sm btn-danger ms-2" onclick="eliminarConfiguracion(${configuracion.id})">
-                    <i class="ri-delete-bin-5-line"></i>
-                </button>
-            </div>
-        `;
-        
-        // Agregar al contenedor de configuraciones
-        $('#configuracionesContainer').append(nuevoItem);
-    }
+            if (!edadMax || edadMax < 0) {
+                $('#edadMaxima').addClass('is-invalid');
+                $('#edadMaxima').siblings('.invalid-feedback').text('La edad máxima es obligatoria');
+                isValid = false;
+            }
 
-    function eliminarConfiguracion(id) {
-        Swal.fire({
-            title: '¿Está seguro?',
-            text: 'Esta acción eliminará la configuración de rango de edad y dosis.',
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#d33',
-            cancelButtonColor: '#3085d6',
-            confirmButtonText: 'Sí, eliminar',
-            cancelButtonText: 'Cancelar'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                $.ajax({
-                    url: '@Url.Action("EliminarConfiguracionRango", "Insumo")',
-                    type: 'POST',
-                    data: { id: id },
-                    success: function(response) {
-                        if (response.success) {
-                            // Remover el elemento de la interfaz
-                            $(`button[onclick="eliminarConfiguracion(${id})"]`).closest('.d-flex').remove();
-                            
-                            Swal.fire({
-                                icon: 'success',
-                                title: '¡Eliminado!',
-                                text: response.message,
-                                timer: 2000,
-                                showConfirmButton: false
-                            });
-                        } else {
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Error',
-                                text: response.message
-                            });
-                        }
-                    },
-                    error: function(xhr, status, error) {
+            if (!unidadMin) {
+                $('#unidadMedidaEdadMinima').addClass('is-invalid');
+                $('#unidadMedidaEdadMinima').siblings('.invalid-feedback').text('La unidad de medida es obligatoria');
+                isValid = false;
+            }
+
+            if (!unidadMax) {
+                $('#unidadMedidaEdadMaxima').addClass('is-invalid');
+                $('#unidadMedidaEdadMaxima').siblings('.invalid-feedback').text('La unidad de medida es obligatoria');
+                isValid = false;
+            }
+
+            if (isValid) {
+                // Convertir edades a días para comparar correctamente
+                const edadMinEnDias = convertirADias(edadMin, unidadMin);
+                const edadMaxEnDias = convertirADias(edadMax, unidadMax);
+
+                if (edadMinEnDias >= edadMaxEnDias) {
+                    $('#alertInfo').removeClass('d-none');
+                    $('#alertMessage').text('La edad máxima debe ser mayor que la edad mínima considerando las unidades de medida');
+                    isValid = false;
+                }
+            }
+
+            return isValid;
+        }
+
+        function agregarRangoConfiguracion() {
+            if (!validarFormularioRango()) {
+                return;
+            }
+
+            const btnGuardar = $('#btnGuardarRango');
+            const originalText = btnGuardar.html();
+
+            // Deshabilitar botón
+            btnGuardar.prop('disabled', true).html('<i class="ri-loader-2-line me-1 spinner"></i>Guardando...');
+
+            const data = {
+                InsumoId: parseInt($('#insumoId').val()),
+                EdadMinima: parseInt($('#edadMinima').val()),
+                EdadMaxima: parseInt($('#edadMaxima').val()),
+                UnidadMedidaEdadMinima: $('#unidadMedidaEdadMinima').val(),
+                UnidadMedidaEdadMaxima: $('#unidadMedidaEdadMaxima').val(),
+                Dosis: $('#dosis').val() || null,
+                DescripcionRango: $('#descripcionRango').val()
+            };
+
+            $.ajax({
+                url: '@Url.Action("AgregarConfiguracionRango", "Insumo")',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(data),
+                success: function (response) {
+                    if (response.success) {
+                        // Cerrar modal
+                        $('#addRangeModal').modal('hide');
+
+                        // Mostrar mensaje de éxito
+                        Swal.fire({
+                            icon: 'success',
+                            title: '¡Éxito!',
+                            text: response.message,
+                            timer: 2000,
+                            showConfirmButton: false
+                        });
+
+                        console.log("Configuración agregada:", response.configuracion);
+                        // Agregar la nueva configuración a la lista
+                        agregarConfiguracionALista(response.configuracion);
+                    } else {
                         Swal.fire({
                             icon: 'error',
                             title: 'Error',
-                            text: 'Error de conexión: ' + error
+                            text: response.message
                         });
                     }
-                });
-            }
-        });
-    }
+                },
+                error: function (xhr, status, error) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Error de conexión: ' + error
+                    });
+                },
+                complete: function () {
+                    // Rehabilitar botón
+                    btnGuardar.prop('disabled', false).html(originalText);
+                }
+            });
+        }
+
+        function agregarConfiguracionALista(configuracion) {
+            const unidadMinTexto = configuracion.unidadMedidaEdadMinima === 'Dias' ? 'días' :
+                configuracion.unidadMedidaEdadMinima === 'Meses' ? 'meses' : 'años';
+            const unidadMaxTexto = configuracion.unidadMedidaEdadMaxima === 'Dias' ? 'días' :
+                configuracion.unidadMedidaEdadMaxima === 'Meses' ? 'meses' : 'años';
+            console.log("Agregando configuración a la lista:", configuracion);
+            const nuevoItem = `
+                <div class="d-flex col-lg-6 col-md-6 align-items-center mb-3 pr-1" style="border: 1px solid #e3e6f3; border-radius: 5px; padding: 10px;">
+                    <div class="flex-shrink-0 me-3">
+                        <i class="ri-checkbox-circle-line text-success fs-20"></i>
+                    </div>
+                    <div class="flex-grow-1">
+                        <h6 class="mb-1">${configuracion.edadMinima} ${unidadMinTexto} - ${configuracion.edadMaxima} ${unidadMaxTexto}</h6>
+                        <p class="text-muted mb-0">Dosis: ${configuracion.dosis || 'N/A'}</p>
+                    </div>
+                    <button class="btn btn-sm btn-danger ms-2" onclick="eliminarConfiguracion(${configuracion.id})">
+                        <i class="ri-delete-bin-5-line"></i>
+                    </button>
+                </div>
+            `;
+
+            // Agregar al contenedor de configuraciones
+            $('#configuracionesContainer').append(nuevoItem);
+        }
+
+        function eliminarConfiguracion(id) {
+            Swal.fire({
+                title: '¿Está seguro?',
+                text: 'Esta acción eliminará la configuración de rango de edad y dosis.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Sí, eliminar',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: '@Url.Action("EliminarConfiguracionRango", "Insumo")',
+                        type: 'POST',
+                        data: { id: id },
+                        success: function (response) {
+                            if (response.success) {
+                                // Remover el elemento de la interfaz
+                                $(`button[onclick="eliminarConfiguracion(${id})"]`).closest('.d-flex').remove();
+
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: '¡Eliminado!',
+                                    text: response.message,
+                                    timer: 2000,
+                                    showConfirmButton: false
+                                });
+                            } else {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Error',
+                                    text: response.message
+                                });
+                            }
+                        },
+                        error: function (xhr, status, error) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: 'Error de conexión: ' + error
+                            });
+                        }
+                    });
+                }
+            });
+        }
     </script>
 
     <style>
-    .spinner {
-        animation: spin 1s linear infinite;
-    }
+        .spinner {
+            animation: spin 1s linear infinite;
+        }
 
-    @@keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
-    }
+        @@keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
 
-    .is-invalid {
-        border-color: #dc3545;
-    }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
 
-    .invalid-feedback {
-        display: block;
-        color: #dc3545;
-        font-size: 0.875em;
-    }
+        .is-invalid {
+            border-color: #dc3545;
+        }
+
+        .invalid-feedback {
+            display: block;
+            color: #dc3545;
+            font-size: 0.875em;
+        }
     </style>
 }

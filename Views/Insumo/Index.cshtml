@@ -278,14 +278,14 @@
                             </td>
                             <td class="nombre">
                                 <div class="d-flex align-items-center">
-                                    <span class="fw-medium text-primary">@item.Nombre</span>
+                                    <span class="fw-medium text-primary">@(item.Nombre?.Length > 0 ? item.Nombre?.Substring(0, Math.Min(item.Nombre.Length, 35)) + (item.Nombre?.Length > 20 ? "....." : "") : "N/A")</span>
                                 </div>
                             </td>
                             <td class="tipo">
                                 <span class="@item.TipoBadgeClass">@item.Tipo</span>
                             </td>
                             <td class="descripcion">
-                                <span class="text-muted">@(item.Descripcion ?? "N/A")</span>
+                                <span class="text-muted">@(item.Descripcion?.Length > 0 ? item.Descripcion?.Substring(0, Math.Min(item.Descripcion.Length, 35)) + (item.Descripcion?.Length > 20 ? "....." : "") : "N/A")</span>
                             </td>
                             <td class="rango_dosis">
                                 <span class="text-muted">@(item.RangoDosis != null ? item.RangoDosis.Split('|')[0] + (item.RangoDosis?.Length > 20 ? "....." : "") : "N/A")</span>
@@ -342,28 +342,13 @@
     </div>
 </div>
 
-<!-- Modal para Eliminar --> 
-@if (Model.CanDelete)
-{
-    @await Component.InvokeAsync("DeleteModal", new Highdmin.ViewComponents.DeleteModalOptions
-    {
-        Message = "¿Está seguro de que desea eliminar este insumo?"
-    })
-}  
  
 
 @section Scripts {
     <script src="~/libs/list.js/list.min.js"></script>
     <script src="~/libs/list.pagination.js/list.pagination.min.js"></script>
     
-    <script>
-        function eliminarInsumo(id, codigo) {
-            document.getElementById('delete-record-text').innerText = 'Código: ' + codigo;
-            document.getElementById('deleteForm').action = '@Url.Action("Delete", "Insumo")/' + id;
-            var deleteModal = new bootstrap.Modal(document.getElementById('deleteRecordModal'));
-            deleteModal.show();
-        }
-
+    <script> 
         // Initialize list.js for search and pagination
         var options = {
             valueNames: ['codigo', 'nombre', 'tipo', 'descripcion', 'rango_dosis', 'estado', 'fecha_creacion'],

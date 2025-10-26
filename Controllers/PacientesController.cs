@@ -93,7 +93,7 @@ namespace Highdmin.Controllers
             if (string.IsNullOrEmpty(value)) return null;
 
             DateTime result;
-            
+
             if (DateTime.TryParseExact(value, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out result))
             {
                 // ✅ Especificar que es UTC
@@ -304,14 +304,21 @@ namespace Highdmin.Controllers
                 return Json(new { success = false, message = "No hay pacientes para guardar." });
 
             var pacientesCargados = JsonConvert.DeserializeObject<List<Paciente>>(json);
+
+           
             try
             {
+                pacientesCargados = pacientesCargados
+               .GroupBy(p => p.Identificacion)
+               .Select(g => g.First())
+               .ToList();
+                
                 int nuevos = 0, existentes = 0;
                 foreach (var p in pacientesCargados)
                 {
                     var pacienteExistente = await _context.Pacientes
                         .FirstOrDefaultAsync(x => x.Identificacion == p.Identificacion && x.EmpresaId == CurrentEmpresaId);
-                    
+
                     if (pacienteExistente != null)
                     {
                         // 🔁 Actualizar información del paciente existente
@@ -381,12 +388,41 @@ namespace Highdmin.Controllers
                 PacientesCargados.Clear();
                 HttpContext.Session.Remove("PacientesImportados");
 
-                return Json(new { success = true, message = $"{nuevos} pacientes guardados. {existentes} ya existían." });
+                return Json(new
+                {
+                    success = true,
+                    message = "Pacientes guardados exitosamente"
+                });
+            }
+            catch (DbUpdateException ex) when (ex.InnerException is Npgsql.PostgresException postgresEx)
+            {
+                _logger.LogError(ex, "Error al guardar pacientes importados");
+
+                // Verificar si es un error de clave duplicada
+                if (postgresEx.SqlState == "23505" && postgresEx.ConstraintName == "IX_Pacientes_Identificacion")
+                {
+                    return Json(new
+                    {
+                        success = false,
+                        message = "Error: Algunos pacientes ya existen en la base de datos (identificación duplicada)"
+                    });
+                }
+
+                return Json(new
+                {
+                    success = false,
+                    message = "Error en la base de datos: " + postgresEx.MessageText
+                });
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error al guardar pacientes importados");
-                return Json(new { success = false, message = "Ocurrió un error al guardar los pacientes." });
+                _logger.LogError(ex, "Error inesperado al guardar pacientes importados");
+
+                return Json(new
+                {
+                    success = false,
+                    message = "Error inesperado al guardar los pacientes"
+                });
             }
         }
         // GET: Pacientes/Edit/5
@@ -497,7 +533,7 @@ namespace Highdmin.Controllers
             return View(viewModel);
         }
 
-         
+
 
         // POST: Pacientes/Delete/5
         [HttpPost]
@@ -505,7 +541,7 @@ namespace Highdmin.Controllers
         public async Task<IActionResult> Eliminar(int id)
         {
             try
-            { 
+            {
                 var paciente = await _context.Pacientes.FirstOrDefaultAsync(m => m.Id == id && m.EmpresaId == CurrentEmpresaId);
                 if (paciente != null)
                 {
@@ -765,7 +801,7 @@ namespace Highdmin.Controllers
                     ModelState.AddModelError("", "No se encontraron registros válidos en el archivo Excel.");
                     return View(model);
                 }
-                
+
                 HttpContext.Session.SetString("PacientesImportados", JsonConvert.SerializeObject(model.PacientesCargados));
                 TempData["Success"] = $"Se importaron {model.PacientesCargados.Count} pacientes correctamente.";
                 return View(model);

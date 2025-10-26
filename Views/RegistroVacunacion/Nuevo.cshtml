@@ -601,7 +601,6 @@
 
             // Intentar leer rangos desde el <option data-rangos='[...]'>
             // Formato de rango esperado:
-            // [{ "texto":"1ERA DOSIS", "minMonths":12, "maxMonths":71, "textoRango":"DE 12 MESES A 5 AÑOS", "dosis":"1ERA DOSIS" }, ...]
             function parseRangosFromOption(optionEl) {
                 if (!optionEl) return null;
                 const attr = optionEl.getAttribute('data-rangos') || optionEl.dataset.rangos;

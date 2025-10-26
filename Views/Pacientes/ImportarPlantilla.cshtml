@@ -214,18 +214,18 @@
             });
         });
 
-    function guardarPacientes() {
-        console.log("Guardando pacientes importados...");
+    function guardarPacientes() { 
         fetch('@Url.Action("GuardarPacientesImportados", "Pacientes")', {
             method: 'POST'
         })
-        .then(response => {
-            if (response.ok) {
-                console.log("Pacientes guardados correctamente.", response);
+        .then(response => response.json()) 
+        .then(data => {
+            if (data.success) {
                 alert("Pacientes guardados correctamente.");
                 window.location.href = '@Url.Action("Index", "Pacientes")';
             } else {
-                alert("Error al guardar los pacientes.");
+                console.log("Error al guardar los pacientes.", data);
+                alert('Error: ' + data.message);
             }
         })
         .catch(error => console.error('Error:', error));

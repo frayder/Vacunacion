@@ -184,27 +184,13 @@
         </div>
     </div>
 </div>
-
-<!-- Modal para Eliminar -->
-@if (Model.CanDelete)
-{
-    @await Component.InvokeAsync("DeleteModal", new Highdmin.ViewComponents.DeleteModalOptions
-    {
-        Message = "¿Está seguro de que desea eliminar esta aseguradora?"
-    })
-}
+ 
 
 @section Scripts {
     <script src="~/libs/list.js/list.min.js"></script>
     <script src="~/libs/list.pagination.js/list.pagination.min.js"></script>
     
-    <script>
-        function eliminarAseguradora(id, codigo) {
-            document.getElementById('delete-record-text').innerText = 'Código: ' + codigo;
-            document.getElementById('deleteForm').action = '@Url.Action("Delete", "Aseguradora")/' + id;
-            var deleteModal = new bootstrap.Modal(document.getElementById('deleteRecordModal'));
-            deleteModal.show();
-        }
+    <script> 
 
         // Initialize list.js for search and pagination
         var options = {
