@@ -237,6 +237,16 @@
                 vacunaSelect.value = valor || 'BCG';
                 toggleDetalles();
             };
+
+            // NUEVA FUNCIÓN: Función para forzar la activación después de restaurar datos
+            window.activarFlujoVacunaRestaurada = function() {
+                if (vacunaSelect.value && vacunaSelect.value.trim() !== '') {
+                    console.log('🔄 Activando flujo para vacuna restaurada:', vacunaSelect.value);
+                    toggleDetalles();
+                    // Disparar el evento change para que se ejecuten otros listeners
+                    vacunaSelect.dispatchEvent(new Event('change', { bubbles: true }));
+                }
+            };
         }
     }   
 
