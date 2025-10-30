@@ -373,16 +373,17 @@
 
                     if (value !== undefined && value !== null && value !== '') {
                         if (input.type === 'radio' || input.type === 'checkbox') {
-                            const isVisible = input.offsetParent !== null ;
+                            const isVisible = input.offsetParent !== null;
                             if (input.value === value && isVisible) {
                                 input.checked = true;
                             }
                         } else {
                             input.value = value;
-                        }
+                            @* input.dispatchEvent(new Event('change', { bubbles: true })); *@
+                                }
                     }
                 });
- 
+
             }
 
             // Función para ejecutar lógica específica de cada paso
@@ -396,9 +397,18 @@
                     }
                 }
 
+                // AGREGAR MANEJO ESPECÍFICO PARA EL PASO 1
+                if (currentStep === 1) {
+                    // Para el paso 1, solo restaurar los datos después de un breve delay
+                    setTimeout(() => {
+                        restoreCurrentStepData();
+                    }, 100);
+                    return;
+                }
+
                 // Cargar datos específicos para el paso 2 (Datos Complementarios)
                 if (currentStep === 2) {
-                     loadDatosComplementarios().then(() => {
+                    loadDatosComplementarios().then(() => {
                         // Restaurar datos después de cargar las opciones
                         setTimeout(() => {
                             restoreCurrentStepData();
@@ -442,7 +452,7 @@
 
                 // Cargar datos específicos para el paso 6 (Esquema Vacunación)
                 if (currentStep === 6) {
-                   ListarDatosEsquemaVacunacion().then(() => {
+                    ListarDatosEsquemaVacunacion().then(() => {
                         // Restaurar datos después de cargar las opciones
                         setTimeout(() => {
                             restoreCurrentStepData();
@@ -467,286 +477,391 @@
                 try {
                     await loadTiposCarnet();
                     await listarInsumos();
-                    
+
                 } catch (error) {
                     // Error silenciado intencionalmente
                 }
             }
 
-            async function listarInsumos() {
-               try {
-                   const response = await fetch('/RegistroVacunacion/GetInsumos');
-                   if (!response.ok) {
-                       throw new Error(`HTTP error! status: ${response.status}`);
-                   }
-                   const data = await response.json();
-
-                   // Poblar el select "Vacuna"
-                   populateSelect('Vacuna', data, 'Seleccione vacuna');
-
-                   // Obtener el select por name (puede que exista con id distinto)
-                   const vacunaSelect = document.querySelector('select[name="Vacuna"]');
-                   if (!vacunaSelect) {
-                       return;
-                   }
-
-                   // Si ya hay un valor seleccionado (por restoreCurrentStepData), cargar las dosis para esa vacuna
-                   const currentVacuna = vacunaSelect.value;
-                   if (currentVacuna) {
-                       // Llamar a listarInsumosDosis con el id actual
-                       listarInsumosDosis(currentVacuna);
-                   }
-
-                   // Agregar listener para actualizar las dosis cuando el usuario cambie la vacuna
-                   // Antes de agregar, remover cualquier listener previo (defensivo) usando cloneNode
-                   const newSelect = vacunaSelect.cloneNode(true);
-                   vacunaSelect.parentNode.replaceChild(newSelect, vacunaSelect);
-
-                   newSelect.addEventListener('change', function () {
-                       const vacunaId = this.value;
-                       onVacunaChange();
-                       listarInsumosDosis(vacunaId);
-                   });
-
-            const tituloInformacion = document.getElementById('tituloInformacion');
-            const contenidoInformacion = document.getElementById('contenidoInformacion');
-            const alertaEdad = document.getElementById('alertaEdad');
-            const mensajeAlerta = document.getElementById('mensajeAlerta');
-            const dosisRecomendada = document.getElementById('dosisRecomendada');
-
-            // Event wiring
-            console.log('Configurando lógica de rangos de edad para vacunas'); 
-
-            // Intentos de encontrar la fecha de nacimiento del paciente.
-            function obtenerFechaNacimiento() {
-                // 1) Input con id típico
-                let el = document.querySelector('#FechaNacimiento, #fechaNacimiento, #PacienteFechaNacimiento, input[name="FechaNacimiento"], input[name="fechaNacimiento"]');
-                if (el && el.value) {
-                    const v = el.value.trim();
-                    const d = parseDateISOOrLocal(v);
-                    if (d) return d;
-                }
-
-                // 2) Data attribute en body o en un contenedor (ej. data-fecha-nacimiento="YYYY-MM-DD")
-                let data = document.body.getAttribute('data-fecha-nacimiento') || document.getElementById('informacionRangosEdad')?.getAttribute('data-fecha-nacimiento');
-                if (data) {
-                    const d = parseDateISOOrLocal(data);
-                    if (d) return d;
-                }
-
-                // 3) Global JS object: window.pacienteFechaNacimiento or window.paciente?.fechaNacimiento
-                try {
-                    if (window.pacienteFechaNacimiento) {
-                        const d = parseDateISOOrLocal(window.pacienteFechaNacimiento);
-                        if (d) return d;
-                    }
-                    if (window.paciente && window.paciente.fechaNacimiento) {
-                        const d = parseDateISOOrLocal(window.paciente.fechaNacimiento);
-                        if (d) return d;
-                    }
-                } catch (e) { /* ignore */ }
-
-                return null;
-            }
-
-            // Parse flexible ISO or dd/mm/yyyy or mm/dd/yyyy (lo más robusto posible)
-            function parseDateISOOrLocal(s) {
-                if (!s) return null;
-                // If already a Date
-                if (s instanceof Date) return s;
-                // ISO-like YYYY-MM-DD
-                let iso = s.match(/^(\d{4})-(\d{2})-(\d{2})/);
-                if (iso) {
-                    const d = new Date(Number(iso[1]), Number(iso[2]) - 1, Number(iso[3]));
-                    if (!isNaN(d)) return d;
-                }
-                // dd/mm/yyyy or dd-mm-yyyy
-                let dmy = s.match(/^(\d{2})[\/\-](\d{2})[\/\-](\d{4})/);
-                if (dmy) {
-                    const d = new Date(Number(dmy[3]), Number(dmy[2]) - 1, Number(dmy[1]));
-                    if (!isNaN(d)) return d;
-                }
-                // fallback to Date.parse
-                const pd = new Date(s);
-                if (!isNaN(pd)) return pd;
-                return null;
-            }
-
-            // Devuelve { years, months, days, totalMonths, totalDays }
-            function calcularEdad(fechaNacimiento, referencia = new Date()) {
-                if (!fechaNacimiento) return null;
-                const birth = new Date(fechaNacimiento.getFullYear(), fechaNacimiento.getMonth(), fechaNacimiento.getDate());
-                const ref = new Date(referencia.getFullYear(), referencia.getMonth(), referencia.getDate());
-
-                let years = ref.getFullYear() - birth.getFullYear();
-                let months = ref.getMonth() - birth.getMonth();
-                let days = ref.getDate() - birth.getDate();
-
-                if (days < 0) {
-                    months--;
-                    // calcular días previos (simple ajuste)
-                    const prevMonth = new Date(ref.getFullYear(), ref.getMonth(), 0);
-                    days += prevMonth.getDate();
-                }
-                if (months < 0) {
-                    years--;
-                    months += 12;
-                }
-
-                const totalMonths = years * 12 + months;
-                const totalDays = Math.floor((ref - birth) / (1000 * 60 * 60 * 24));
-
-                return { years, months, days, totalMonths, totalDays };
-            }
-
-            // Intentar leer rangos desde el <option data-rangos='[...]'>
-            // Formato de rango esperado:
-            function parseRangosFromOption(optionEl) {
-                if (!optionEl) return null;
-                const attr = optionEl.getAttribute('data-rangos') || optionEl.dataset.rangos;
-                if (!attr) return null;
-                try {
-                    return JSON.parse(attr);
-                } catch (e) {
-                    console.warn('No se pudo parsear data-rangos', e);
-                    return null;
-                }
-            }
-
-            // Si no hay data-rangos, intentar obtener de una API REST (si existe)
-            async function fetchRangosApi(vacunaId) {
-                if (!vacunaId) return null;
-                const url = `/api/vacunas/${encodeURIComponent(vacunaId)}/rangosEdad`;
-                try {
-                    const res = await fetch(url, { headers: { 'Accept': 'application/json' } });
-                    if (!res.ok) return null;
-                    const data = await res.json();
-                    return data;
-                } catch (e) {
-                    console.warn('fetchRangosApi fallo', e);
-                    return null;
-                }
-            }
-
-            // Determina si la edad (en meses) cae dentro del rango.
-            // minMonths y maxMonths son inclusive si definidos. Si faltan, se asume abierto.
-            function rangoAplica(rango, edadMonths) {
-                if (!rango) return false;
-                let min = (typeof rango.minMonths === 'number') ? rango.minMonths : -Infinity;
-                let max = (typeof rango.maxMonths === 'number') ? rango.maxMonths : Infinity;
-                return edadMonths >= min && edadMonths <= max;
-            }
-
-            // Renderiza la lista de rangos y devuelve los que aplican
-            function renderRangos(rangos, edad) {
-                contenidoInformacion.innerHTML = ''; // limpiar
-                alertaEdad.style.display = 'none';
-                mensajeAlerta.textContent = '';
-                dosisRecomendada.textContent = '';
-
-                const ageEl = document.createElement('div');
-                ageEl.className = 'mb-2';
-                if (edad) {
-                    ageEl.innerHTML = `<strong>Edad del paciente:</strong> ${edad.years} años, ${edad.months} meses (${edad.totalDays} días aprox.)`;
-                } else {
-                    ageEl.innerHTML = `<small class="text-danger">No se ha calculado la edad del paciente. Verifique que se haya ingresado la fecha de nacimiento en el paso de Datos Básicos.</small>`;
-                    contenidoInformacion.appendChild(ageEl);
-                }
-                contenidoInformacion.appendChild(ageEl);
-
-                if (!rangos || !Array.isArray(rangos) || rangos.length === 0) {
-                    const noData = document.createElement('div');
-                    noData.className = 'small text-muted';
-                    noData.textContent = 'No se encontraron rangos de edad para esta vacuna.';
-                    contenidoInformacion.appendChild(noData);
-                    return { aplican: [], noAplican: [] };
-                }
-
-                const list = document.createElement('div');
-                list.className = 'list-group';
-
-                const aplican = [];
-                const noAplican = [];
-
-                rangos.forEach((r) => {
-                    // r espera: texto, textoRango, minMonths, maxMonths, dosis (opcional)
-                    const aplica = edad ? rangoAplica(r, edad.totalMonths) : false;
-                    const item = document.createElement('div');
-                    item.className = 'list-group-item d-flex justify-content-between align-items-center';
-                    const left = document.createElement('div');
-                    left.innerHTML = `<div class="fw-bold">${r.texto || r.dosis || 'Rango'}</div><small class="text-muted">${r.textoRango || (r.minMonths !== undefined ? `${r.minMonths} meses` : '')}</small>`;
-                    const badge = document.createElement('span');
-
-                    if (aplica) {
-                        badge.className = 'badge bg-success';
-                        badge.textContent = 'Aplica';
-                        aplica.push(r);
-                    } else {
-                        badge.className = 'badge bg-secondary';
-                        badge.textContent = 'No aplica';
-                        noAplican.push(r);
-                    }
-
-                    item.appendChild(left);
-                    item.appendChild(badge);
-                    list.appendChild(item);
-                });
-
-                contenidoInformacion.appendChild(list);
-                return { aplican, noAplican };
-            }
-
-            function mostrarAlertaSegunRangos(resultado, rangos) {
-                // Decide el mensaje y tipo de alerta
-                if (!resultado || (!resultado.aplican || resultado.aplican.length === 0)) {
-                    alertaEdad.className = 'alert alert-danger border-0 bg-danger-subtle';
-                    mensajeAlerta.textContent = 'No hay rangos de edad que apliquen para la edad del paciente.';
-                    alertaEdad.style.display = 'block';
-                    // Buscar si algún rango tiene una etiqueta "dosis" para mostrar en detalle
-                    const rConDosis = (rangos || []).find(r => r.dosis);
-                    if (rConDosis) {
-                        dosisRecomendada.textContent = `${rConDosis.dosis}: ${rConDosis.textoRango || ''} X No válido para esta edad`;
-                    }
+            function verificarRangoDosis() {
+                const vacunaSelect = document.querySelector('select[name="Vacuna"]') || document.getElementById('VacunaSeleccionada');
+                if (!vacunaSelect) {
+                    console.warn('Select de vacuna no encontrado para verificarRangoDosis');
                     return;
                 }
 
-                // Si hay al menos uno que aplica, mostrar recomendación (si existe)
-                alertaEdad.className = 'alert alert-warning border-0 bg-warning-subtle';
-                mensajeAlerta.textContent = 'La(s) siguiente(s) dosis aplican según la edad:';
-                const dosisNames = resultado.aplican.map(r => (r.dosis || r.texto || '')).filter(Boolean);
-                dosisRecomendada.textContent = dosisNames.length ? dosisNames.join(', ') : '';
-                alertaEdad.style.display = 'block';
-            }
+                const selectedOption = vacunaSelect.selectedOptions[0];
+                const dosisSelectContainer = document.getElementById('dosisSelectContainer');
+                const sinRangoDosisContainer = document.getElementById('sinRangoDosisContainer');
 
-            // Orquestador: al cambiar la vacuna
-            async function onVacunaChange() {
-                console.log('Vacuna cambiada, actualizando información de rangos de edad');
-                const opt = vacunaSelect && vacunaSelect.selectedOptions && vacunaSelect.selectedOptions[0];
-                const vacunaNombre = opt ? (opt.textContent || opt.value) : '';
-                const vacunaId = opt ? (opt.value) : '';
+                if (selectedOption && dosisSelectContainer && sinRangoDosisContainer) {
+                    const rangoDosis = selectedOption.getAttribute('data-rango-dosis');
 
-                tituloInformacion.textContent = `Información de rangos de edad para ${vacunaNombre || ''}`;
+                    if (rangoDosis && rangoDosis.trim() !== 'sin configuraciones') {
+                        // Tiene rangoDosis: mostrar select de dosis
+                        dosisSelectContainer.style.display = 'block';
+                        sinRangoDosisContainer.style.display = 'none';
 
-                // obtener fecha de nacimiento -> edad
-                const fechaNac = obtenerFechaNacimiento();
-                const edad = fechaNac ? calcularEdad(fechaNac) : null;
+                        // Hacer el select requerido
+                        const dosisSelect = dosisSelectContainer.querySelector('select[name="Dosis"]');
+                        if (dosisSelect) {
+                            dosisSelect.required = true;
+                        }
 
-                // obtener rangos: primero del option, luego intentar fetch
-                let rangos = parseRangosFromOption(opt);
-                if (!rangos) {
-                    rangos = await fetchRangosApi(vacunaId);
+                        console.log('Vacuna con RangoDosis:', rangoDosis);
+                    } else {
+                        // No tiene rangoDosis: ocultar select y mostrar mensaje
+                        dosisSelectContainer.style.display = 'none';
+                        sinRangoDosisContainer.style.display = 'block';
+
+                        // Quitar requerimiento del select oculto
+                        const dosisSelect = dosisSelectContainer.querySelector('select[name="Dosis"]');
+                        if (dosisSelect) {
+                            dosisSelect.required = false;
+                            dosisSelect.value = ''; // Limpiar valor
+                        }
+
+                        console.log('Vacuna sin RangoDosis - Mostrando mensaje informativo');
+                    }
+                } else {
+                    // Si no encuentra los contenedores, significa que no estamos en el paso 6
+                    console.log('Contenedores de dosis no encontrados - probablemente no estamos en el paso 6');
                 }
-
-                // render
-                const resultado = renderRangos(rangos, edad);
-                mostrarAlertaSegunRangos(resultado, rangos);
             }
 
+            async function listarInsumos() {
+                try {
+                    const response = await fetch('/RegistroVacunacion/GetInsumos');
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    const data = await response.json();
 
-               } catch (error) {
-                   // Error silenciado intencionalmente
-                   console.error('Error en listarInsumos:', error);
-               }
+                    // Poblar el select "Vacuna"
+                    populateSelect('Vacuna', data, 'Seleccione vacuna');
+
+                    // Obtener el select por name (puede que exista con id distinto)
+                    const vacunaSelect = document.querySelector('select[name="Vacuna"]');
+                    if (!vacunaSelect) {
+                        return;
+                    }
+
+                    // Si ya hay un valor seleccionado (por restoreCurrentStepData), cargar las dosis para esa vacuna
+                    const currentVacuna = vacunaSelect.value;
+                    if (currentVacuna) {
+                        // MODIFICAR: Verificar si la vacuna tiene RangoDosis antes de cargar las dosis
+                        const selectedOption = vacunaSelect.selectedOptions[0];
+                        if (selectedOption && selectedOption.getAttribute('data-rango-dosis') !== 'Sin configuraciones') {
+                            listarInsumosDosis(currentVacuna);
+                        }
+                    }
+
+                    // Agregar listener para actualizar las dosis cuando el usuario cambie la vacuna
+                    // Antes de agregar, remover cualquier listener previo (defensivo) usando cloneNode
+                    const newSelect = vacunaSelect.cloneNode(true);
+                    vacunaSelect.parentNode.replaceChild(newSelect, vacunaSelect);
+
+                    newSelect.addEventListener('change', function () {
+                        const vacunaId = this.value;
+                        @* onVacunaChange(); *@
+                            // MODIFICAR: Solo llamar listarInsumosDosis si la vacuna tiene RangoDosis
+                            if (vacunaId) {
+                            const selectedOption = this.selectedOptions[0];
+                            tituloInformacion.textContent = `Información de rangos de edad para ${selectedOption.outerText || ''}`;
+                            const rangoDosis = selectedOption ? selectedOption.getAttribute('data-rango-dosis') : null;
+                            const rangoDosisArray = selectedOption ? JSON.parse(selectedOption.getAttribute('data-rango-dosis-array')) : [];
+
+
+
+                            if (rangoDosis && rangoDosis.trim() !== 'Sin configuraciones') {
+                                console.log('Vacuna con RangoDosis detectada, cargando dosis:', rangoDosis);
+                                listarInsumosDosis(vacunaId);
+                            } else {
+                                console.log('Vacuna sin RangoDosis, no se cargarán dosis específicas');
+                                limpiarSelectDosis();
+                            }
+
+                            const fechaNac = formData.FechaNacimiento;
+                            const edad = fechaNac ? calcularEdad(new Date(fechaNac)) : null;
+
+                            const resultado = renderRangos(rangoDosisArray, edad);
+                            mostrarAlertaSegunRangos(resultado, rangoDosisArray);
+                        } else {
+                            limpiarSelectDosis();
+                        }
+                    });
+
+                    const tituloInformacion = document.getElementById('tituloInformacion');
+                    const contenidoInformacion = document.getElementById('contenidoInformacion');
+                    const alertaEdad = document.getElementById('alertaEdad');
+                    const mensajeAlerta = document.getElementById('mensajeAlerta');
+                    const dosisRecomendada = document.getElementById('dosisRecomendada');
+
+                    // AGREGAR: Nueva función para limpiar el select de dosis
+                    function limpiarSelectDosis() {
+                        const dosisSelect = document.querySelector('select[name="Dosis"]');
+                        if (dosisSelect) {
+                            // Limpiar opciones existentes excepto la primera
+                            while (dosisSelect.children.length > 1) {
+                                dosisSelect.removeChild(dosisSelect.lastChild);
+                            }
+                            // Restaurar texto por defecto
+                            if (dosisSelect.children.length > 0) {
+                                dosisSelect.children[0].textContent = 'Seleccione dosis';
+                            }
+                        }
+                    }
+
+
+
+                    // Event wiring
+                    console.log('Configurando lógica de rangos de edad para vacunas');
+
+                    // Parse flexible ISO or dd/mm/yyyy or mm/dd/yyyy (lo más robusto posible)
+                    function parseDateISOOrLocal(s) {
+                        if (!s) return null;
+                        // If already a Date
+                        if (s instanceof Date) return s;
+                        // ISO-like YYYY-MM-DD
+                        let iso = s.match(/^(\d{4})-(\d{2})-(\d{2})/);
+                        if (iso) {
+                            const d = new Date(Number(iso[1]), Number(iso[2]) - 1, Number(iso[3]));
+                            if (!isNaN(d)) return d;
+                        }
+                        // dd/mm/yyyy or dd-mm-yyyy
+                        let dmy = s.match(/^(\d{2})[\/\-](\d{2})[\/\-](\d{4})/);
+                        if (dmy) {
+                            const d = new Date(Number(dmy[3]), Number(dmy[2]) - 1, Number(dmy[1]));
+                            if (!isNaN(d)) return d;
+                        }
+                        // fallback to Date.parse
+                        const pd = new Date(s);
+                        if (!isNaN(pd)) return pd;
+                        return null;
+                    }
+
+                    // Devuelve { years, months, days, totalMonths, totalDays }
+                    function calcularEdad(fechaNacimiento, referencia = new Date()) {
+                        console.log('Calculando edad para fechaNacimiento fraydeer: ', fechaNacimiento);
+                        if (!fechaNacimiento) return null;
+                        const birth = new Date(fechaNacimiento.getFullYear(), fechaNacimiento.getMonth(), fechaNacimiento.getDate());
+                        const ref = new Date(referencia.getFullYear(), referencia.getMonth(), referencia.getDate());
+
+                        let years = ref.getFullYear() - birth.getFullYear();
+                        let months = ref.getMonth() - birth.getMonth();
+                        let days = ref.getDate() - birth.getDate();
+
+                        if (days < 0) {
+                            months--;
+                            // calcular días previos (simple ajuste)
+                            const prevMonth = new Date(ref.getFullYear(), ref.getMonth(), 0);
+                            days += prevMonth.getDate();
+                        }
+                        if (months < 0) {
+                            years--;
+                            months += 12;
+                        }
+
+                        const totalMonths = years * 12 + months;
+                        const totalDays = Math.floor((ref - birth) / (1000 * 60 * 60 * 24));
+
+                        return { years, months, days, totalMonths, totalDays };
+                    }
+
+                    // Intentar leer rangos desde el <option data-rangos='[...]'>
+                    // Formato de rango esperado:
+                    function parseRangosFromOption(optionEl) {
+                        if (!optionEl) return null;
+                        const attr = optionEl.getAttribute('data-rangos') || optionEl.dataset.rangos;
+                        if (!attr) return null;
+                        try {
+                            return JSON.parse(attr);
+                        } catch (e) {
+                            console.warn('No se pudo parsear data-rangos', e);
+                            return null;
+                        }
+                    }
+
+                    // Si no hay data-rangos, intentar obtener de una API REST (si existe)
+                    async function fetchRangosApi(vacunaId) {
+                        if (!vacunaId) return null;
+                        const url = `/api/vacunas/${encodeURIComponent(vacunaId)}/rangosEdad`;
+                        try {
+                            const res = await fetch(url, { headers: { 'Accept': 'application/json' } });
+                            if (!res.ok) return null;
+                            const data = await res.json();
+                            return data;
+                        } catch (e) {
+                            console.warn('fetchRangosApi fallo', e);
+                            return null;
+                        }
+                    }
+
+                    // Determina si la edad (en meses) cae dentro del rango.
+                    // minMonths y maxMonths son inclusive si definidos. Si faltan, se asume abierto.
+                    function rangoAplica(rango, edadDays) {
+                        if (!rango || typeof edadDays !== 'number') return false;
+
+                        // Función auxiliar para convertir edad a días según la unidad
+                        function convertirADias(valor, unidad) {
+                            if (!valor || !unidad) return null;
+
+                            switch (unidad.toLowerCase()) {
+                                case 'días':
+                                case 'dias':
+                                case 'day':
+                                case 'days':
+                                    return valor; 
+                                case 'Meses':
+                                case 'meses':
+                                case 'months':
+                                case 'month':
+                                    return valor * 30.44; // Promedio de días por mes
+                                case 'años':
+                                case 'years':
+                                case 'year':
+                                    return valor * 365.25; // Considerando años bisiestos
+                                default:
+                                    console.warn('Unidad de medida no reconocida:', unidad);
+                                    return null;
+                            }
+                        }
+
+                        // Convertir edad mínima a días
+                        let minDays = -Infinity;
+                        if (rango.edadMinima !== undefined && rango.edadMinima !== null) {
+                            const convertedMin = convertirADias(rango.edadMinima, rango.unidadMedidaEdadMinima);
+                            if (convertedMin !== null) {
+                                minDays = convertedMin;
+                            }
+                        }
+
+                        // Convertir edad máxima a días
+                        let maxDays = Infinity;
+                        if (rango.edadMaxima !== undefined && rango.edadMaxima !== null) {
+                            const convertedMax = convertirADias(rango.edadMaxima, rango.unidadMedidaEdadMaxima);
+                            if (convertedMax !== null) {
+                                maxDays = convertedMax;
+                            }
+                        }
+
+                        // Verificar si la edad está dentro del rango
+                        const resultado = edadDays >= minDays && edadDays <= maxDays; 
+
+                        return resultado;
+                    }
+
+                    // Renderiza la lista de rangos y devuelve los que aplican
+                    function renderRangos(rangos, edad) {
+                        contenidoInformacion.innerHTML = ''; // limpiar
+                        alertaEdad.style.display = 'none';
+                        mensajeAlerta.textContent = '';
+                        dosisRecomendada.textContent = '';
+
+                        const ageEl = document.createElement('div');
+                        ageEl.className = 'mb-2';
+                        if (edad) {
+                            ageEl.innerHTML = `<strong>Edad del paciente:</strong> ${edad.years} años, ${edad.totalMonths} meses (${edad.totalDays} días aprox.)`;
+                        } else {
+                            ageEl.innerHTML = `<small class="text-danger">No se ha calculado la edad del paciente. Verifique que se haya ingresado la fecha de nacimiento en el paso de Datos Básicos.</small>`;
+                            contenidoInformacion.appendChild(ageEl);
+                        }
+                        contenidoInformacion.appendChild(ageEl);
+
+                        if (!rangos || !Array.isArray(rangos) || rangos.length === 0) {
+                            const noData = document.createElement('div');
+                            noData.className = 'small text-muted';
+                            noData.textContent = 'No se encontraron rangos de edad para esta vacuna.';
+                            contenidoInformacion.appendChild(noData);
+                            return { aplican: [], noAplican: [] };
+                        }
+
+                        const list = document.createElement('div');
+                        list.className = 'list-group';
+
+                        const aplican = [];
+                        const noAplican = [];
+
+                        rangos.forEach((r) => {
+                            // r espera: texto, textoRango, minMonths, maxMonths, dosis (opcional)
+                            console.log('Evaluando rango:', r);
+                            console.log('Edad totalMonths:', edad ? edad : 'N/A');
+                            const aplica = edad ? rangoAplica(r, edad.totalDays) : false;
+                            const item = document.createElement('div');
+                            item.className = 'list-group-item d-flex justify-content-between align-items-center';
+                            const left = document.createElement('div');
+                            left.innerHTML = `<div class="fw-bold">${r.dosis || 'Rango'}: ${r.descripcionRango || ''}</div>`;
+                            const badge = document.createElement('span');
+
+                            if (aplica) {
+                                badge.className = 'badge bg-success';
+                                badge.textContent = 'Aplica';
+                                aplican.push(r);
+                            } else {
+                                badge.className = 'badge bg-secondary';
+                                badge.textContent = 'No aplica';
+                                noAplican.push(r);
+                            }
+
+                            item.appendChild(left);
+                            item.appendChild(badge);
+                            list.appendChild(item);
+                        });
+
+                        contenidoInformacion.appendChild(list);
+                        return { aplican, noAplican };
+                    }
+
+                    function mostrarAlertaSegunRangos(resultado, rangos) {
+                        // Decide el mensaje y tipo de alerta
+                        if (!resultado || (!resultado.aplican || resultado.aplican.length === 0)) {
+                            alertaEdad.className = 'alert alert-danger border-0 bg-danger-subtle';
+                            mensajeAlerta.textContent = 'No hay rangos de edad que apliquen para la edad del paciente.';
+                            alertaEdad.style.display = 'block';
+                            // Buscar si algún rango tiene una etiqueta "dosis" para mostrar en detalle
+                            const rConDosis = (rangos || []).find(r => r.dosis);
+                            if (rConDosis) {
+                                dosisRecomendada.textContent = `${rConDosis.dosis}: ${rConDosis.textoRango || ''} X No válido para esta edad`;
+                            }
+                            return;
+                        }
+
+                        // Si hay al menos uno que aplica, mostrar recomendación (si existe)
+                        @* alertaEdad.className = 'alert alert-warning border-0 bg-warning-subtle';
+                        mensajeAlerta.textContent = 'La(s) siguiente(s) dosis aplican según la edad:';
+                        const dosisNames = resultado.aplican.map(r => (r.dosis || r.texto || '')).filter(Boolean);
+                        dosisRecomendada.textContent = dosisNames.length ? dosisNames.join(', ') : '';
+                        alertaEdad.style.display = 'block'; *@
+                        }
+
+                    // Orquestador: al cambiar la vacuna
+                    async function onVacunaChange() {
+                        console.log('Vacuna cambiada, actualizando información de rangos de edad');
+                        const opt = vacunaSelect && vacunaSelect.selectedOptions && vacunaSelect.selectedOptions[0];
+                        const vacunaNombre = opt ? (opt.textContent || opt.value) : '';
+                        const vacunaId = opt ? (opt.value) : '';
+
+
+                        // obtener fecha de nacimiento -> edad
+                        const fechaNac = formData.FechaNacimiento;
+                        const edad = fechaNac ? calcularEdad(fechaNac) : null;
+
+                        // obtener rangos: primero del option, luego intentar fetch
+                        let rangos = parseRangosFromOption(opt);
+                        if (!rangos) {
+                            rangos = await fetchRangosApi(vacunaId);
+                        }
+
+                        // render
+                        const resultado = renderRangos(rangos, edad);
+                        mostrarAlertaSegunRangos(resultado, rangos);
+                    }
+
+
+                } catch (error) {
+                    // Error silenciado intencionalmente
+                    console.error('Error en listarInsumos:', error);
+                }
             }
 
             function listarInsumosDosis(vacunaId) {
@@ -765,7 +880,7 @@
                 let fechaNacimiento = null;
 
                 try {
-                     // 1) Usar la variable in-memory 'formData' si existe y tiene la propiedad
+                    // 1) Usar la variable in-memory 'formData' si existe y tiene la propiedad
                     if (typeof formData !== 'undefined' && formData) {
                         if (formData.FechaNacimiento) fechaNacimiento = formData.FechaNacimiento;
                         else if (formData.fechaNacimiento) fechaNacimiento = formData.fechaNacimiento;
@@ -798,8 +913,8 @@
                     // Normalizar formatos: convertir dd/mm/yyyy -> yyyy-mm-dd
                     if (fechaNacimiento && /^\d{2}\/\d{2}\/\d{4}$/.test(fechaNacimiento)) {
                         const parts = fechaNacimiento.split('/');
-                        fechaNacimiento = `${parts[2]}-${parts[1].padStart(2,'0')}-${parts[0].padStart(2,'0')}`; // yyyy-mm-dd
-                    } 
+                        fechaNacimiento = `${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`; // yyyy-mm-dd
+                    }
                     if (!fechaNacimiento) {
                         console.warn('Fecha de nacimiento no encontrada en localStorage/variables/DOM. No se filtrarán las dosis por edad.');
                         return; // o hacer fetch sin fecha si prefieres
@@ -901,6 +1016,13 @@
                         const option = document.createElement('option');
                         option.value = item.value;
                         option.textContent = item.text;
+
+                        // AGREGAR: Incluir rangoDosis como data attribute si existe
+                        if (selectName === 'Vacuna' && item.rangoDosis) {
+                            option.setAttribute('data-rango-dosis', item.rangoDosis);
+                            option.setAttribute('data-rango-dosis-array', JSON.stringify(item.configuracionesRango));
+                        }
+
                         select.appendChild(option);
                     });
                 }
@@ -911,7 +1033,7 @@
                 formData = {};
                 localStorage.removeItem('vacunacionFormData');
             }
-  
+
             // Hacer las funciones globalmente accesibles
             window.saveCurrentStepData = saveCurrentStepData;
             window.restoreCurrentStepData = restoreCurrentStepData;
@@ -1101,16 +1223,16 @@
                     // Crear fila de la tabla
                     const row = document.createElement('tr');
                     row.innerHTML = `
-                            <td>${antecedente.fechaFormateada}</td>
-                            <td>${antecedente.tipo}</td>
-                            <td>${antecedente.descripcion}</td>
-                            <td>${antecedente.observaciones}</td>
-                            <td>
-                                <button type="button" class="btn btn-danger btn-sm" onclick="eliminarAntecedente(this)">
-                                    <i class="ri-delete-bin-line"></i>
-                                </button>
-                            </td>
-                        `;
+                                    <td>${antecedente.fechaFormateada}</td>
+                                    <td>${antecedente.tipo}</td>
+                                    <td>${antecedente.descripcion}</td>
+                                    <td>${antecedente.observaciones}</td>
+                                    <td>
+                                        <button type="button" class="btn btn-danger btn-sm" onclick="eliminarAntecedente(this)">
+                                            <i class="ri-delete-bin-line"></i>
+                                        </button>
+                                    </td>
+                                `;
 
                     tableBody.appendChild(row);
 
@@ -1179,16 +1301,16 @@
 
                             const row = document.createElement('tr');
                             row.innerHTML = `
-                                    <td>${fechaMostrar}</td>
-                                    <td>${antecedente.tipo}</td>
-                                    <td>${antecedente.descripcion}</td>
-                                    <td>${antecedente.observaciones}</td>
-                                    <td>
-                                        <button type="button" class="btn btn-danger btn-sm" onclick="eliminarAntecedente(this)">
-                                            <i class="ri-delete-bin-line"></i>
-                                        </button>
-                                    </td>
-                                `;
+                                            <td>${fechaMostrar}</td>
+                                            <td>${antecedente.tipo}</td>
+                                            <td>${antecedente.descripcion}</td>
+                                            <td>${antecedente.observaciones}</td>
+                                            <td>
+                                                <button type="button" class="btn btn-danger btn-sm" onclick="eliminarAntecedente(this)">
+                                                    <i class="ri-delete-bin-line"></i>
+                                                </button>
+                                            </td>
+                                        `;
                             tableBody.appendChild(row);
                         });
                     }
@@ -1250,7 +1372,7 @@
                     // Cargar Regímenes de Afiliación para la madre
                     const regimenesResponse = await fetch('/RegistroVacunacion/GetRegimenesAfiliacion');
                     if (regimenesResponse.ok) {
-                        const regimenes = await regimenesResponse.json(); 
+                        const regimenes = await regimenesResponse.json();
                         populateSelectById('RegimenCuidador', regimenes, 'Seleccione régimen');
                     }
 
@@ -1303,6 +1425,9 @@
                     // Error handled silently
                 }
             }
+
+            window.verificarRangoDosis = verificarRangoDosis;
+
 
             // Función para cargar tipos de carnet en el paso 6
             async function loadTiposCarnet() {
@@ -1500,10 +1625,10 @@
                                     Observaciones: ant.observaciones === 'N/A' ? null : ant.observaciones,
                                     Activo: true
                                 }));
-                                
+
                                 // Agregar al objeto que se enviará al servidor
                                 todosLosDatos.ArrayAntecedentes = JSON.stringify(antecedentesParaEnviar);
-                                
+
                                 console.log('Antecedentes agregados al envío:', antecedentesParaEnviar);
                             }
                         } catch (e) {
@@ -1553,7 +1678,7 @@
                             }
                         });
                 });
-            } 
+            }
 
             const buscarBtn = document.getElementById('nextBtnBuscar');
             if (!buscarBtn) return;
@@ -1628,8 +1753,8 @@
                     alert('Ocurrió un error al buscar el paciente. Revise la consola para más detalles.');
                 }
             });
-            
-            
+
+
         })
     </script>
 }

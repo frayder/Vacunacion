@@ -38,9 +38,9 @@
                 <div class="row">
                     <div class="col-md-6">
                         <div class="mb-3">
-                            <label class="form-label fw-bold">Seleccionar Vacuna</label>
+                            <label class="form-label fw-bold">Seleccionar Insumo</label>
                             <select class="form-select" name="Vacuna"  id="VacunaSeleccionada">
-                                <option value="">Seleccione vacuna...</option>
+                                <option value="">Seleccione Insumo...</option>
                                 <!-- Opciones se cargarán dinámicamente -->
                             </select> 
                         </div>
@@ -57,6 +57,21 @@
                                 <option value="REFUERZO">Refuerzo</option>
                                 <option value="UNICA">Dosis única</option>
                             </select>
+                        </div>
+
+                        <!-- Mensaje cuando no hay rangoDosis (oculto por defecto) -->
+                        <div class="mb-3" id="sinRangoDosisContainer" style="display: none;">
+                            <div class="alert alert-info border-0 bg-info-subtle" role="alert">
+                                <div class="d-flex align-items-start">
+                                    <i class="ri-information-line text-info me-2 mt-1"></i>
+                                    <div class="text-info">
+                                        <h6 class="alert-heading mb-1">Insumo sin rango de edad</h6>
+                                        <small>Este insumo no tiene configurado un rango de edad específico, por lo que no requiere selección de dosis numerada.</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Campo oculto para mantener compatibilidad -->
+                            <input type="hidden" name="Dosis" value="GENERAL">
                         </div>
                     </div>
                 </div>
@@ -148,10 +163,49 @@
                     detallesVacuna.classList.remove('d-none');
                     detallesVacuna.removeAttribute('hidden');
                     detallesVacuna.style.setProperty('display', 'block', 'important');
+
+                    verificarRangoDosis();
                 } else {
                     detallesVacuna.style.display = 'none';
                     detallesVacuna.style.visibility = 'hidden';
                     detallesVacuna.classList.add('d-none');
+                }
+            }
+
+            function verificarRangoDosis() {
+                const selectedOption = vacunaSelect.selectedOptions[0];
+                const dosisSelectContainer = document.getElementById('dosisSelectContainer');
+                const sinRangoDosisContainer = document.getElementById('sinRangoDosisContainer');
+                
+                if (selectedOption && dosisSelectContainer && sinRangoDosisContainer) {
+                    const rangoDosis = selectedOption.getAttribute('data-rango-dosis');
+                    
+                    if (rangoDosis && rangoDosis.trim() !== '') {
+                        // Tiene rangoDosis: mostrar select de dosis
+                        dosisSelectContainer.style.display = 'block';
+                        sinRangoDosisContainer.style.display = 'none';
+                        
+                        // Hacer el select requerido
+                        const dosisSelect = dosisSelectContainer.querySelector('select[name="Dosis"]');
+                        if (dosisSelect) {
+                            dosisSelect.required = true;
+                        }
+                        
+                        console.log('Vacuna con RangoDosis:', rangoDosis);
+                    } else {
+                        // No tiene rangoDosis: ocultar select y mostrar mensaje
+                        dosisSelectContainer.style.display = 'none';
+                        sinRangoDosisContainer.style.display = 'block';
+                        
+                        // Quitar requerimiento del select oculto
+                        const dosisSelect = dosisSelectContainer.querySelector('select[name="Dosis"]');
+                        if (dosisSelect) {
+                            dosisSelect.required = false;
+                            dosisSelect.value = ''; // Limpiar valor
+                        }
+                        
+                        console.log('Vacuna sin RangoDosis - Mostrando mensaje informativo');
+                    }
                 }
             }
 
