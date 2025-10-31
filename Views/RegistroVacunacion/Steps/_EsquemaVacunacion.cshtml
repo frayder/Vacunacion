@@ -1,7 +1,7 @@
 @model RegistroVacunacionItemViewModel
 
 <div class="card border-0">
-    <div class="card-header bg-primary text-white"> 
+    <div class="card-header bg-primary text-white">
         <div class="d-flex align-items-center">
             <i class="ri-shield-check-line me-2"></i>
             <h5 class="mb-0">Esquema de Vacunación</h5>
@@ -39,23 +39,18 @@
                     <div class="col-md-6">
                         <div class="mb-3">
                             <label class="form-label fw-bold">Seleccionar Insumo</label>
-                            <select class="form-select" name="Vacuna"  id="VacunaSeleccionada">
+                            <select class="form-select" name="Vacuna" id="VacunaSeleccionada">
                                 <option value="">Seleccione Insumo...</option>
                                 <!-- Opciones se cargarán dinámicamente -->
-                            </select> 
+                            </select>
                         </div>
                     </div>
                     <div class="col-md-6" id="detallesVacuna">
                         <div class="mb-3">
                             <label class="form-label">Número de dosis <span class="text-danger">*</span></label>
                             <select class="form-select" name="Dosis" required>
-                                <option value="">Seleccione...</option>
-                                <option value="1">Primera dosis</option>
-                                <option value="2">Segunda dosis</option>
-                                <option value="3">Tercera dosis</option>
-                                <option value="4">Cuarta dosis</option>
-                                <option value="REFUERZO">Refuerzo</option>
-                                <option value="UNICA">Dosis única</option>
+                                <option value="">Seleccione número de dosis</option>
+                                <!-- Opciones se llenarán dinámicamente según el insumo seleccionado -->
                             </select>
                         </div>
 
@@ -66,7 +61,8 @@
                                     <i class="ri-information-line text-info me-2 mt-1"></i>
                                     <div class="text-info">
                                         <h6 class="alert-heading mb-1">Insumo sin rango de edad</h6>
-                                        <small>Este insumo no tiene configurado un rango de edad específico, por lo que no requiere selección de dosis numerada.</small>
+                                        <small>Este insumo no tiene configurado un rango de edad específico, por lo que
+                                            no requiere selección de dosis numerada.</small>
                                     </div>
                                 </div>
                             </div>
@@ -76,12 +72,12 @@
                     </div>
                 </div>
 
-                 <!-- Checkbox Marcar como perdida -->
+                <!-- Checkbox Marcar como perdida -->
                 <div class="row">
                     <div class="col-12">
                         <div class="form-check mb-2">
                             <input class="form-check-input" type="checkbox" id="MarcarComoPerdida"
-                                name="MarcarComoPerdida" onchange="document.getElementById('motivoPerdidaContainer').style.display = this.checked ? 'block' : 'none'">
+                                name="MarcarComoPerdida" onchange="toggleMarcarComoPerdida()">
                             <label class="form-check-label text-warning fw-bold" for="MarcarComoPerdida">
                                 <i class="ri-alert-line me-1"></i>
                                 Marcar como perdida
@@ -91,14 +87,16 @@
                             <div class="d-flex align-items-start">
                                 <i class="ri-information-line text-warning me-2 mt-1"></i>
                                 <div class="text-warning">
-                                    <small>Al marcar como perdida, la vacuna se descontará del inventario pero no se registrará como aplicada al paciente.</small>
+                                    <small>Al marcar como perdida, la vacuna se descontará del inventario pero no se
+                                        registrará como aplicada al paciente.</small>
                                 </div>
                             </div>
                             <!-- Motivo de la pérdida (oculto por defecto) -->
                             <div class="row" id="motivoPerdidaContainer" style="display: none;">
                                 <div class="col-12">
                                     <div class="mb-3">
-                                        <label class="form-label">Motivo de la pérdida <span class="text-danger">*</span></label>
+                                        <label class="form-label">Motivo de la pérdida <span
+                                                class="text-danger">*</span></label>
                                         <select class="form-select" name="MotivoPerdida" id="MotivoPerdida">
                                             <option value="">Seleccione el motivo de la pérdida</option>
                                             <option value="VENCIMIENTO">Vencimiento</option>
@@ -113,9 +111,9 @@
                             </div>
                         </div>
                     </div>
-                </div> 
+                </div>
 
-                
+
 
                 <!-- Información de rangos de edad (se muestra al seleccionar vacuna) -->
                 <div id="informacionRangosEdad">
@@ -130,7 +128,8 @@
                     </div>
 
                     <!-- Alerta específica de edad -->
-                    <div id="alertaEdad" class="alert alert-warning border-0 bg-warning-subtle" style="display: none;" role="alert">
+                    <div id="alertaEdad" class="alert alert-warning border-0 bg-warning-subtle" style="display: none;"
+                        role="alert">
                         <div class="d-flex align-items-start">
                             <i class="ri-alert-line text-warning me-2 mt-1"></i>
                             <div class="text-warning">
@@ -140,9 +139,98 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- NUEVO: Información de la vacuna seleccionada -->
+                <div id="datosVacunaSeleccionada" class="card mt-3" style="display: none;">
+                    <div class="card-header bg-light">
+                        <div class="d-flex align-items-center">
+                            <i class="ri-syringe-line text-primary me-2"></i>
+                            <h6 class="mb-0 text-primary fw-bold">Datos de la vacuna: <span
+                                    id="nombreVacunaSeleccionada">Triple Viral (SRP)</span></h6>
+                            <button type="button" class="btn btn-primary btn-sm ms-auto" id="btnPrimeraDosis">
+                                1ERA DOSIS
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body bg-light">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">Lote de la Vacuna <span
+                                            class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" name="LoteVacuna" id="loteVacuna"
+                                        placeholder="Lote de la vacuna">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">Lote Jeringa</label>
+                                    <input type="text" class="form-control" name="LoteJeringa" id="loteJeringa"
+                                        placeholder="Jeringa utilizada">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">Lote Diluyente</label>
+                                    <input type="text" class="form-control" name="LoteDiluyente" id="loteDiluyente"
+                                        placeholder="Lote del diluyente">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">Gotero</label>
+                                    <input type="text" class="form-control" name="Gotero" id="gotero"
+                                        placeholder="Gotero utilizado">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">Lote Jeringa</label>
+                                    <input type="text" class="form-control" name="LoteJeringaAdicional"
+                                        id="loteJeringaAdicional" placeholder="Lote de la jeringa">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">Número de frascos</label>
+                                    <input type="number" class="form-control" name="NumeroFrascos" id="numeroFrascos"
+                                        placeholder="Frascos utilizados">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">Observaciones</label>
+                                    <textarea class="form-control" name="ObservacionesVacuna" id="observacionesVacuna"
+                                        rows="3" placeholder="Observaciones adicionales"></textarea>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="alert alert-info border-0 bg-info-subtle mt-3" role="alert">
+                            <div class="text-info small">
+                                <strong>Rango de edad:</strong> DE 12 MESES A 5 AÑOS
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-end">
+                            <button type="button" class="btn btn-success" id="agregarVacuna">
+                                <i class="ri-add-circle-line me-1"></i> Agregar Vacuna
+                            </button>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
-        
+
     </div>
 </div>
 
@@ -176,34 +264,34 @@
                 const selectedOption = vacunaSelect.selectedOptions[0];
                 const dosisSelectContainer = document.getElementById('dosisSelectContainer');
                 const sinRangoDosisContainer = document.getElementById('sinRangoDosisContainer');
-                
+
                 if (selectedOption && dosisSelectContainer && sinRangoDosisContainer) {
                     const rangoDosis = selectedOption.getAttribute('data-rango-dosis');
-                    
+
                     if (rangoDosis && rangoDosis.trim() !== '') {
                         // Tiene rangoDosis: mostrar select de dosis
                         dosisSelectContainer.style.display = 'block';
                         sinRangoDosisContainer.style.display = 'none';
-                        
+
                         // Hacer el select requerido
                         const dosisSelect = dosisSelectContainer.querySelector('select[name="Dosis"]');
                         if (dosisSelect) {
                             dosisSelect.required = true;
                         }
-                        
+
                         console.log('Vacuna con RangoDosis:', rangoDosis);
                     } else {
                         // No tiene rangoDosis: ocultar select y mostrar mensaje
                         dosisSelectContainer.style.display = 'none';
                         sinRangoDosisContainer.style.display = 'block';
-                        
+
                         // Quitar requerimiento del select oculto
                         const dosisSelect = dosisSelectContainer.querySelector('select[name="Dosis"]');
                         if (dosisSelect) {
                             dosisSelect.required = false;
                             dosisSelect.value = ''; // Limpiar valor
                         }
-                        
+
                         console.log('Vacuna sin RangoDosis - Mostrando mensaje informativo');
                     }
                 }
@@ -239,7 +327,7 @@
             };
 
             // NUEVA FUNCIÓN: Función para forzar la activación después de restaurar datos
-            window.activarFlujoVacunaRestaurada = function() {
+            window.activarFlujoVacunaRestaurada = function () {
                 if (vacunaSelect.value && vacunaSelect.value.trim() !== '') {
                     console.log('🔄 Activando flujo para vacuna restaurada:', vacunaSelect.value);
                     toggleDetalles();
@@ -248,13 +336,13 @@
                 }
             };
         }
-    }   
+    }
 
     // Función para toggle del motivo de pérdida
     function toggleMotivoPerdida() {
         const checkbox = document.getElementById('MarcarComoPerdida');
         const container = document.getElementById('motivoPerdidaContainer');
-        const select = document.getElementById('MotivoPerdida'); 
+        const select = document.getElementById('MotivoPerdida');
         if (checkbox.checked) {
             container.style.display = 'block';
             select.required = true;

@@ -261,6 +261,15 @@
             try {
                 console.log('DOM Cargado - Inicio de configuración');
 
+                // NUEVO: Limpiar datos al iniciar un nuevo registro
+                console.log('Limpiando datos previos para nuevo registro...');
+                for (let step = 1; step <= totalSteps; step++) {
+                    localStorage.removeItem(`stepData_${step}`);
+                }
+                localStorage.removeItem('vacunacionFormData');
+                formData = {}; // También limpiar la variable en memoria
+                console.log('Datos previos limpiados exitosamente');
+
                 // Cargar datos guardados
                 loadStoredData();
                 console.log('Datos cargados del almacenamiento');
@@ -327,11 +336,16 @@
                 inputs.forEach(input => {
                     const key = input.name || input.id;
                     if (key) {
-                        if (input.type === 'radio' || input.type === 'checkbox') {
+                        if (input.type === 'radio') {
+                            // Para radios, solo guardar si está checked
                             if (input.checked) {
                                 currentStepData[key] = input.value;
-                                formData[key] = input.value; // También actualizar formData global
+                                formData[key] = input.value;
                             }
+                        } else if (input.type === 'checkbox') {
+                            // Para checkboxes, SIEMPRE guardar el estado (true/false)
+                            currentStepData[key] = input.checked;
+                            formData[key] = input.checked;
                         } else if (input.value && input.value.trim() !== '') {
                             currentStepData[key] = input.value;
                             formData[key] = input.value; // También actualizar formData global
@@ -371,19 +385,78 @@
                     // Usar primero datos del paso específico, luego formData global
                     let value = stepData[key] !== undefined ? stepData[key] : formData[key];
 
-                    if (value !== undefined && value !== null && value !== '') {
-                        if (input.type === 'radio' || input.type === 'checkbox') {
+                    if (input.type === 'checkbox') {
+                        // Para checkboxes, restaurar el estado booleano explícitamente
+                        if (value !== undefined && value !== null) {
+                            input.checked = Boolean(value);
+
+                            // Si es el checkbox MarcarComoPerdida, activar su lógica
+                            if (input.id === 'MarcarComoPerdida') {
+                                // Llamar a la función que maneja el toggle del contenedor de motivos
+                                const container = document.getElementById('motivoPerdidaContainer');
+                                const select = document.getElementById('MotivoPerdida');
+                                if (container && select) {
+                                    if (input.checked) {
+                                        container.style.display = 'block';
+                                        select.required = true;
+                                    } else {
+                                        container.style.display = 'none';
+                                        select.required = false;
+                                        select.value = '';
+                                    }
+                                }
+                            }
+                        }
+                    } else if (input.type === 'radio') {
+                        // Para radios, verificar si el valor coincide
+                        if (value !== undefined && value !== null && value !== '') {
                             const isVisible = input.offsetParent !== null;
                             if (input.value === value && isVisible) {
                                 input.checked = true;
                             }
-                        } else {
+                        }
+                    } else {
+                        // Para otros tipos de input
+                        if (value !== undefined && value !== null && value !== '') {
                             input.value = value;
-                            @* input.dispatchEvent(new Event('change', { bubbles: true })); *@
-                                                }
+
+                            @* agrgar valor a dosis if (input.name === 'Dosis') {
+                                console.log('🔄 Restaurando valor de Dosis:', value);
+
+                                // Verificar si el select está visible o si debería estar visible
+                                const dosisSelectContainer = input.closest('.mb-3');
+                                const sinRangoDosisContainer = document.getElementById('sinRangoDosisContainer');
+
+                                // Si el valor es "GENERAL", probablemente es una vacuna sin rango de dosis
+                                if (value === "GENERAL") {
+                                    if (dosisSelectContainer) dosisSelectContainer.style.display = 'none';
+                                    if (sinRangoDosisContainer) sinRangoDosisContainer.style.display = 'block';
+                                } else {
+                                    // Es una dosis específica, asegurar que el select esté visible
+                                    if (dosisSelectContainer) dosisSelectContainer.style.display = 'block';
+                                    if (sinRangoDosisContainer) sinRangoDosisContainer.style.display = 'none';
+
+                                    // Intentar establecer el valor con un pequeño delay para asegurar que las opciones estén cargadas
+                                    setTimeout(() => {
+                                        const dosisSelect = document.querySelector('select[name="Dosis"]');
+                                        if (dosisSelect && dosisSelect.querySelector(`option[value="${value}"]`)) {
+                                            dosisSelect.value = value;
+                                            console.log('✅ Valor de Dosis restaurado correctamente:', value);
+                                        } else {
+                                            console.warn('⚠️ No se pudo restaurar el valor de Dosis. Opción no encontrada:', value);
+                                        }
+                                    }, 100);
+                                }
+                            } *@
+                                }
                     }
                 });
 
+                 if (currentStep === 1) {
+                    setTimeout(() => {
+                        configurarCalculoEdad();
+                    }, 50);
+                }
             }
 
             // Función para ejecutar lógica específica de cada paso
@@ -402,6 +475,8 @@
                     // Para el paso 1, solo restaurar los datos después de un breve delay
                     setTimeout(() => {
                         restoreCurrentStepData();
+                        // NUEVO: Configurar el cálculo de edad automático
+                        configurarCalculoEdad();
                     }, 100);
                     return;
                 }
@@ -585,13 +660,7 @@
             function activarFlujoVacunaRestaurada() {
                 const vacunaSelect = document.querySelector('select[name="Vacuna"]') || document.getElementById('VacunaSeleccionada');
                 const detallesVacuna = document.getElementById('detallesVacuna');
-                const marcarComoPerdida = document.getElementById('MarcarComoPerdida');
-                console.log('Función activarFlujoVacunaRestaurada marcarComoPerdida',marcarComoPerdida);
-                if (marcarComoPerdida.checked) {
-                    const motivoPerdidaContainer = document.getElementById('motivoPerdidaContainer');
-                    motivoPerdidaContainer.style.display = 'block';
-                    console.log('MarcarComoPerdida encontrado, forzando estado inicial oculto'); 
-                }
+
                 if (!vacunaSelect || !vacunaSelect.value || vacunaSelect.value.trim() === '') {
                     console.log('No hay vacuna seleccionada para restaurar');
                     return;
@@ -651,7 +720,7 @@
                         mostrarAlertaSegunRangos(resultado, rangoDosisArray);
                     }
                 }
-
+                toggleMarcarComoPerdida();
                 console.log('✅ Flujo de vacuna restaurada completado');
             }
 
@@ -744,6 +813,53 @@
                 return { aplican, noAplican };
             }
 
+            function toggleMarcarComoPerdida() {
+                const checkbox = document.getElementById('MarcarComoPerdida');
+                const container = document.getElementById('motivoPerdidaContainer');
+                const select = document.getElementById('MotivoPerdida');
+                const dosisSelect = document.querySelector('select[name="Dosis"]');
+                const vacunaSelect = document.getElementById('VacunaSeleccionada');
+
+                if (checkbox.checked) {
+                    // Mostrar motivo de pérdida
+                    container.style.display = 'block';
+                    select.required = true;
+
+                    // Llenar el select de dosis con data-rango-dosis-array si la vacuna está seleccionada
+                    if (vacunaSelect && vacunaSelect.value && dosisSelect) {
+                        const selectedOption = vacunaSelect.selectedOptions[0];
+                        if (selectedOption) {
+                            const rangoDosisArrayAttr = selectedOption.getAttribute('data-rango-dosis-array');
+
+                            if (rangoDosisArrayAttr) {
+                                try {
+                                    const rangoDosisArray = JSON.parse(rangoDosisArrayAttr);
+
+                                    // Limpiar opciones actuales
+                                    dosisSelect.innerHTML = '<option value="">Seleccione dosis...</option>';
+
+                                    // Agregar opciones del data-rango-dosis-array
+                                    rangoDosisArray.forEach(rango => {
+                                        if (rango.dosis) {
+                                            const option = document.createElement('option');
+                                            option.value = rango.dosis;
+                                            option.textContent = rango.dosis + (rango.descripcionRango ? ` - ${rango.descripcionRango}` + ' (Fuera de edad)' : '');
+                                            dosisSelect.appendChild(option);
+                                        }
+                                    });
+
+                                    console.log('✅ Select de dosis actualizado con rangos para pérdida:', rangoDosisArray);
+                                } catch (e) {
+                                    console.warn('Error al parsear data-rango-dosis-array:', e);
+                                }
+                            } else {
+                                console.log('No se encontró data-rango-dosis-array en la vacuna seleccionada');
+                            }
+                        }
+                    }
+                }
+            }
+
             // Determina si la edad (en meses) cae dentro del rango.
             // minMonths y maxMonths son inclusive si definidos. Si faltan, se asume abierto.
             function rangoAplica(rango, edadDays) {
@@ -754,7 +870,9 @@
                     if (!valor || !unidad) return null;
 
                     switch (unidad.toLowerCase()) {
+                        case 'Días':
                         case 'días':
+                        case 'Dias':
                         case 'dias':
                         case 'day':
                         case 'days':
@@ -764,6 +882,9 @@
                         case 'months':
                         case 'month':
                             return valor * 30.44; // Promedio de días por mes
+                        case 'Anos':
+                        case 'anos':
+                        case 'Años':
                         case 'años':
                         case 'years':
                         case 'year':
@@ -799,19 +920,14 @@
             }
 
             function mostrarAlertaSegunRangos(resultado, rangos) {
-                        // Decide el mensaje y tipo de alerta
-                        if (!resultado || (!resultado.aplican || resultado.aplican.length === 0)) {
-                            alertaEdad.className = 'alert alert-danger border-0 bg-danger-subtle';
-                            mensajeAlerta.textContent = 'No hay rangos de edad que apliquen para la edad del paciente.';
-                            alertaEdad.style.display = 'block';
-                            // Buscar si algún rango tiene una etiqueta "dosis" para mostrar en detalle
-                            const rConDosis = (rangos || []).find(r => r.dosis);
-                            if (rConDosis) {
-                                dosisRecomendada.textContent = `${rConDosis.dosis}: ${rConDosis.textoRango || ''} X No válido para esta edad`;
-                            }
-                            return;
-                        }
-                    }
+                // Decide el mensaje y tipo de alerta
+                if (!resultado || (!resultado.aplican || resultado.aplican.length === 0)) {
+                    alertaEdad.className = 'alert alert-danger border-0 bg-danger-subtle';
+                    mensajeAlerta.textContent = 'No hay rangos de edad que apliquen para la edad del paciente.';
+                    alertaEdad.style.display = 'block';
+                    return;
+                }
+            }
 
             async function listarInsumos() {
                 try {
@@ -847,15 +963,12 @@
 
                     newSelect.addEventListener('change', function () {
                         const vacunaId = this.value;
-                        @* onVacunaChange(); *@
-                                            // MODIFICAR: Solo llamar listarInsumosDosis si la vacuna tiene RangoDosis
-                                            if (vacunaId) {
+                        // MODIFICAR: Solo llamar listarInsumosDosis si la vacuna tiene RangoDosis
+                        if (vacunaId) {
                             const selectedOption = this.selectedOptions[0];
                             tituloInformacion.textContent = `Información de rangos de edad para ${selectedOption.outerText || ''}`;
                             const rangoDosis = selectedOption ? selectedOption.getAttribute('data-rango-dosis') : null;
                             const rangoDosisArray = selectedOption ? JSON.parse(selectedOption.getAttribute('data-rango-dosis-array')) : [];
-
-
 
                             if (rangoDosis && rangoDosis.trim() !== 'Sin configuraciones') {
                                 console.log('Vacuna con RangoDosis detectada, cargando dosis:', rangoDosis);
@@ -959,7 +1072,7 @@
 
 
 
-                    
+
 
                     // Orquestador: al cambiar la vacuna
                     async function onVacunaChange() {
@@ -1350,16 +1463,16 @@
                     // Crear fila de la tabla
                     const row = document.createElement('tr');
                     row.innerHTML = `
-                                                    <td>${antecedente.fechaFormateada}</td>
-                                                    <td>${antecedente.tipo}</td>
-                                                    <td>${antecedente.descripcion}</td>
-                                                    <td>${antecedente.observaciones}</td>
-                                                    <td>
-                                                        <button type="button" class="btn btn-danger btn-sm" onclick="eliminarAntecedente(this)">
-                                                            <i class="ri-delete-bin-line"></i>
-                                                        </button>
-                                                    </td>
-                                                `;
+                                                                            <td>${antecedente.fechaFormateada}</td>
+                                                                            <td>${antecedente.tipo}</td>
+                                                                            <td>${antecedente.descripcion}</td>
+                                                                            <td>${antecedente.observaciones}</td>
+                                                                            <td>
+                                                                                <button type="button" class="btn btn-danger btn-sm" onclick="eliminarAntecedente(this)">
+                                                                                    <i class="ri-delete-bin-line"></i>
+                                                                                </button>
+                                                                            </td>
+                                                                        `;
 
                     tableBody.appendChild(row);
 
@@ -1428,16 +1541,16 @@
 
                             const row = document.createElement('tr');
                             row.innerHTML = `
-                                                            <td>${fechaMostrar}</td>
-                                                            <td>${antecedente.tipo}</td>
-                                                            <td>${antecedente.descripcion}</td>
-                                                            <td>${antecedente.observaciones}</td>
-                                                            <td>
-                                                                <button type="button" class="btn btn-danger btn-sm" onclick="eliminarAntecedente(this)">
-                                                                    <i class="ri-delete-bin-line"></i>
-                                                                </button>
-                                                            </td>
-                                                        `;
+                                                                                    <td>${fechaMostrar}</td>
+                                                                                    <td>${antecedente.tipo}</td>
+                                                                                    <td>${antecedente.descripcion}</td>
+                                                                                    <td>${antecedente.observaciones}</td>
+                                                                                    <td>
+                                                                                        <button type="button" class="btn btn-danger btn-sm" onclick="eliminarAntecedente(this)">
+                                                                                            <i class="ri-delete-bin-line"></i>
+                                                                                        </button>
+                                                                                    </td>
+                                                                                `;
                             tableBody.appendChild(row);
                         });
                     }
@@ -1783,12 +1896,12 @@
                         .then(data => {
                             if (data.success) {
                                 // Limpiar localStorage
-                                @* for (let step = 1; step <= totalSteps; step++) {
+                                for (let step = 1; step <= totalSteps; step++) {
                                     localStorage.removeItem(`stepData_${step}`);
                                 }
-                                localStorage.removeItem('vacunacionFormData'); *@
+                                localStorage.removeItem('vacunacionFormData');
 
-                                    alert('Registro guardado correctamente');
+                                alert('Registro guardado correctamente');
                                 window.location.href = '/RegistroVacunacion/Index';
                             } else {
                                 alert('Error: ' + data.message);
@@ -1881,11 +1994,71 @@
                 }
             });
 
+             function configurarCalculoEdad() {
+                const fechaNacimientoInput = document.getElementById('FechaNacimiento');
+                if (!fechaNacimientoInput) return;
+                
+                // Función para actualizar edad calculada
+                function actualizarEdadCalculada() {
+                    const edadContainer = document.getElementById('edadCalculada');
+                    
+                    if (!fechaNacimientoInput.value) {
+                        if (edadContainer) {
+                            edadContainer.style.display = 'none';
+                        }
+                        return;
+                    }
+                    
+                    const fechaNacimiento = new Date(fechaNacimientoInput.value);
+                    const edad = calcularEdad(fechaNacimiento);
+                    
+                    if (edad && edadContainer) {
+                        // Mostrar el contenedor
+                        edadContainer.style.display = 'block';
+                        
+                        // Actualizar los valores
+                        const edadAnios = document.getElementById('edadAnios');
+                        const edadMeses = document.getElementById('edadMeses');
+                        const edadDias = document.getElementById('edadDias');
+                        const totalMeses = document.getElementById('totalMeses');
+                        const totalDias = document.getElementById('totalDias');
+                        
+                        if (edadAnios) edadAnios.textContent = edad.years;
+                        if (edadMeses) edadMeses.textContent = edad.months;
+                        if (edadDias) edadDias.textContent = edad.days;
+                        if (totalMeses) totalMeses.textContent = edad.totalMonths;
+                        if (totalDias) totalDias.textContent = `${edad.totalDays} días totales`;
+                        
+                        console.log('Edad calculada:', edad);
+                    }
+                }
+                
+                // Agregar eventos al campo de fecha de nacimiento
+                fechaNacimientoInput.addEventListener('change', actualizarEdadCalculada);
+                fechaNacimientoInput.addEventListener('input', actualizarEdadCalculada);
+
+                // Agregar eventos al campo de fecha de nacimiento
+                fechaNacimientoInput.addEventListener('change', actualizarEdadCalculada);
+                fechaNacimientoInput.addEventListener('input', actualizarEdadCalculada);
+                
+                // Calcular edad inicial si ya hay una fecha
+                if (fechaNacimientoInput.value) {
+                    actualizarEdadCalculada();
+                }
+                
+                console.log('Cálculo automático de edad configurado');
+            }
+
+            
+
+            window.configurarCalculoEdad = configurarCalculoEdad;
+
             window.activarFlujoVacunaRestaurada = activarFlujoVacunaRestaurada;
             window.calcularEdad = calcularEdad;
             window.renderRangos = renderRangos;
             window.rangoAplica = rangoAplica;
             window.mostrarAlertaSegunRangos = mostrarAlertaSegunRangos;
+            window.toggleMarcarComoPerdida = toggleMarcarComoPerdida;
         })
     </script>
 }

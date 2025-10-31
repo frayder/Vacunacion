@@ -29,11 +29,13 @@
                     <label class="form-label">Género</label>
                     <div class="d-flex gap-3 mt-2">
                         <div class="form-check">
-                            <input class="form-check-input" type="radio" name="Genero" id="generoFemenino" value="FEMENINO">
+                            <input class="form-check-input" type="radio" name="Genero" id="generoFemenino"
+                                value="FEMENINO">
                             <label class="form-check-label" for="generoFemenino">FEMENINO</label>
                         </div>
                         <div class="form-check">
-                            <input class="form-check-input" type="radio" name="Genero" id="generoMasculino" value="MASCULINO">
+                            <input class="form-check-input" type="radio" name="Genero" id="generoMasculino"
+                                value="MASCULINO">
                             <label class="form-check-label" for="generoMasculino">MASCULINO</label>
                         </div>
                     </div>
@@ -81,16 +83,15 @@
             <div class="col-md-6">
                 <div class="mb-3">
                     <label class="form-label">Lugar de atención del parto</label>
-                    <select class="form-select" name="LugardeParto">
-                        <option value="">Seleccione hospital</option>
-                        <!-- Opciones se cargarán dinámicamente -->
-                    </select>
+                    <input type="text" id="LugardeParto" name="LugardeParto" class="form-control"
+                        placeholder="Lugar de atención del parto">
                 </div>
             </div>
             <div class="col-md-6">
                 <div class="mb-3">
                     <label class="form-label">Estatus Migratorio</label>
-                    <input type="text" id="EstatusMigratorio" name="EstatusMigratorio" class="form-control" placeholder="Estatus migratorio">
+                    <input type="text" id="EstatusMigratorio" name="EstatusMigratorio" class="form-control"
+                        placeholder="Estatus migratorio">
                 </div>
             </div>
 
@@ -131,7 +132,8 @@
                         <option value="">Sistema Central</option>
                         <!-- Opciones se cargarán dinámicamente -->
                     </select>
-                    <small class="form-text text-muted">Este campo se completa automáticamente según el usuario autenticado.</small>
+                    <small class="form-text text-muted">Este campo se completa automáticamente según el usuario
+                        autenticado.</small>
                 </div>
             </div>
 
@@ -145,7 +147,8 @@
                             <label class="form-check-label" for="desplazadoSi">SÍ</label>
                         </div>
                         <div class="form-check">
-                            <input class="form-check-input" type="radio" name="Desplazado" id="desplazadoNo" value=false>
+                            <input class="form-check-input" type="radio" name="Desplazado" id="desplazadoNo"
+                                value=false>
                             <label class="form-check-label" for="desplazadoNo">NO</label>
                         </div>
                     </div>
@@ -156,11 +159,13 @@
                     <label class="form-label">Discapacitado</label>
                     <div class="d-flex gap-3 mt-2">
                         <div class="form-check">
-                            <input class="form-check-input" type="radio" name="Discapacitado" id="discapacitadoSi" value=true>
+                            <input class="form-check-input" type="radio" name="Discapacitado" id="discapacitadoSi"
+                                value=true>
                             <label class="form-check-label" for="discapacitadoSi">SÍ</label>
                         </div>
                         <div class="form-check">
-                            <input class="form-check-input" type="radio" name="Discapacitado" id="discapacitadoNo" value=false>
+                            <input class="form-check-input" type="radio" name="Discapacitado" id="discapacitadoNo"
+                                value=false>
                             <label class="form-check-label" for="discapacitadoNo">NO</label>
                         </div>
                     </div>
@@ -188,11 +193,13 @@
                     <label class="form-label">Víctima del conflicto armado</label>
                     <div class="d-flex gap-3 mt-2">
                         <div class="form-check">
-                            <input class="form-check-input" type="radio" name="VictimaConflictoArmado" id="VictimaConflictoArmadoSi" value=true>
+                            <input class="form-check-input" type="radio" name="VictimaConflictoArmado"
+                                id="VictimaConflictoArmadoSi" value=true>
                             <label class="form-check-label" for="VictimaConflictoArmadoSi">SÍ</label>
                         </div>
                         <div class="form-check">
-                            <input class="form-check-input" type="radio" name="VictimaConflictoArmado" id="VictimaConflictoArmadoNo" value=false>
+                            <input class="form-check-input" type="radio" name="VictimaConflictoArmado"
+                                id="VictimaConflictoArmadoNo" value=false>
                             <label class="form-check-label" for="VictimaConflictoArmadoNo">NO</label>
                         </div>
                     </div>
@@ -205,11 +212,13 @@
                     <label class="form-label">Estudia actualmente</label>
                     <div class="d-flex gap-3 mt-2">
                         <div class="form-check">
-                            <input class="form-check-input" type="radio" name="Estudia" id="estudiaActualmenteSi" value=true>
+                            <input class="form-check-input" type="radio" name="Estudia" id="estudiaActualmenteSi"
+                                value=true>
                             <label class="form-check-label" for="estudiaActualmenteSi">SÍ</label>
                         </div>
                         <div class="form-check">
-                            <input class="form-check-input" type="radio" name="Estudia" id="estudiaActualmenteNo" value=false>
+                            <input class="form-check-input" type="radio" name="Estudia" id="estudiaActualmenteNo"
+                                value=false>
                             <label class="form-check-label" for="estudiaActualmenteNo">NO</label>
                         </div>
                     </div>
@@ -234,9 +243,40 @@
             <div class="col-md-6">
                 <div class="mb-3">
                     <label class="form-label">Departamento de residencia</label>
-                    <select class="form-select" name="DepartamentoResidencia">
+                    <select class="form-select" name="DepartamentoResidencia" id="DepartamentoResidencia">
                         <option value="">Seleccione departamento</option>
-                        <!-- Opciones se cargarán dinámicamente -->
+                        <option value="Amazonas">Amazonas</option>
+                        <option value="Antioquia">Antioquia</option>
+                        <option value="Arauca">Arauca</option>
+                        <option value="Atlántico">Atlántico</option>
+                        <option value="Bolívar">Bolívar</option>
+                        <option value="Boyacá">Boyacá</option>
+                        <option value="Caldas">Caldas</option>
+                        <option value="Caquetá">Caquetá</option>
+                        <option value="Casanare">Casanare</option>
+                        <option value="Cauca">Cauca</option>
+                        <option value="Cesar">Cesar</option>
+                        <option value="Chocó">Chocó</option>
+                        <option value="Córdoba">Córdoba</option>
+                        <option value="Cundinamarca">Cundinamarca</option>
+                        <option value="Guainía">Guainía</option>
+                        <option value="Guaviare">Guaviare</option>
+                        <option value="Huila">Huila</option>
+                        <option value="La Guajira">La Guajira</option>
+                        <option value="Magdalena">Magdalena</option>
+                        <option value="Meta">Meta</option>
+                        <option value="Nariño">Nariño</option>
+                        <option value="Norte de Santander">Norte de Santander</option>
+                        <option value="Putumayo">Putumayo</option>
+                        <option value="Quindío">Quindío</option>
+                        <option value="Risaralda">Risaralda</option>
+                        <option value="San Andrés y Providencia">San Andrés y Providencia</option>
+                        <option value="Santander">Santander</option>
+                        <option value="Sucre">Sucre</option>
+                        <option value="Tolima">Tolima</option>
+                        <option value="Valle del Cauca">Valle del Cauca</option>
+                        <option value="Vaupés">Vaupés</option>
+                        <option value="Vichada">Vichada</option>
                     </select>
                 </div>
             </div>
@@ -244,9 +284,69 @@
             <div class="col-md-6">
                 <div class="mb-3">
                     <label class="form-label">Municipio de residencia</label>
-                    <select class="form-select" name="MunicipioResidencia">
+                    <select class="form-select" name="MunicipioResidencia" id="MunicipioResidencia">
                         <option value="">Seleccione municipio</option>
-                        <!-- Opciones se cargarán dinámicamente -->
+                        <option value="Medellín">Medellín</option>
+                        <option value="Bogotá">Bogotá</option>
+                        <option value="Cali">Cali</option>
+                        <option value="Barranquilla">Barranquilla</option>
+                        <option value="Cartagena">Cartagena</option>
+                        <option value="Bucaramanga">Bucaramanga</option>
+                        <option value="Manizales">Manizales</option>
+                        <option value="Pereira">Pereira</option>
+                        <option value="Cúcuta">Cúcuta</option>
+                        <option value="Ibagué">Ibagué</option>
+                        <option value="Neiva">Neiva</option>
+                        <option value="Tunja">Tunja</option>
+                        <option value="Villavicencio">Villavicencio</option>
+                        <option value="Santa Marta">Santa Marta</option>
+                        <option value="Popayán">Popayán</option>
+                        <option value="Sincelejo">Sincelejo</option>
+                        <option value="Montería">Montería</option>
+                        <option value="Valledupar">Valledupar</option>
+                        <option value="Florencia">Florencia</option>
+                        <option value="Quibdó">Quibdó</option>
+                        <option value="Riohacha">Riohacha</option>
+                        <option value="Leticia">Leticia</option>
+                        <option value="Arauca">Arauca</option>
+                        <option value="Yopal">Yopal</option>
+                        <option value="Mitú">Mitú</option>
+                        <option value="Puerto Carreño">Puerto Carreño</option>
+                        <option value="Turbo">Turbo</option>
+                        <option value="Apartadó">Apartadó</option>
+                        <option value="Envigado">Envigado</option>
+                        <option value="Bello">Bello</option>
+                        <option value="Rionegro">Rionegro</option>
+                        <option value="Itagüí">Itagüí</option>
+                        <option value="Sabaneta">Sabaneta</option>
+                        <option value="La Ceja">La Ceja</option>
+                        <option value="Caucasia">Caucasia</option>
+                        <option value="Magangué">Magangué</option>
+                        <option value="Malambo">Malambo</option>
+                        <option value="Soledad">Soledad</option>
+                        <option value="Puerto Colombia">Puerto Colombia</option>
+                        <option value="Zipaquirá">Zipaquirá</option>
+                        <option value="Girardot">Girardot</option>
+                        <option value="Fusagasugá">Fusagasugá</option>
+                        <option value="Facatativá">Facatativá</option>
+                        <option value="Chía">Chía</option>
+                        <option value="Mosquera">Mosquera</option>
+                        <option value="Funza">Funza</option>
+                        <option value="Madrid">Madrid</option>
+                        <option value="Sogamoso">Sogamoso</option>
+                        <option value="Duitama">Duitama</option>
+                        <option value="Chiquinquirá">Chiquinquirá</option>
+                        <option value="Barrancabermeja">Barrancabermeja</option>
+                        <option value="Floridablanca">Floridablanca</option>
+                        <option value="Giron">Girón</option>
+                        <option value="Piedecuesta">Piedecuesta</option>
+                        <option value="Palmira">Palmira</option>
+                        <option value="Buga">Buga</option>
+                        <option value="Tuluá">Tuluá</option>
+                        <option value="Yumbo">Yumbo</option>
+                        <option value="Cartago">Cartago</option>
+                        <option value="Jamundí">Jamundí</option>
+                        <option value="Buenaventura">Buenaventura</option>
                     </select>
                 </div>
             </div>
@@ -312,11 +412,13 @@
                     <label class="form-label">¿Autoriza llamadas telefónicas?</label>
                     <div class="d-flex gap-3 mt-2">
                         <div class="form-check">
-                            <input class="form-check-input" type="radio" name="AutorizaLlamadas" id="autorizaLlamadasSi" value=true>
+                            <input class="form-check-input" type="radio" name="AutorizaLlamadas" id="autorizaLlamadasSi"
+                                value=true>
                             <label class="form-check-label" for="autorizaLlamadasSi">SÍ</label>
                         </div>
                         <div class="form-check">
-                            <input class="form-check-input" type="radio" name="AutorizaLlamadas" id="autorizaLlamadasNo" value=false>
+                            <input class="form-check-input" type="radio" name="AutorizaLlamadas" id="autorizaLlamadasNo"
+                                value=false>
                             <label class="form-check-label" for="autorizaLlamadasNo">NO</label>
                         </div>
                     </div>
@@ -328,11 +430,13 @@
                     <label class="form-label">¿Autoriza envío de correo?</label>
                     <div class="d-flex gap-3 mt-2">
                         <div class="form-check">
-                            <input class="form-check-input" type="radio" name="AutorizaEnvioCorreo" id="autorizaCorreoSi" value=true>
+                            <input class="form-check-input" type="radio" name="AutorizaEnvioCorreo"
+                                id="autorizaCorreoSi" value=true>
                             <label class="form-check-label" for="autorizaCorreoSi">SÍ</label>
                         </div>
                         <div class="form-check">
-                            <input class="form-check-input" type="radio" name="AutorizaEnvioCorreo" id="autorizaCorreoNo" value=false>
+                            <input class="form-check-input" type="radio" name="AutorizaEnvioCorreo"
+                                id="autorizaCorreoNo" value=false>
                             <label class="form-check-label" for="autorizaCorreoNo">NO</label>
                         </div>
                     </div>

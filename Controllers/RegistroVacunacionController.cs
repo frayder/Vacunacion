@@ -74,38 +74,31 @@ namespace Highdmin.Controllers
         private async Task<string> GenerarConsecutivoAsync()
         {
             var año = DateTime.Now.Year;
-            var sql = $@"
-        BEGIN TRANSACTION;
-        DECLARE @Ultimo varchar(50);
-        SELECT LIMIT 1 @Ultimo = Consecutivo  
-        FROM RegistrosVacunacion WITH (UPDLOCK, HOLDLOCK)
-        WHERE Consecutivo LIKE 'VAC-{año}-%' AND EmpresaId = @EmpresaId
-        ORDER BY Consecutivo DESC;
+    var prefijo = $"VAC-{año}-";
+    
+    // Obtener el último consecutivo del año actual
+    var ultimoConsecutivo = await _context.RegistrosVacunacion
+        .Where(r => r.Consecutivo.StartsWith(prefijo) && r.EmpresaId == CurrentEmpresaId)
+        .OrderByDescending(r => r.Consecutivo)
+        .Select(r => r.Consecutivo)
+        .FirstOrDefaultAsync();
 
-        DECLARE @Nuevo varchar(50);
-        IF @Ultimo IS NULL
-            SET @Nuevo = 'VAC-{año}-000001';
-        ELSE
-            SET @Nuevo = 'VAC-{año}-' + RIGHT('000000' + CAST(CAST(RIGHT(@Ultimo, 6) AS INT) + 1 AS varchar(6)), 6);
+    if (string.IsNullOrEmpty(ultimoConsecutivo))
+    {
+        return $"{prefijo}000001";
+    }
 
-        COMMIT TRANSACTION;
-        SELECT @Nuevo;
-    ";
+    // Extraer el número del consecutivo
+    var numeroStr = ultimoConsecutivo.Substring(prefijo.Length);
+    if (int.TryParse(numeroStr, out int numero))
+    {
+        numero++;
+        return $"{prefijo}{numero:D6}";
+    }
 
-            await using var command = _context.Database.GetDbConnection().CreateCommand();
-            command.CommandText = sql;
-
-            // Agregar el parámetro @EmpresaId
-            var parameter = command.CreateParameter();
-            parameter.ParameterName = "@EmpresaId";
-            parameter.Value = CurrentEmpresaId;
-            command.Parameters.Add(parameter);
-
-            await _context.Database.OpenConnectionAsync();
-            var result = await command.ExecuteScalarAsync();
-            await _context.Database.CloseConnectionAsync();
-
-            return result?.ToString() ?? $"VAC-{año}-000001";
+    // Si hay algún problema con el parsing, generar con timestamp
+    var timestamp = DateTime.Now.ToString("HHmmss");
+    return $"VAC-{año}-{timestamp}";
         }
 
         [HttpGet]
@@ -206,7 +199,6 @@ namespace Highdmin.Controllers
             {
                 if (vacunaId <= 0)
                     return Json(new { error = "vacunaId inválido" });
-                Console.WriteLine($"GetDosisByVacuna llamado con vacunaId={vacunaId}, fechaNacimiento={fechaNacimiento}");
                 if (string.IsNullOrEmpty(fechaNacimiento))
                     return Json(new { error = "fechaNacimiento es requerida" });
 
@@ -281,7 +273,6 @@ namespace Highdmin.Controllers
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Error en GetDosisByVacuna: " + ex.Message);
                 return Json(new { error = "Error al cargar dosis: " + ex.Message });
             }
         }
@@ -405,8 +396,6 @@ namespace Highdmin.Controllers
 
                 // Crear un modelo para capturar todos los datos del formulario
                 var json = System.Text.Json.JsonSerializer.Serialize(datos);
-                 Console.WriteLine("Modelo deserializado: " + json);
-                 Console.WriteLine("Modelo currentEmpresaId: " + CurrentEmpresaId);
                 // Configuramos las opciones para que acepte números entre comillas
                 var options = new JsonSerializerOptions
                 {
@@ -418,8 +407,34 @@ namespace Highdmin.Controllers
 
 
                 // Mapear todos los datos del ViewModel a la entidad del modelo de datos
-               
+
                 var Consecutivo = await GenerarConsecutivoAsync();
+                var utcNow = DateTime.UtcNow;
+
+                 DateTime ConvertirAUtc(DateTime? fecha)
+        {
+            if (!fecha.HasValue)
+                return utcNow;
+
+            var fechaValue = fecha.Value;
+            
+            return fechaValue.Kind switch
+            {
+                DateTimeKind.Utc => fechaValue,
+                DateTimeKind.Local => fechaValue.ToUniversalTime(),
+                DateTimeKind.Unspecified => DateTime.SpecifyKind(fechaValue, DateTimeKind.Utc),
+                _ => DateTime.SpecifyKind(fechaValue, DateTimeKind.Utc)
+            };
+        }
+
+        DateTime? ConvertirAUtcNullable(DateTime? fecha)
+        {
+            if (!fecha.HasValue)
+                return null;
+
+            return ConvertirAUtc(fecha);
+        }
+
                 var entidad = new RegistrosVacunacion
                 {
                     // DATOS BÁSICOS (Paso 1)
@@ -430,7 +445,7 @@ namespace Highdmin.Controllers
                     SegundoApellido = modelo.SegundoApellido,
                     TipoDocumento = modelo.TipoDocumento,
                     NumeroDocumento = modelo.NumeroDocumento,
-                    FechaNacimiento = modelo.FechaNacimiento ?? DateTime.Now,
+                    FechaNacimiento = ConvertirAUtc(modelo.FechaNacimiento),
                     Genero = modelo.Genero,
                     Telefono = modelo.Telefono,
                     Direccion = modelo.Direccion,
@@ -491,8 +506,8 @@ namespace Highdmin.Controllers
                     Vacuna = modelo.Vacuna,
                     Observaciones = modelo.Observaciones,
                     Dosis = modelo.Dosis,
-                    FechaAplicacion = modelo.FechaRegistro ?? DateTime.Now,
-                    FechaRegistro = modelo.FechaRegistro ?? DateTime.Now,
+                    FechaAplicacion = ConvertirAUtc(modelo.FechaRegistro),
+                    FechaRegistro = ConvertirAUtc(modelo.FechaRegistro),
                     // RESPONSABLE (Paso 7)
                     Responsable = modelo.Responsable,
                     IngresoPAIWEB = modelo.IngresoPAIWEB,
@@ -504,13 +519,12 @@ namespace Highdmin.Controllers
                     NotasFinales = modelo.NotasFinales,
                     Estado = true,
                     FechaCreacion = DateTime.UtcNow,
-                    FechaAtencion = modelo.FechaAtencion,
+                    FechaAtencion = ConvertirAUtcNullable(modelo.FechaAtencion),
                     EsquemaCompleto = modelo.EsquemaCompleto,
                     UsuarioCreadorId = modelo.UsuarioCreadorId ?? 1 // Valor por defecto temporalmente
                 };
 
                 // Guarda en base de datos
-                Console.WriteLine("Entidad a guardar: " + JsonSerializer.Serialize(entidad));
                 _context.RegistrosVacunacion.Add(entidad);
                 await _context.SaveChangesAsync();
                 await GuardarAntecedentesMedicos(entidad.Id, modelo.ArrayAntecedentes, modelo.NumeroDocumento);
@@ -530,6 +544,17 @@ namespace Highdmin.Controllers
                 if (string.IsNullOrWhiteSpace(arrayAntecedentes))
                     return;
 
+                DateTime ConvertirAUtc(DateTime fecha)
+                {
+                    return fecha.Kind switch
+                    {
+                        DateTimeKind.Utc => fecha,
+                        DateTimeKind.Local => fecha.ToUniversalTime(),
+                        DateTimeKind.Unspecified => DateTime.SpecifyKind(fecha, DateTimeKind.Utc),
+                        _ => DateTime.SpecifyKind(fecha, DateTimeKind.Utc)
+                    };
+                }
+        
                 // Deserializar el array de antecedentes desde JSON
                 var options = new JsonSerializerOptions
                 {
@@ -550,7 +575,7 @@ namespace Highdmin.Controllers
                     var entidadAntecedente = new AntecedenteMedico
                     {
                         RegistroVacunacionId = registroVacunacionId,
-                        FechaRegistro = antecedente.FechaRegistro,
+                        FechaRegistro = ConvertirAUtc(antecedente.FechaRegistro),
                         Tipo = antecedente.Tipo,
                         Descripcion = antecedente.Descripcion,
                         Observaciones = antecedente.Observaciones,
