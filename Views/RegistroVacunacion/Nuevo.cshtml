@@ -254,54 +254,42 @@
         let formData = {}; // Objeto para almacenar los datos del formulario
 
         // Función para verificar que todo está funcionando
-        console.log('Script inicializado - Verificación');
 
         // Asegurarse de que el script se ejecuta después de que el DOM está listo
         document.addEventListener('DOMContentLoaded', async function () {
             try {
-                console.log('DOM Cargado - Inicio de configuración');
 
                 // NUEVO: Limpiar datos al iniciar un nuevo registro
-                console.log('Limpiando datos previos para nuevo registro...');
                 for (let step = 1; step <= totalSteps; step++) {
                     localStorage.removeItem(`stepData_${step}`);
                 }
                 localStorage.removeItem('vacunacionFormData');
                 formData = {}; // También limpiar la variable en memoria
-                console.log('Datos previos limpiados exitosamente');
 
                 // Cargar datos guardados
                 loadStoredData();
-                console.log('Datos cargados del almacenamiento');
 
                 // Configurar el botón siguiente
                 const nextBtn = document.getElementById('nextBtn');
                 const prevBtn = document.getElementById('prevBtn');
 
                 if (nextBtn) {
-                    console.log('Configurando evento click para el botón siguiente');
                     nextBtn.addEventListener('click', async function (e) {
-                        console.log('Click en botón siguiente - Inicio');
                         e.preventDefault();
                         try {
-                            console.log('Intentando ejecutar nextStep()...');
                             await nextStep();
-                            console.log('nextStep() ejecutado correctamente');
                         } catch (error) {
                             console.error('Error al ejecutar nextStep:', error);
                             alert('Error: ' + error.message);
                         }
                     });
-                    console.log('Evento click configurado para el botón siguiente');
                 } else {
                     console.warn('No se encontró el botón siguiente en el DOM');
                 }
 
                 if (prevBtn) {
-                    console.log('Configurando evento click para el botón anterior');
                     prevBtn.addEventListener('click', function (e) {
                         e.preventDefault();
-                        console.log('Click en botón anterior');
                         prevStep();
                     });
                 }
@@ -309,8 +297,6 @@
                 // Inicializar otros componentes si es necesario
                 updateButtons();
                 updateStepIndicators();
-
-                console.log('Configuración inicial completada');
             } catch (error) {
                 console.error('Error durante la inicialización:', error);
             }
@@ -530,12 +516,9 @@
                     ListarDatosEsquemaVacunacion().then(() => {
                         // Restaurar datos después de cargar las opciones
                         setTimeout(() => {
-                            console.log('✅ Flujo de vacuna restaurada activado 1');
                             restoreCurrentStepData();
-                            console.log('✅ Flujo de vacuna restaurada activado 2');
                             setTimeout(() => {
                                 activarFlujoVacunaRestaurada();
-                                console.log('✅ Flujo de vacuna restaurada activado');
                             }, 200);
                         }, 100);
                     });
@@ -588,8 +571,6 @@
                         if (dosisSelect) {
                             dosisSelect.required = true;
                         }
-
-                        console.log('Vacuna con RangoDosis:', rangoDosis);
                     } else {
                         // No tiene rangoDosis: ocultar select y mostrar mensaje
                         dosisSelectContainer.style.display = 'none';
@@ -601,12 +582,7 @@
                             dosisSelect.required = false;
                             dosisSelect.value = ''; // Limpiar valor
                         }
-
-                        console.log('Vacuna sin RangoDosis - Mostrando mensaje informativo');
                     }
-                } else {
-                    // Si no encuentra los contenedores, significa que no estamos en el paso 6
-                    console.log('Contenedores de dosis no encontrados - probablemente no estamos en el paso 6');
                 }
             }
 
@@ -634,8 +610,6 @@
                         if (dosisSelect) {
                             dosisSelect.required = true;
                         }
-
-                        console.log('Vacuna con RangoDosis:', rangoDosis);
                     } else {
                         // No tiene rangoDosis: ocultar select y mostrar mensaje
                         dosisSelectContainer.style.display = 'none';
@@ -647,12 +621,7 @@
                             dosisSelect.required = false;
                             dosisSelect.value = ''; // Limpiar valor
                         }
-
-                        console.log('Vacuna sin RangoDosis - Mostrando mensaje informativo');
                     }
-                } else {
-                    // Si no encuentra los contenedores, significa que no estamos en el paso 6
-                    console.log('Contenedores de dosis no encontrados - probablemente no estamos en el paso 6');
                 }
             }
 
@@ -662,11 +631,8 @@
                 const detallesVacuna = document.getElementById('detallesVacuna');
 
                 if (!vacunaSelect || !vacunaSelect.value || vacunaSelect.value.trim() === '') {
-                    console.log('No hay vacuna seleccionada para restaurar');
                     return;
                 }
-
-                console.log('🔄 Activando flujo para vacuna restaurada:', vacunaSelect.value);
 
                 // Mostrar los detalles de vacuna
                 if (detallesVacuna) {
@@ -703,10 +669,8 @@
 
                     // Ejecutar la lógica de rangos si hay configuraciones
                     if (rangoDosis && rangoDosis.trim() !== 'Sin configuraciones') {
-                        console.log('Vacuna con RangoDosis detectada, cargando dosis:', rangoDosis);
                         listarInsumosDosis(vacunaId);
                     } else {
-                        console.log('Vacuna sin RangoDosis, no se cargarán dosis específicas');
                         limpiarSelectDosis();
                     }
 
@@ -721,12 +685,10 @@
                     }
                 }
                 toggleMarcarComoPerdida();
-                console.log('✅ Flujo de vacuna restaurada completado');
             }
 
             // Devuelve { years, months, days, totalMonths, totalDays }
             function calcularEdad(fechaNacimiento, referencia = new Date()) {
-                console.log('Calculando edad para fechaNacimiento fraydeer: ', fechaNacimiento);
                 if (!fechaNacimiento) return null;
                 const birth = new Date(fechaNacimiento.getFullYear(), fechaNacimiento.getMonth(), fechaNacimiento.getDate());
                 const ref = new Date(referencia.getFullYear(), referencia.getMonth(), referencia.getDate());
@@ -785,8 +747,6 @@
 
                 rangos.forEach((r) => {
                     // r espera: texto, textoRango, minMonths, maxMonths, dosis (opcional)
-                    console.log('Evaluando rango:', r);
-                    console.log('Edad totalMonths:', edad ? edad : 'N/A');
                     const aplica = edad ? rangoAplica(r, edad.totalDays) : false;
                     const item = document.createElement('div');
                     item.className = 'list-group-item d-flex justify-content-between align-items-center';
@@ -847,13 +807,9 @@
                                             dosisSelect.appendChild(option);
                                         }
                                     });
-
-                                    console.log('✅ Select de dosis actualizado con rangos para pérdida:', rangoDosisArray);
                                 } catch (e) {
                                     console.warn('Error al parsear data-rango-dosis-array:', e);
                                 }
-                            } else {
-                                console.log('No se encontró data-rango-dosis-array en la vacuna seleccionada');
                             }
                         }
                     }
@@ -971,10 +927,8 @@
                             const rangoDosisArray = selectedOption ? JSON.parse(selectedOption.getAttribute('data-rango-dosis-array')) : [];
 
                             if (rangoDosis && rangoDosis.trim() !== 'Sin configuraciones') {
-                                console.log('Vacuna con RangoDosis detectada, cargando dosis:', rangoDosis);
                                 listarInsumosDosis(vacunaId);
                             } else {
-                                console.log('Vacuna sin RangoDosis, no se cargarán dosis específicas');
                                 limpiarSelectDosis();
                             }
 
@@ -1008,11 +962,6 @@
                             }
                         }
                     }
-
-
-
-                    // Event wiring
-                    console.log('Configurando lógica de rangos de edad para vacunas');
 
                     // Parse flexible ISO or dd/mm/yyyy or mm/dd/yyyy (lo más robusto posible)
                     function parseDateISOOrLocal(s) {
@@ -1076,7 +1025,6 @@
 
                     // Orquestador: al cambiar la vacuna
                     async function onVacunaChange() {
-                        console.log('Vacuna cambiada, actualizando información de rangos de edad');
                         const opt = vacunaSelect && vacunaSelect.selectedOptions && vacunaSelect.selectedOptions[0];
                         const vacunaNombre = opt ? (opt.textContent || opt.value) : '';
                         const vacunaId = opt ? (opt.value) : '';
@@ -1107,15 +1055,12 @@
             function listarInsumosDosis(vacunaId) {
                 const dosisSelect = document.querySelector('select[name="Dosis"]');
                 if (!dosisSelect) return;
-                console.log('Cargando dosis para vacunaId:', vacunaId);
 
                 // Limpiar opciones existentes excepto la primera
                 while (dosisSelect.children.length > 1) {
                     dosisSelect.removeChild(dosisSelect.lastChild);
                 }
-                console.log('Opciones de dosis limpiadas');
                 if (!vacunaId) return;
-                console.log('VacunaId válido, procediendo a cargar dosis');
                 // Obtener fecha de nacimiento: preferir lo guardado en formData/localStorage, si existe
                 let fechaNacimiento = null;
 
@@ -1281,23 +1226,16 @@
 
             // Define functions first
             async function nextStep() {
-                console.log('Iniciando nextStep - Paso actual:', currentStep);
-
                 // Guardar los datos del paso actual
                 saveCurrentStepData();
 
                 // Validar el paso actual antes de continuar
                 if (currentStep === 1) {
-                    console.log('Validando paso 1...');
                     // Validar datos básicos
                     if (typeof window.validateDatosBasicos === 'function') {
-                        console.log('Función validateDatosBasicos encontrada');
                         if (!window.validateDatosBasicos()) {
-                            console.log('Validación del paso 1 falló');
                             return; // No continuar si la validación falla
                         }
-                    } else {
-                        console.log('ADVERTENCIA: Función validateDatosBasicos no encontrada');
                     }
                 } else if (currentStep === 6) {
                     // Validar esquema de vacunación
@@ -1309,12 +1247,10 @@
                 }
 
                 if (currentStep < totalSteps) {
-                    console.log('Avanzando al siguiente paso...');
                     currentStep++;
 
                     try {
                         const url = '/RegistroVacunacion/LoadStep?step=' + currentStep;
-                        console.log('Cargando paso desde:', url);
 
                         const response = await fetch(url);
 
@@ -1323,19 +1259,16 @@
                         }
 
                         const html = await response.text();
-                        console.log('Contenido HTML recibido:', html.substring(0, 100) + '...');
 
                         const stepContainer = document.getElementById('step-container');
                         if (stepContainer) {
                             stepContainer.innerHTML = html;
-                            console.log('Contenido actualizado en el contenedor');
 
                             // Restaurar los datos después de cargar el nuevo contenido
                             executeStepSpecificLogic();
 
                             updateButtons();
                             updateStepIndicators();
-                            console.log('UI actualizada para el paso', currentStep);
                         } else {
                             console.error('Error: No se encontró el contenedor step-container');
                             alert('Error: No se encontró el contenedor para mostrar el siguiente paso');
@@ -1607,8 +1540,6 @@
             // Función para cargar datos de médico/cuidador en el paso 5
             async function loadDatosMedicoCuidador() {
                 try {
-                    console.log('Cargando datos de médico/cuidador...');
-
                     // Cargar Regímenes de Afiliación para la madre
                     const regimenesResponse = await fetch('/RegistroVacunacion/GetRegimenesAfiliacion');
                     if (regimenesResponse.ok) {
@@ -1622,8 +1553,6 @@
                         const pertenencias = await pertenenciasResponse.json();
                         populateSelectById('EtniaCuidador', pertenencias, 'Seleccione pertenencia étnica');
                     }
-
-                    console.log('Datos de médico/cuidador cargados exitosamente');
                 } catch (error) {
                     console.error('Error al cargar datos de médico/cuidador:', error);
                 }
@@ -1672,8 +1601,6 @@
             // Función para cargar tipos de carnet en el paso 6
             async function loadTiposCarnet() {
                 try {
-                    console.log('Cargando tipos de carnet...');
-
                     const response = await fetch('/RegistroVacunacion/GetTiposCarnet');
                     if (!response.ok) {
                         throw new Error(`HTTP error! status: ${response.status}`);
@@ -1720,7 +1647,6 @@
 
                             select.appendChild(option);
                         });
-                        console.log(`Tipos de carnet cargados: ${data.length} opciones`);
                     } else {
                         console.warn('No se recibieron tipos de carnet');
                     }
@@ -1744,7 +1670,6 @@
 
             // Función para validar datos básicos
             window.validateDatosBasicos = function () {
-                console.log('Iniciando validación de datos básicos');
                 const requiredFields = {
                     'NumeroDocumento': 'Número de Identificación',
                     'PrimerNombre': 'Primer Nombre',
@@ -1765,23 +1690,13 @@
 
                 for (const [fieldId, fieldName] of Object.entries(requiredFields)) {
                     const field = document.getElementById(fieldId);
-                    console.log(`Validando campo ${fieldId}`);
                     if (!field || !field.value.trim()) {
-                        console.log(`Campo ${fieldId} está vacío o no existe`);
                         isValid = false;
                         missingFields.push(fieldName);
                         if (field) {
                             field.classList.add('is-invalid');
                         }
-                    } else {
-                        console.log(`Campo ${fieldId} es válido: ${field.value}`);
                     }
-                }
-
-                if (!isValid) {
-                    console.log('Validación falló. Campos faltantes:', missingFields);
-                } else {
-                    console.log('Todos los campos requeridos están completos');
                 }
 
                 return isValid;
@@ -1813,10 +1728,8 @@
             }
 
             // Agregar listener al formulario para manejar el envío
-            console.log('Configurando listener de envío del formulario...');
             const form = document.getElementById('vacunacionForm');
             if (form) {
-                console.log('Configurando listener de envío del formulario.entro..');
                 form.addEventListener('submit', function (e) {
                     e.preventDefault();
 
@@ -1868,8 +1781,6 @@
 
                                 // Agregar al objeto que se enviará al servidor
                                 todosLosDatos.ArrayAntecedentes = JSON.stringify(antecedentesParaEnviar);
-
-                                console.log('Antecedentes agregados al envío:', antecedentesParaEnviar);
                             }
                         } catch (e) {
                             console.error('Error al procesar antecedentes:', e);
@@ -1972,7 +1883,6 @@
                         // disparar evento change si hay listeners
                         tipoSelect.dispatchEvent(new Event('change', { bubbles: true }));
                     }
-                    console.log('Datos del paciente recibido:', data);
 
                     if (primerNombre && data.primerNombre) primerNombre.value = data.primerNombre;
                     if (segundoNombre && data.segundoNombre) segundoNombre.value = data.segundoNombre;
@@ -2028,8 +1938,6 @@
                         if (edadDias) edadDias.textContent = edad.days;
                         if (totalMeses) totalMeses.textContent = edad.totalMonths;
                         if (totalDias) totalDias.textContent = `${edad.totalDays} días totales`;
-                        
-                        console.log('Edad calculada:', edad);
                     }
                 }
                 
@@ -2045,8 +1953,6 @@
                 if (fechaNacimientoInput.value) {
                     actualizarEdadCalculada();
                 }
-                
-                console.log('Cálculo automático de edad configurado');
             }
 
             
