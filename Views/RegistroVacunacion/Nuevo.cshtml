@@ -650,8 +650,8 @@
                 const selectedOption = vacunaSelect.selectedOptions[0];
                 if (selectedOption) {
                     const vacunaId = vacunaSelect.value;
-                    const tituloInformacion = document.getElementById('tituloInformacion');
-
+                    const tituloInformacion = document.getElementById('tituloInformacion'); 
+                    
                     // Actualizar título de información
                     if (tituloInformacion) {
                         tituloInformacion.textContent = `Información de rangos de edad para ${selectedOption.textContent || ''}`;
@@ -773,6 +773,40 @@
                 return { aplican, noAplican };
             }
 
+            function toggleMostrarLoteDosis(){
+                const dosisSelect = document.querySelector('select[name="Dosis"]');
+                const vacunaSelect = document.querySelector('select[name="Vacuna"]');
+
+                if(dosisSelect){
+                    const selectedOption = dosisSelect.selectedOptions[0];
+                    const vacunaSelectOption = vacunaSelect.selectedOptions[0];
+                    const loteDosisContainer = document.getElementById('datosVacunaSeleccionada');
+                    const btnPrimeraDosis = document.getElementById('btnPrimeraDosis');
+                    const nombreRangoEdadLote = document.getElementById('nombreRangoEdadLote');
+
+                    if(selectedOption && selectedOption.value && selectedOption.value.trim() !== ''){
+                        // Mostrar campo de loteDosis
+                        if(loteDosisContainer){
+                            loteDosisContainer.style.display = 'block';
+                            btnPrimeraDosis.textContent = selectedOption.text
+
+                            const tituloNombreVacunaSeleccionada = document.getElementById('nombreVacunaSeleccionada'); 
+                            if (tituloNombreVacunaSeleccionada) {
+                                tituloNombreVacunaSeleccionada.textContent = `${vacunaSelectOption.textContent || ''}`;
+                            }
+
+                            const rangoDosis = selectedOption.descripcionRango || '';
+                            nombreRangoEdadLote.textContent = ` ${rangoDosis || ''}`;
+                        }
+                    } else {
+                        // Ocultar campo de loteDosis
+                        if(loteDosisContainer){
+                            loteDosisContainer.style.display = 'none';
+                        }
+                    }
+                }
+            }
+
             function toggleMarcarComoPerdida() {
                 const checkbox = document.getElementById('MarcarComoPerdida');
                 const container = document.getElementById('motivoPerdidaContainer');
@@ -801,9 +835,11 @@
                                     // Agregar opciones del data-rango-dosis-array
                                     rangoDosisArray.forEach(rango => {
                                         if (rango.dosis) {
-                                            const option = document.createElement('option');
+                                            const option = document.createElement('option'); 
                                             option.value = rango.dosis;
-                                            option.textContent = rango.dosis + (rango.descripcionRango ? ` - ${rango.descripcionRango}` + ' (Fuera de edad)' : '');
+                                            option.text = rango.dosis;
+                                            option.textContent = rango.dosis + " - " + rango.descripcionRango;
+                                            option.descripcionRango = rango.descripcionRango || '';
                                             dosisSelect.appendChild(option);
                                         }
                                     });
@@ -1112,8 +1148,10 @@
                             if (data && !data.error && Array.isArray(data)) {
                                 data.forEach(item => {
                                     const option = document.createElement('option');
-                                    option.value = item.value;
-                                    option.textContent = item.text;
+                                    option.value = item.id;
+                                    option.text = item.dosisText;
+                                    option.textContent = item.dosisText + " - " + item.descripcionRango;
+                                    option.descripcionRango = item.descripcionRango || '';
                                     dosisSelect.appendChild(option);
                                 });
                             } else {
@@ -1349,6 +1387,96 @@
                     });
                 }
             }
+
+             function initializeVacunasLogic() {
+                const agregarBtn = document.getElementById('agregarVacunaBtn');
+                if (agregarBtn) {
+                    agregarBtn.addEventListener('click', function () {
+                        agregarVacuna();
+                    });
+                }
+            }
+
+             function agregarVacuna() {
+                // Obtener valores del formulario
+                const fecha = document.querySelector('input[name="loteVacuna"]')?.value;
+                const tipo = document.querySelector('input[name="Jeringa"]')?.value;
+                const tipo = document.querySelector('input[name="LoteJeringa"]')?.value;
+                const tipo = document.querySelector('input[name="LoteDiluyente"]')?.value;
+                const tipo = document.querySelector('input[name="Gotero"]')?.value;
+                const tipo = document.querySelector('input[name="NumeroFrascos"]')?.value; 
+                const descripcion = document.querySelector('textarea[name="ObservacionesVacuna"]')?.value; 
+
+                // Validar campos requeridos
+                if (!fecha || !tipo || !descripcion) {
+                    alert('Por favor complete todos los campos obligatorios (Fecha, Tipo y Descripción)');
+                    return;
+                }
+
+                // Validar formato de fecha (para input type="date" el formato es yyyy-mm-dd)
+                if (!Date.parse(fecha)) {
+                    alert('Por favor seleccione una fecha válida');
+                    return;
+                }
+
+                // Formatear la fecha para mostrar en formato más legible
+                const fechaFormateada = new Date(fecha).toLocaleDateString('es-ES', {
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit'
+                });
+
+                // Crear el antecedente
+                const antecedente = {
+                    fecha: fecha, // Guardar fecha original
+                    fechaFormateada: fechaFormateada, // Fecha formateada para mostrar
+                    tipo: tipo,
+                    descripcion: descripcion,
+                    observaciones: observaciones || 'N/A'
+                };
+
+                // Agregar a la lista
+                const tableBody = document.getElementById('antecedentesTableBody');
+                const listaContainer = document.getElementById('listaAntecedentes');
+
+                if (tableBody && listaContainer) {
+                    // Mostrar la tabla si está oculta
+                    listaContainer.style.display = 'block';
+
+                    // Crear fila de la tabla
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                                                                            <td>${antecedente.fechaFormateada}</td>
+                                                                            <td>${antecedente.tipo}</td>
+                                                                            <td>${antecedente.descripcion}</td>
+                                                                            <td>${antecedente.observaciones}</td>
+                                                                            <td>
+                                                                                <button type="button" class="btn btn-danger btn-sm" onclick="eliminarAntecedente(this)">
+                                                                                    <i class="ri-delete-bin-line"></i>
+                                                                                </button>
+                                                                            </td>
+                                                                        `;
+
+                    tableBody.appendChild(row);
+
+                    // Limpiar el formulario
+                    document.querySelector('input[name="FechaRegistroAntecedente"]').value = '';
+                    document.querySelector('input[name="TipoAntecedente"]').value = '';
+                    document.querySelector('textarea[name="DescripcionAntecedente"]').value = '';
+                    document.querySelector('textarea[name="ObservacionesAntecedente"]').value = '';
+
+                    // Guardar en formData
+                    if (!formData.antecedentes) {
+                        formData.antecedentes = [];
+                    }
+                    formData.antecedentes.push(antecedente);
+                    localStorage.setItem('vacunacionFormData', JSON.stringify(formData));
+
+                    // Antecedente procesado exitosamente
+                }
+            }
+
+            
 
             function agregarAntecedente() {
                 // Obtener valores del formulario
@@ -1965,6 +2093,7 @@
             window.rangoAplica = rangoAplica;
             window.mostrarAlertaSegunRangos = mostrarAlertaSegunRangos;
             window.toggleMarcarComoPerdida = toggleMarcarComoPerdida;
+            window.toggleMostrarLoteDosis = toggleMostrarLoteDosis;
         })
     </script>
 }

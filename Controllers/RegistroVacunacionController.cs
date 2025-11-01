@@ -231,6 +231,7 @@ namespace Highdmin.Controllers
                     {
                         Id = cr.Id,
                         DosisText = (cr.Dosis ?? cr.DescripcionRango ?? ("Dosis " + cr.Id)).Trim(),
+                        DescripcionRango = cr.DescripcionRango ?? "",
                         EdadMin = cr.EdadMinima,
                         EdadMax = cr.EdadMaxima,
                         UnidadMin = cr.UnidadMedidaEdadMinima,
@@ -257,19 +258,9 @@ namespace Highdmin.Controllers
                         }
                     })
                     .ToList();
+ 
 
-                // Agrupar por texto de dosis para evitar duplicados
-                var result = filtrados
-                    .GroupBy(f => f.DosisText)
-                    .Select(g => new
-                    {
-                        value = g.First().Id,   // puedes cambiar a text si prefieres enviar el texto como value
-                        text = g.Key
-                    })
-                    .OrderBy(x => x.text)
-                    .ToList();
-
-                return Json(result);
+                return Json(filtrados);
             }
             catch (Exception ex)
             {
