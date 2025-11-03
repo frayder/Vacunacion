@@ -519,6 +519,7 @@
                             restoreCurrentStepData();
                             setTimeout(() => {
                                 activarFlujoVacunaRestaurada();
+                                initializeVacunasLogic();
                             }, 200);
                         }, 100);
                     });
@@ -1388,95 +1389,324 @@
                 }
             }
 
-             function initializeVacunasLogic() {
-                const agregarBtn = document.getElementById('agregarVacunaBtn');
-                if (agregarBtn) {
-                    agregarBtn.addEventListener('click', function () {
+            function initializeVacunasLogic() {
+                const agregarVacunaBtn = document.getElementById('agregarVacunaBtn');
+                if (agregarVacunaBtn) {
+                    agregarVacunaBtn.addEventListener('click', function () {
                         agregarVacuna();
                     });
                 }
             }
 
-             function agregarVacuna() {
+            function agregarVacuna() {
                 // Obtener valores del formulario
-                const fecha = document.querySelector('input[name="loteVacuna"]')?.value;
-                const tipo = document.querySelector('input[name="Jeringa"]')?.value;
-                const tipo = document.querySelector('input[name="LoteJeringa"]')?.value;
-                const tipo = document.querySelector('input[name="LoteDiluyente"]')?.value;
-                const tipo = document.querySelector('input[name="Gotero"]')?.value;
-                const tipo = document.querySelector('input[name="NumeroFrascos"]')?.value; 
-                const descripcion = document.querySelector('textarea[name="ObservacionesVacuna"]')?.value; 
+                const vacunaSelect = document.getElementById('VacunaSeleccionada');
+                const dosisSelect = document.querySelector('select[name="Dosis"]');
+                const loteVacuna = document.getElementById('loteVacuna')?.value;
+                const jeringa = document.getElementById('Jeringa')?.value;
+                const loteJeringa = document.getElementById('loteJeringa')?.value;
+                const loteDiluyente = document.getElementById('loteDiluyente')?.value;
+                const gotero = document.getElementById('gotero')?.value;
+                const numeroFrascos = document.getElementById('numeroFrascos')?.value;
+                const observaciones = document.getElementById('observacionesVacuna')?.value;
+                const marcarComoPerdida = document.getElementById('MarcarComoPerdida')?.checked;
+                const motivoPerdida = document.getElementById('MotivoPerdida')?.value;
 
                 // Validar campos requeridos
-                if (!fecha || !tipo || !descripcion) {
-                    alert('Por favor complete todos los campos obligatorios (Fecha, Tipo y Descripción)');
+                if (!vacunaSelect.value) {
+                    alert('Por favor seleccione un insumo (vacuna)');
                     return;
                 }
 
-                // Validar formato de fecha (para input type="date" el formato es yyyy-mm-dd)
-                if (!Date.parse(fecha)) {
-                    alert('Por favor seleccione una fecha válida');
+                if (!loteVacuna || loteVacuna.trim() === '') {
+                    alert('Por favor ingrese el lote de la vacuna');
                     return;
                 }
 
-                // Formatear la fecha para mostrar en formato más legible
-                const fechaFormateada = new Date(fecha).toLocaleDateString('es-ES', {
+                // Validar dosis solo si es visible y requerido
+                const dosisSelectContainer = document.getElementById('dosisSelectContainer');
+                if (dosisSelectContainer && dosisSelectContainer.style.display !== 'none' && dosisSelect && !dosisSelect.value) {
+                    alert('Por favor seleccione el número de dosis');
+                    return;
+                }
+
+                // Validar motivo de pérdida si está marcado como perdida
+                if (marcarComoPerdida && (!motivoPerdida || motivoPerdida.trim() === '')) {
+                    alert('Por favor seleccione el motivo de la pérdida');
+                    return;
+                }
+
+                // Obtener información de la vacuna seleccionada
+                const selectedOption = vacunaSelect.selectedOptions[0];
+                const nombreVacuna = selectedOption.text;
+                const vacunaId = selectedOption.value;
+                const selectedDosis = dosisSelect.selectedOptions[0];
+                // Obtener fecha actual
+                const fechaActual = new Date().toLocaleDateString('es-ES', {
                     year: 'numeric',
                     month: '2-digit',
                     day: '2-digit'
                 });
 
-                // Crear el antecedente
-                const antecedente = {
-                    fecha: fecha, // Guardar fecha original
-                    fechaFormateada: fechaFormateada, // Fecha formateada para mostrar
-                    tipo: tipo,
-                    descripcion: descripcion,
-                    observaciones: observaciones || 'N/A'
+                // Crear objeto vacuna
+                const vacuna = {
+                    id: Date.now(), // ID único para la vacuna
+                    vacunaId: vacunaId,
+                    nombreVacuna: nombreVacuna,
+                    dosis: selectedDosis ? selectedDosis.text : 'GENERAL',
+                    loteVacuna: loteVacuna,
+                    jeringa: jeringa || '',
+                    loteJeringa: loteJeringa || '',
+                    loteDiluyente: loteDiluyente || '',
+                    gotero: gotero || '',
+                    numeroFrascos: numeroFrascos || '',
+                    observaciones: observaciones || '',
+                    marcarComoPerdida: marcarComoPerdida,
+                    motivoPerdida: marcarComoPerdida ? motivoPerdida : '',
+                    fechaRegistro: new Date().toISOString(),
+                    fechaFormateada: fechaActual
                 };
 
-                // Agregar a la lista
-                const tableBody = document.getElementById('antecedentesTableBody');
-                const listaContainer = document.getElementById('listaAntecedentes');
+                // Agregar a la tabla
+                const tableBody = document.getElementById('vacunasTableBody');
+                const listaContainer = document.getElementById('listaVacunas');
 
                 if (tableBody && listaContainer) {
                     // Mostrar la tabla si está oculta
                     listaContainer.style.display = 'block';
 
                     // Crear fila de la tabla
-                    const row = document.createElement('tr');
+                    const row = document.createElement('div');
+                    const estadoVacuna = vacuna.marcarComoPerdida ? 
+                        `<span class="badge bg-warning">Perdida (${vacuna.motivoPerdida})</span>` : 
+                        `<span class="badge bg-success">Aplicada</span>`;
+
+                    const dosisTexto = vacuna.dosis === 'GENERAL' ? 'N/A' : `Dosis ${vacuna.dosis}`;
+                    row.className = 'col-md-12'; 
                     row.innerHTML = `
-                                                                            <td>${antecedente.fechaFormateada}</td>
-                                                                            <td>${antecedente.tipo}</td>
-                                                                            <td>${antecedente.descripcion}</td>
-                                                                            <td>${antecedente.observaciones}</td>
-                                                                            <td>
-                                                                                <button type="button" class="btn btn-danger btn-sm" onclick="eliminarAntecedente(this)">
-                                                                                    <i class="ri-delete-bin-line"></i>
-                                                                                </button>
-                                                                            </td>
-                                                                        `;
+                        <div class="card mb-3 vacuna-card" data-vacuna-id="${vacuna.id}">
+                            <div class="card-header bg-light">
+                                <div class="justify-content-between d-flex align-items-center">
+                                    <div class="row">
+                                        <div class="col">
+                                            <h6 class="mb-0 text-primary">${vacuna.nombreVacuna}</h6>
+                                            <small class="text-muted">
+                                                <i class="ri-calendar-line me-1"></i>${vacuna.fechaFormateada}
+                                            </small>
+                                        </div>
+                                        <div class="col-auto">
+                                            ${vacuna.marcarComoPerdida ? 
+                                                `<span class="badge bg-warning text-dark">
+                                                    <i class="ri-error-warning-line me-1"></i>Perdida
+                                                </span>` : 
+                                                `<span class="badge bg-success">
+                                                    <i class="ri-check-line me-1"></i>Aplicada
+                                                </span>`
+                                            }
+                                        </div>
+                                    </div>
+
+                                    <button type="button" class="btn btn-outline-danger btn-sm" onclick="eliminarVacuna(this, ${vacuna.id})">
+                                        <i class="ri-delete-bin-line me-1"></i>Eliminar
+                                    </button>
+                                   
+                                </div>
+                            </div>
+                            
+                            <div class="card-body">
+                                <div class="row">
+                                    <!-- Información principal -->
+                                    <div class="d-flex col-md-6">
+                                        <div class="info-group">
+                                            <label class="info-label">Dosis:</label>
+                                            <span class="badge bg-primary ms-1">
+                                                ${vacuna.dosis === 'GENERAL' ? 'General' : `Dosis ${vacuna.dosis}`}
+                                            </span>
+                                        </div>
+                                        <div class="info-group mx-5">
+                                            <label class="info-label mx-1">Lote Vacuna: 
+                                            <span class="info-value text-primary fw-bold">${vacuna.loteVacuna}</span></label>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Información adicional -->
+                                    <div class="col-md-6 d-flex">
+                                        ${vacuna.jeringa ? `
+                                        <div class="info-group mx-5">
+                                            <label class="info-label mx-1">Jeringa:</label>
+                                            <span class="info-value">${vacuna.jeringa}</span>
+                                        </div>` : ''}
+                                        
+                                        ${vacuna.numeroFrascos ? `
+                                        <div class="info-group mx-5">
+                                            <label class="info-label mx-1">N° Frascos:
+                                            <span class="info-value">${vacuna.numeroFrascos}</span></label>
+                                        </div>` : ''}
+                                    </div>
+                                </div>
+                                
+                                <!-- Lotes adicionales -->
+                                ${(vacuna.loteJeringa || vacuna.loteDiluyente || vacuna.gotero) ? `
+                                <div class="row mt-2 pt-2 border-top"> 
+                                        <h6 class="text-muted mb-1">Información de Lotes:</h6>
+                                        <div class="row">
+                                            ${vacuna.loteJeringa ? `
+                                            <div class="col-md-3">
+                                                <small >Lote Jeringa:<strong class="mx-1"> ${vacuna.loteJeringa}</strong></small>
+                                            </div>` : ''}
+                                            ${vacuna.loteDiluyente ? `
+                                            <div class="col-md-3">
+                                                <small >Lote Diluyente:<strong class="mx-1"> ${vacuna.loteDiluyente}</strong></small>
+                                            </div>` : ''}
+                                            ${vacuna.gotero ? `
+                                            <div class="col-md-3">
+                                                <small >Gotero:<strong class="mx-1"> ${vacuna.gotero}</strong></small>
+                                            </div>` : ''}
+
+                                            ${vacuna.observaciones ? `
+                                            <div class="col-md-3">
+                                                <small>Observaciones:<strong class="mx-1"> ${vacuna.observaciones}</strong></small>
+                                            </div>` : ''}
+                                        </div> 
+                                </div>` : ''} 
+                                
+                                <!-- Motivo de pérdida -->
+                                ${vacuna.marcarComoPerdida && vacuna.motivoPerdida ? `
+                                <div class="mt-3">
+                                    <div class="alert alert-warning py-2 mb-0">
+                                        <small><strong>Motivo de Pérdida:</strong> ${vacuna.motivoPerdida}</small>
+                                    </div>
+                                </div>` : ''}
+                            </div>
+                        </div>
+                    `;
 
                     tableBody.appendChild(row);
 
                     // Limpiar el formulario
-                    document.querySelector('input[name="FechaRegistroAntecedente"]').value = '';
-                    document.querySelector('input[name="TipoAntecedente"]').value = '';
-                    document.querySelector('textarea[name="DescripcionAntecedente"]').value = '';
-                    document.querySelector('textarea[name="ObservacionesAntecedente"]').value = '';
+                    limpiarFormularioVacuna();
 
-                    // Guardar en formData
-                    if (!formData.antecedentes) {
-                        formData.antecedentes = [];
+                    // Guardar en formData global
+                    if (!window.formData.vacunas) {
+                        window.formData.vacunas = [];
                     }
-                    formData.antecedentes.push(antecedente);
-                    localStorage.setItem('vacunacionFormData', JSON.stringify(formData));
+                    window.formData.vacunas.push(vacuna);
+                    localStorage.setItem('vacunacionFormData', JSON.stringify(window.formData));
 
-                    // Antecedente procesado exitosamente
+                    console.log('✅ Vacuna agregada correctamente:', vacuna);
+                    
+                    // Opcional: mostrar mensaje de éxito
+                    mostrarMensajeExito('Vacuna agregada correctamente al esquema de vacunación');
                 }
             }
 
-            
+            // Función para limpiar el formulario después de agregar una vacuna
+            function limpiarFormularioVacuna() {
+                // Limpiar selects
+                document.getElementById('VacunaSeleccionada').value = '';
+                const dosisSelect = document.querySelector('select[name="Dosis"]');
+                if (dosisSelect) dosisSelect.value = '';
+
+                // Limpiar inputs
+                const campos = ['loteVacuna', 'Jeringa', 'loteJeringa', 'loteDiluyente', 'gotero', 'numeroFrascos'];
+                campos.forEach(campo => {
+                    const elemento = document.getElementById(campo);
+                    if (elemento) elemento.value = '';
+                });
+
+                // Limpiar textarea
+                const observaciones = document.getElementById('observacionesVacuna');
+                if (observaciones) observaciones.value = '';
+
+                // Limpiar checkbox y motivo de pérdida
+                const checkboxPerdida = document.getElementById('MarcarComoPerdida');
+                if (checkboxPerdida) {
+                    checkboxPerdida.checked = false;
+                    toggleMotivoPerdida(); // Esto ocultará el motivo de pérdida
+                }
+
+                // Ocultar sección de datos de vacuna
+                const datosVacuna = document.getElementById('datosVacunaSeleccionada');
+                if (datosVacuna) datosVacuna.style.display = 'none';
+
+                // Ocultar detalles de vacuna
+                const detallesVacuna = document.getElementById('detallesVacuna');
+                if (detallesVacuna) detallesVacuna.style.display = 'none';
+            }
+
+            // Función para eliminar vacuna
+            function eliminarVacuna(button, vacunaId) {
+                if (confirm('¿Está seguro de que desea eliminar esta vacuna del esquema?')) {
+                    const row = button.closest('tr');
+                    
+                    // Eliminar de la tabla
+                    row.remove();
+
+                    // Eliminar de formData
+                    if (window.formData.vacunas) {
+                        const index = window.formData.vacunas.findIndex(v => v.id === vacunaId);
+                        if (index !== -1) {
+                            window.formData.vacunas.splice(index, 1);
+                            localStorage.setItem('vacunacionFormData', JSON.stringify(window.formData));
+                        }
+                    }
+
+                    // Ocultar la tabla si no hay más vacunas
+                    const tableBody = document.getElementById('vacunasTableBody');
+                    const listaContainer = document.getElementById('listaVacunas');
+                    if (tableBody && tableBody.children.length === 0 && listaContainer) {
+                        listaContainer.style.display = 'none';
+                    }
+
+                    console.log('🗑️ Vacuna eliminada del esquema');
+                }
+            }
+
+            // Función para restaurar vacunas guardadas
+            function restoreVacunas() {
+                if (window.formData.vacunas && window.formData.vacunas.length > 0) {
+                    const tableBody = document.getElementById('vacunasTableBody');
+                    const listaContainer = document.getElementById('listaVacunas');
+
+                    if (tableBody && listaContainer) {
+                        // Limpiar tabla existente
+                        tableBody.innerHTML = '';
+
+                        // Mostrar la tabla
+                        listaContainer.style.display = 'block';
+
+                        // Agregar cada vacuna
+                        window.formData.vacunas.forEach(vacuna => {
+                            const estadoVacuna = vacuna.marcarComoPerdida ? 
+                                `<span class="badge bg-warning">Perdida (${vacuna.motivoPerdida})</span>` : 
+                                `<span class="badge bg-success">Aplicada</span>`;
+
+                            const dosisTexto = vacuna.dosis === 'GENERAL' ? 'N/A' : `Dosis ${vacuna.dosis}`;
+
+                            const row = document.createElement('tr');
+                            row.innerHTML = `
+                                <td>${vacuna.fechaFormateada}</td>
+                                <td>${vacuna.nombreVacuna}</td>
+                                <td>${dosisTexto}</td>
+                                <td>
+                                    <strong>Lote:</strong> ${vacuna.loteVacuna}<br>
+                                    ${vacuna.jeringa ? `<strong>Jeringa:</strong> ${vacuna.jeringa}<br>` : ''}
+                                    ${vacuna.observaciones ? `<strong>Obs:</strong> ${vacuna.observaciones}` : ''}
+                                </td>
+                                <td>${estadoVacuna}</td>
+                                <td>
+                                    <button type="button" class="btn btn-danger btn-sm" onclick="eliminarVacuna(this, ${vacuna.id})">
+                                        <i class="ri-delete-bin-line"></i>
+                                    </button>
+                                </td>
+                            `;
+                            tableBody.appendChild(row);
+                        });
+
+                        console.log(`🔄 Restauradas ${window.formData.vacunas.length} vacunas del esquema`);
+                    }
+                }
+            }
 
             function agregarAntecedente() {
                 // Obtener valores del formulario
