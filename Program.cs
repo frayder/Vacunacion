@@ -43,6 +43,7 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<Highdmin.Services.IMenuService, Highdmin.Services.MenuService>();
 builder.Services.AddScoped<Highdmin.Services.IEmpresaService, Highdmin.Services.EmpresaService>();
 builder.Services.AddScoped<Highdmin.Services.AuthorizationService>();
+builder.Services.AddScoped<Highdmin.Services.IPasswordHashService, Highdmin.Services.PasswordHashService>();
 
 // Registrar servicios genéricos de Import/Export
 builder.Services.AddScoped<Highdmin.Services.IImportExportService, Highdmin.Services.ImportExportService>();

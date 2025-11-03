@@ -17,6 +17,19 @@ namespace Highdmin.Models
         [MaxLength(255)]
         public string? Email { get; set; }
 
+        // Agregar campos para la contraseña
+        [Required]
+        [MaxLength(255)]
+        [Display(Name = "Hash de Contraseña")]
+        public string PasswordHash { get; set; } = string.Empty;
+
+        [MaxLength(100)]
+        [Display(Name = "Salt de Contraseña")]
+        public string? PasswordSalt { get; set; }
+
+        [Display(Name = "Fecha de Última Contraseña")]
+        public DateTime? LastPasswordChange { get; set; }
+
         [Display(Name = "Activo")]
         public bool IsActive { get; set; } = true;
 

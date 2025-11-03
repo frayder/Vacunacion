@@ -22,6 +22,10 @@
             <div class="card-body">
                 <form asp-action="Edit">
                     <input type="hidden" asp-for="UserId" />
+                    <input type="hidden" asp-for="PasswordHash" />
+                    <input type="hidden" asp-for="PasswordSalt" />
+                    <input type="hidden" asp-for="LastPasswordChange" />
+                    
                     <div class="row">
                         <div class="col-md-6">
                             <div class="mb-3">
@@ -39,8 +43,71 @@
                         </div>
                     </div>
 
-                    <div class="mb-3">
-                        <button type="submit" class="btn btn-primary">
+                    <!-- Sección para cambiar contraseña -->
+                    <div class="card mt-3">
+                        <div class="card-header">
+                            <h6 class="card-title mb-0">
+                                <i class="ri-lock-line me-1"></i> Cambiar Contraseña
+                                <small class="text-muted">(Opcional - Deje en blanco si no desea cambiarla)</small>
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="newPassword" class="form-label">Nueva Contraseña</label>
+                                        <div class="input-group">
+                                            <input type="password" id="newPassword" name="newPassword" class="form-control" 
+                                                   placeholder="Ingrese nueva contraseña" minlength="8" maxlength="100" />
+                                            <button type="button" class="btn btn-outline-secondary" id="toggleNewPassword">
+                                                <i class="ri-eye-line"></i>
+                                            </button>
+                                        </div>
+                                        <div class="form-text">
+                                            <small>La contraseña debe tener al menos 8 caracteres.</small>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="confirmNewPassword" class="form-label">Confirmar Nueva Contraseña</label>
+                                        <div class="input-group">
+                                            <input type="password" id="confirmNewPassword" name="confirmNewPassword" class="form-control" 
+                                                   placeholder="Confirme la nueva contraseña" />
+                                            <button type="button" class="btn btn-outline-secondary" id="toggleConfirmNewPassword">
+                                                <i class="ri-eye-line"></i>
+                                            </button>
+                                        </div>
+                                        <div id="passwordMatchMessage" class="form-text"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Indicador de fortaleza de contraseña -->
+                            <div class="row" id="strengthIndicator" style="display: none;">
+                                <div class="col-12">
+                                    <div class="mb-3">
+                                        <label class="form-label">Fortaleza de la Contraseña</label>
+                                        <div class="progress" style="height: 5px;">
+                                            <div id="passwordStrength" class="progress-bar" role="progressbar" style="width: 0%"></div>
+                                        </div>
+                                        <div id="strengthText" class="form-text"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            @if (Model.LastPasswordChange.HasValue)
+                            {
+                                <div class="alert alert-info">
+                                    <i class="ri-information-line me-1"></i>
+                                    <strong>Último cambio de contraseña:</strong> @Model.LastPasswordChange.Value.ToString("dd/MM/yyyy HH:mm")
+                                </div>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="mb-3 mt-3">
+                        <button type="submit" class="btn btn-primary" id="submitBtn">
                             <i class="ri-save-line me-1"></i> Actualizar Usuario
                         </button>
                         <a asp-action="Index" class="btn btn-secondary ms-2">
@@ -55,4 +122,161 @@
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    
+    <script>
+        $(document).ready(function() {
+            // Toggle password visibility
+            $('#toggleNewPassword').click(function() {
+                togglePasswordVisibility('#newPassword', $(this).find('i'));
+            });
+            
+            $('#toggleConfirmNewPassword').click(function() {
+                togglePasswordVisibility('#confirmNewPassword', $(this).find('i'));
+            });
+
+            function togglePasswordVisibility(fieldSelector, iconElement) {
+                const passwordField = $(fieldSelector);
+                
+                if (passwordField.attr('type') === 'password') {
+                    passwordField.attr('type', 'text');
+                    iconElement.removeClass('ri-eye-line').addClass('ri-eye-off-line');
+                } else {
+                    passwordField.attr('type', 'password');
+                    iconElement.removeClass('ri-eye-off-line').addClass('ri-eye-line');
+                }
+            }
+
+            // Password strength checker
+            $('#newPassword').on('input', function() {
+                const password = $(this).val();
+                
+                if (password.length > 0) {
+                    $('#strengthIndicator').show();
+                    const strength = checkPasswordStrength(password);
+                    updatePasswordStrength(strength);
+                } else {
+                    $('#strengthIndicator').hide();
+                }
+                
+                validatePasswordMatch();
+            });
+
+            $('#confirmNewPassword').on('input', function() {
+                validatePasswordMatch();
+            });
+
+            function checkPasswordStrength(password) {
+                let score = 0;
+                let feedback = [];
+
+                if (password.length >= 8) score += 20;
+                else feedback.push("Al menos 8 caracteres");
+
+                if (password.match(/[a-z]/)) score += 20;
+                else feedback.push("Letras minúsculas");
+
+                if (password.match(/[A-Z]/)) score += 20;
+                else feedback.push("Letras mayúsculas");
+
+                if (password.match(/[0-9]/)) score += 20;
+                else feedback.push("Números");
+
+                if (password.match(/[^a-zA-Z0-9]/)) score += 20;
+                else feedback.push("Símbolos especiales");
+
+                return { score: score, feedback: feedback };
+            }
+
+            function updatePasswordStrength(strength) {
+                const progressBar = $('#passwordStrength');
+                const strengthText = $('#strengthText');
+
+                let className = 'bg-danger';
+                let text = 'Muy débil';
+
+                if (strength.score >= 80) {
+                    className = 'bg-success';
+                    text = 'Muy fuerte';
+                } else if (strength.score >= 60) {
+                    className = 'bg-info';
+                    text = 'Fuerte';
+                } else if (strength.score >= 40) {
+                    className = 'bg-warning';
+                    text = 'Media';
+                } else if (strength.score >= 20) {
+                    className = 'bg-orange';
+                    text = 'Débil';
+                }
+
+                progressBar.removeClass('bg-danger bg-warning bg-info bg-success bg-orange')
+                          .addClass(className)
+                          .css('width', strength.score + '%');
+
+                if (strength.feedback.length > 0) {
+                    strengthText.html(text + ' - Falta: ' + strength.feedback.join(', '));
+                } else {
+                    strengthText.text(text);
+                }
+            }
+
+            function validatePasswordMatch() {
+                const newPassword = $('#newPassword').val();
+                const confirmPassword = $('#confirmNewPassword').val();
+                const matchMessage = $('#passwordMatchMessage');
+                const submitBtn = $('#submitBtn');
+
+                if (newPassword.length > 0 && confirmPassword.length > 0) {
+                    if (newPassword === confirmPassword) {
+                        matchMessage.html('<span class="text-success"><i class="ri-check-line"></i> Las contraseñas coinciden</span>');
+                        submitBtn.prop('disabled', false);
+                    } else {
+                        matchMessage.html('<span class="text-danger"><i class="ri-close-line"></i> Las contraseñas no coinciden</span>');
+                        submitBtn.prop('disabled', true);
+                    }
+                } else {
+                    matchMessage.text('');
+                    submitBtn.prop('disabled', false);
+                }
+            }
+
+            // Form validation before submit
+            $('form').on('submit', function(e) {
+                const newPassword = $('#newPassword').val();
+                const confirmPassword = $('#confirmNewPassword').val();
+
+                // Solo validar si se está intentando cambiar la contraseña
+                if (newPassword.length > 0 || confirmPassword.length > 0) {
+                    if (newPassword !== confirmPassword) {
+                        e.preventDefault();
+                        alert('Las contraseñas no coinciden. Por favor verifique.');
+                        return false;
+                    }
+
+                    if (newPassword.length < 8) {
+                        e.preventDefault();
+                        alert('La nueva contraseña debe tener al menos 8 caracteres.');
+                        return false;
+                    }
+                }
+            });
+        });
+    </script>
+    
+    <style>
+        .bg-orange {
+            background-color: #fd7e14 !important;
+        }
+        
+        .input-group .btn-outline-secondary {
+            border-left: 0;
+        }
+        
+        .form-text small {
+            font-size: 0.825em;
+        }
+        
+        .card-header h6 {
+            margin-bottom: 0;
+        }
+    </style>
 }

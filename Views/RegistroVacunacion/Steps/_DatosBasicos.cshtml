@@ -180,6 +180,35 @@
     </div>
 </div>
 
+<style>
+    /* Ocultar los estilos de error de Bootstrap hasta que se valide */
+    .form-control:invalid,
+    .form-select:invalid {
+        border-color: #ced4da !important;
+        background-image: none !important;
+    }
+    
+    /* Solo mostrar estilos de error cuando tenga la clase validation-attempted */
+    .validation-attempted .form-control.is-invalid,
+    .validation-attempted .form-select.is-invalid {
+        border-color: #dc3545 !important;
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23dc3545'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath d='m5.8 3.6.7.8-1.2 1.2 1.2 1.2-.7.8-1.2-1.2-1.2 1.2-.7-.8L4.1 6 2.9 4.8l.7-.8L4.8 5.2z'/%3e%3c/svg%3e") !important;
+        background-repeat: no-repeat !important;
+        background-position: right calc(0.375em + 0.1875rem) center !important;
+        background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem) !important;
+    }
+    
+    /* Estilos para campos válidos después de validación */
+    .validation-attempted .form-control.is-valid,
+    .validation-attempted .form-select.is-valid {
+        border-color: #198754 !important;
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3e%3cpath fill='%23198754' d='m2.3 6.73.94-.94 1.94 1.94L7.6 5.31l.94.94-3.72 3.72z'/%3e%3c/svg%3e") !important;
+        background-repeat: no-repeat !important;
+        background-position: right calc(0.375em + 0.1875rem) center !important;
+        background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem) !important;
+    }
+</style>
+
 <script>
     // Variable global para saber si ya se intentó validar
     window.datosBasicosValidated = window.datosBasicosValidated || false;
@@ -191,7 +220,15 @@
             window.saveCurrentStepData();
         }
 
+        // Marcar que ya se intentó validar
         window.datosBasicosValidated = true;
+        
+        // Agregar clase al contenedor para activar los estilos de validación
+        const cardBody = document.querySelector('.card-body');
+        if (cardBody) {
+            cardBody.classList.add('validation-attempted');
+        }
+        
         let isValid = true;
 
         // Obtener todos los campos obligatorios
@@ -214,41 +251,88 @@
                     validationMessage.style.display = 'block';
                 }
                 element.classList.add('is-invalid');
+                element.classList.remove('is-valid');
             } else if (element) {
                 if (validationMessage) {
                     validationMessage.style.display = 'none';
                 }
                 element.classList.remove('is-invalid');
+                element.classList.add('is-valid');
             }
         });
 
+        console.log('🔍 Validación datos básicos:', isValid ? 'VÁLIDO' : 'INVÁLIDO');
         return isValid;
     };
 
-    // Escuchar cambios en los campos para ocultar mensajes de error cuando se corrijan
+    // Función para resetear el estado de validación
+    window.resetDatosBasicosValidation = function() {
+        window.datosBasicosValidated = false;
+        
+        // Remover clase de validación del contenedor
+        const cardBody = document.querySelector('.card-body');
+        if (cardBody) {
+            cardBody.classList.remove('validation-attempted');
+        }
+        
+        // Limpiar estilos de validación de todos los campos
+        const allFields = document.querySelectorAll('.form-control, .form-select');
+        allFields.forEach(field => {
+            field.classList.remove('is-invalid', 'is-valid');
+        });
+        
+        // Ocultar todos los mensajes de error
+        const validationMessages = document.querySelectorAll('.validation-message');
+        validationMessages.forEach(message => {
+            message.style.display = 'none';
+        });
+        
+        console.log('🔄 Estado de validación de datos básicos reseteado');
+    };
+
+    // Escuchar cambios en los campos para actualizar validación en tiempo real (solo después del primer intento)
     document.addEventListener('DOMContentLoaded', function () {
         const requiredFields = document.querySelectorAll('select[required], input[required]');
 
         requiredFields.forEach(field => {
+            // Evento para input (mientras el usuario escribe)
             field.addEventListener('input', function () {
-                if (window.datosBasicosValidated && this.value && this.value.trim() !== '') {
-                    const validationMessage = this.parentElement.querySelector('.validation-message');
-                    if (validationMessage) {
-                        validationMessage.style.display = 'none';
-                    }
-                    this.classList.remove('is-invalid');
+                if (window.datosBasicosValidated) {
+                    updateFieldValidation(this);
                 }
             });
 
+            // Evento para change (cuando cambia el valor)
             field.addEventListener('change', function () {
-                if (window.datosBasicosValidated && this.value && this.value.trim() !== '') {
-                    const validationMessage = this.parentElement.querySelector('.validation-message');
-                    if (validationMessage) {
-                        validationMessage.style.display = 'none';
-                    }
-                    this.classList.remove('is-invalid');
+                if (window.datosBasicosValidated) {
+                    updateFieldValidation(this);
                 }
             });
         });
     });
+
+    // Función auxiliar para actualizar la validación de un campo individual
+    function updateFieldValidation(field) {
+        const validationMessage = field.parentElement.querySelector('.validation-message');
+        const isValid = field.value && field.value.trim() !== '';
+        
+        if (isValid) {
+            if (validationMessage) {
+                validationMessage.style.display = 'none';
+            }
+            field.classList.remove('is-invalid');
+            field.classList.add('is-valid');
+        } else {
+            if (validationMessage) {
+                validationMessage.style.display = 'block';
+            }
+            field.classList.add('is-invalid');
+            field.classList.remove('is-valid');
+        }
+    }
+
+
+
+</script>    console.log('🎯 PASO 1 - DATOS BÁSICOS INICIALIZADO');
+    console.log('🎯 PASO 1 - DATOS BÁSICOS INICIALIZADO');
 </script>

@@ -3,7 +3,7 @@
     Layout = "~/Views/Shared/_VerticalLayout.cshtml";
 }
 
-@model Highdmin.Models.User
+@model Highdmin.ViewModels.CreateUserViewModel
 
 <div class="row">
     <div class="col-12">
@@ -13,6 +13,30 @@
     </div>
 </div>
 
+<!-- Mostrar mensajes de éxito o error -->
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="ri-check-circle-line me-2"></i>@TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+} 
+
+@if (TempData["ValidationErrors"] != null)
+{
+    var errors = TempData["ValidationErrors"] as List<string>;
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <h6><i class="ri-error-warning-line me-2"></i>Errores de Validación:</h6>
+        <ul class="mb-0">
+            @foreach (var error in errors)
+            {
+                <li>@error</li>
+            }
+        </ul>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
 <div class="row">
     <div class="col-lg-8">
         <div class="card">
@@ -20,26 +44,93 @@
                 <h5 class="card-title mb-0">Información del Usuario</h5>
             </div>
             <div class="card-body">
-                <form asp-action="Create">
+                <!-- Mostrar resumen de todos los errores de ModelState -->
+                @if (!ViewData.ModelState.IsValid)
+                {
+                    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                        <h6><i class="ri-alert-line me-2"></i>Por favor corrija los siguientes errores:</h6>
+                        <ul class="mb-0">
+                            @foreach (var modelState in ViewData.ModelState.Values)
+                            {
+                                @foreach (var error in modelState.Errors)
+                                {
+                                    <li>@error.ErrorMessage</li>
+                                }
+                            }
+                        </ul>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                }
+
+                <form asp-action="Create" method="post" id="createUserForm">
+                    <div asp-validation-summary="All" class="text-danger mb-3"></div>
+                    
                     <div class="row">
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label asp-for="UserName" class="form-label">Nombre de Usuario</label>
+                                <label asp-for="UserName" class="form-label">Nombre de Usuario <span class="text-danger">*</span></label>
                                 <input asp-for="UserName" class="form-control" placeholder="Ingrese el nombre de usuario" required />
                                 <span asp-validation-for="UserName" class="text-danger"></span>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label asp-for="Email" class="form-label">Email</label>
+                                <label asp-for="Email" class="form-label">Email <span class="text-danger">*</span></label>
                                 <input asp-for="Email" class="form-control" type="email" placeholder="usuario@ejemplo.com" required />
                                 <span asp-validation-for="Email" class="text-danger"></span>
                             </div>
                         </div>
                     </div>
 
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="Password" class="form-label">Contraseña <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <input asp-for="Password" class="form-control" 
+                                           placeholder="Ingrese la contraseña" required 
+                                           minlength="8" maxlength="100" />
+                                    <button type="button" class="btn btn-outline-secondary" id="togglePassword">
+                                        <i class="ri-eye-line"></i>
+                                    </button>
+                                </div>
+                                <span asp-validation-for="Password" class="text-danger"></span>
+                                <div class="form-text">
+                                    <small>La contraseña debe tener al menos 8 caracteres.</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="ConfirmPassword" class="form-label">Confirmar Contraseña <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <input asp-for="ConfirmPassword" class="form-control" 
+                                           placeholder="Confirme la contraseña" required />
+                                    <button type="button" class="btn btn-outline-secondary" id="toggleConfirmPassword">
+                                        <i class="ri-eye-line"></i>
+                                    </button>
+                                </div>
+                                <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+                                <div id="passwordMatchMessage" class="form-text"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Indicador de fortaleza de contraseña -->
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="mb-3">
+                                <label class="form-label">Fortaleza de la Contraseña</label>
+                                <div class="progress" style="height: 5px;">
+                                    <div id="passwordStrength" class="progress-bar" role="progressbar" style="width: 0%"></div>
+                                </div>
+                                <div id="strengthText" class="form-text"></div>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="mb-3">
-                        <button type="submit" class="btn btn-primary">
+                        <button type="submit" class="btn btn-primary" id="submitBtn">
                             <i class="ri-save-line me-1"></i> Crear Usuario
                         </button>
                         <a asp-action="Index" class="btn btn-secondary ms-2">
@@ -50,8 +141,235 @@
             </div>
         </div>
     </div>
+
+    <!-- Panel de debug (solo en desarrollo) -->
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header">
+                <h6 class="card-title mb-0">
+                    <i class="ri-bug-line me-1"></i>Debug - Estado del Modelo
+                </h6>
+            </div>
+            <div class="card-body">
+                <p><strong>ModelState.IsValid:</strong> <span class="badge badge-@(ViewData.ModelState.IsValid ? "success" : "danger")">@ViewData.ModelState.IsValid</span></p>
+                <p><strong>Total de errores:</strong> @ViewData.ModelState.Values.SelectMany(v => v.Errors).Count()</p>
+                <p><strong>Modelo actual:</strong></p>
+                <ul class="small">
+                    <li><strong>UserName:</strong> @(Model?.UserName ?? "null")</li>
+                    <li><strong>Email:</strong> @(Model?.Email ?? "null")</li>
+                </ul>
+                
+                @if (ViewData.ModelState.Values.SelectMany(v => v.Errors).Any())
+                {
+                    <div class="mt-3">
+                        <strong>Errores detallados:</strong>
+                        <div class="small mt-2">
+                            @foreach (var kvp in ViewData.ModelState)
+                            {
+                                if (kvp.Value.Errors.Any())
+                                {
+                                    <div class="alert alert-warning py-1 px-2 mb-1">
+                                        <strong>@kvp.Key:</strong>
+                                        <ul class="mb-0 ms-3">
+                                            @foreach (var error in kvp.Value.Errors)
+                                            {
+                                                <li>@error.ErrorMessage</li>
+                                            }
+                                        </ul>
+                                    </div>
+                                }
+                            }
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
 </div>
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    
+    <script>
+        $(document).ready(function() {
+            console.log('Form loaded, debugging enabled');
+            
+            // Toggle password visibility
+            $('#togglePassword').click(function() {
+                togglePasswordVisibility('#Password', $(this).find('i'));
+            });
+            
+            $('#toggleConfirmPassword').click(function() {
+                togglePasswordVisibility('#ConfirmPassword', $(this).find('i'));
+            });
+
+            function togglePasswordVisibility(selector, iconElement) {
+                const field = $(selector);
+                if (field.attr('type') === 'password') {
+                    field.attr('type', 'text');
+                    iconElement.removeClass('ri-eye-line').addClass('ri-eye-off-line');
+                } else {
+                    field.attr('type', 'password');
+                    iconElement.removeClass('ri-eye-off-line').addClass('ri-eye-line');
+                }
+            }
+
+            // Password strength checker
+            $('#Password').on('input', function() {
+                const password = $(this).val();
+                const strength = checkPasswordStrength(password);
+                updatePasswordStrength(strength);
+                validatePasswordMatch();
+            });
+
+            $('#ConfirmPassword').on('input', validatePasswordMatch);
+
+            function checkPasswordStrength(password) {
+                let score = 0;
+                let feedback = [];
+
+                if (password.length >= 8) score += 20;
+                else feedback.push("Al menos 8 caracteres");
+
+                if (password.match(/[a-z]/)) score += 20;
+                else feedback.push("Letras minúsculas");
+
+                if (password.match(/[A-Z]/)) score += 20;
+                else feedback.push("Letras mayúsculas");
+
+                if (password.match(/[0-9]/)) score += 20;
+                else feedback.push("Números");
+
+                if (password.match(/[^a-zA-Z0-9]/)) score += 20;
+                else feedback.push("Símbolos especiales");
+
+                return { score: score, feedback: feedback };
+            }
+
+            function updatePasswordStrength(strength) {
+                const progressBar = $('#passwordStrength');
+                const strengthText = $('#strengthText');
+
+                let className = 'bg-danger';
+                let text = 'Muy débil';
+
+                if (strength.score >= 80) {
+                    className = 'bg-success';
+                    text = 'Muy fuerte';
+                } else if (strength.score >= 60) {
+                    className = 'bg-info';
+                    text = 'Fuerte';
+                } else if (strength.score >= 40) {
+                    className = 'bg-warning';
+                    text = 'Media';
+                } else if (strength.score >= 20) {
+                    className = 'bg-orange';
+                    text = 'Débil';
+                }
+
+                progressBar.removeClass('bg-danger bg-warning bg-info bg-success bg-orange')
+                          .addClass(className)
+                          .css('width', strength.score + '%');
+
+                if (strength.feedback.length > 0) {
+                    strengthText.html(text + ' - Falta: ' + strength.feedback.join(', '));
+                } else {
+                    strengthText.text(text);
+                }
+            }
+
+            function validatePasswordMatch() {
+                const password = $('#Password').val();
+                const confirmPassword = $('#ConfirmPassword').val();
+                const matchMessage = $('#passwordMatchMessage');
+                const submitBtn = $('#submitBtn');
+
+                if (confirmPassword.length > 0) {
+                    if (password === confirmPassword) {
+                        matchMessage.html('<span class="text-success"><i class="ri-check-line"></i> Las contraseñas coinciden</span>');
+                        submitBtn.prop('disabled', false);
+                    } else {
+                        matchMessage.html('<span class="text-danger"><i class="ri-close-line"></i> Las contraseñas no coinciden</span>');
+                        submitBtn.prop('disabled', true);
+                    }
+                } else {
+                    matchMessage.text('');
+                    submitBtn.prop('disabled', false);
+                }
+            }
+
+            // Form validation before submit
+            $('#createUserForm').on('submit', function(e) {
+                const userName = $('#UserName').val();
+                const email = $('#Email').val();
+                const password = $('#Password').val();
+                const confirmPassword = $('#ConfirmPassword').val();
+
+                console.log('=== FORM SUBMISSION DEBUG ===');
+                console.log('UserName:', userName);
+                console.log('Email:', email);
+                console.log('Password provided:', !!password);
+                console.log('Password provided password:', password);
+                console.log('Confirm Password provided:', !!confirmPassword);
+
+                if (!userName) {
+                    e.preventDefault();
+                    alert('El nombre de usuario es requerido.');
+                    return false;
+                }
+
+                if (!email) {
+                    e.preventDefault();
+                    alert('El email es requerido.');
+                    return false;
+                }
+
+                if (!password) {
+                    e.preventDefault();
+                    alert('La contraseña es requerida.');
+                    return false;
+                }
+
+                if (password !== confirmPassword) {
+                    e.preventDefault();
+                    alert('Las contraseñas no coinciden. Por favor verifique.');
+                    return false;
+                }
+
+                if (password.length < 8) {
+                    e.preventDefault();
+                    alert('La contraseña debe tener al menos 8 caracteres.');
+                    return false;
+                }
+
+                console.log('Client-side validation passed, submitting form...');
+            });
+        });
+    </script>
+    
+    <style>
+        .bg-orange {
+            background-color: #fd7e14 !important;
+        }
+        
+        .input-group .btn-outline-secondary {
+            border-left: 0;
+        }
+        
+        .form-text small {
+            font-size: 0.825em;
+        }
+
+        .alert ul {
+            padding-left: 1.2rem;
+        }
+
+        .badge-success {
+            background-color: #28a745;
+        }
+
+        .badge-danger {
+            background-color: #dc3545;
+        }
+    </style>
 }

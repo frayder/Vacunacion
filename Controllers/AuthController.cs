@@ -6,16 +6,19 @@ using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using Highdmin.Data;
 using Highdmin.Models;
+using Highdmin.Services;
 
 namespace Highdmin.Controllers
 {
     public class AuthController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly IPasswordHashService _passwordHashService;
 
-        public AuthController(ApplicationDbContext context)
+        public AuthController(ApplicationDbContext context, IPasswordHashService passwordHashService)
         {
             _context = context;
+            _passwordHashService = passwordHashService;
         }
 
         [AllowAnonymous]
@@ -45,16 +48,32 @@ namespace Highdmin.Controllers
                 var usuario = await _context.Users
                     .Include(u => u.UserRoles)
                     .ThenInclude(ur => ur.Role)
-                    .Include(u => u.Empresa) // <-- Agrega esta línea
-                    .FirstOrDefaultAsync(u => u.UserName == nombreUsuario || u.Email == nombreUsuario);
+                    .Include(u => u.Empresa)
+                    .FirstOrDefaultAsync(u => (u.UserName == nombreUsuario || u.Email == nombreUsuario) && u.IsActive);
 
                 if (usuario == null)
                 {
-                    ViewBag.Error = "Usuario no encontrado.";
+                    ViewBag.Error = "Usuario no encontrado o inactivo.";
                     return View();
                 }
 
-                // Para la plantilla, aceptamos cualquier contraseña (en producción usar hash real)
+                // Verificar la contraseña
+                if (string.IsNullOrEmpty(usuario.PasswordHash) || string.IsNullOrEmpty(usuario.PasswordSalt))
+                {
+                    ViewBag.Error = "Usuario sin contraseña configurada. Contacte al administrador.";
+                    return View();
+                }
+                Console.WriteLine("Verifying password for user: " + nombreUsuario);
+                Console.WriteLine("PasswordHash: " + usuario.PasswordHash);
+                Console.WriteLine("PasswordSalt: " + usuario.PasswordSalt);
+                var response = _passwordHashService.VerifyPassword(password, usuario.PasswordHash, usuario.PasswordSalt);
+                Console.WriteLine("Password verification result:response " + response);
+                if (!response)
+                {
+                    ViewBag.Error = "Contraseña incorrecta.";
+                    return View();
+                }
+
                 // Crear claims de autenticación  
                 var claims = new List<Claim>
                 {
@@ -80,8 +99,9 @@ namespace Highdmin.Controllers
             }
             catch (Exception ex)
             {
-                
-                ViewBag.Error = "Error interno del servidor. Inténtelo de nuevo." + ex.Message;
+                ViewBag.Error = "Error interno del servidor. Inténtelo de nuevo.";
+                // Log the exception in production
+                // _logger.LogError(ex, "Error during login for user: {Username}", nombreUsuario);
                 return View();
             }
         }

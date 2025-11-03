@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Highdmin.Services;
+using Highdmin.ViewModels;
 
 namespace Highdmin.Controllers
 {
@@ -14,10 +15,17 @@ namespace Highdmin.Controllers
     public class UsersController : BaseAuthorizationController
     {
         private readonly ApplicationDbContext _context;
+        private readonly IPasswordHashService _passwordHashService;
 
-        public UsersController(ApplicationDbContext context, IEmpresaService empresaService, AuthorizationService authorizationService) : base(empresaService, authorizationService)
+        public UsersController(
+            ApplicationDbContext context, 
+            IEmpresaService empresaService, 
+            AuthorizationService authorizationService, 
+            IPasswordHashService passwordHashService) 
+            : base(empresaService, authorizationService)
         {
-            _context = context;
+            _context = context ?? throw new ArgumentNullException(nameof(context));
+            _passwordHashService = passwordHashService ?? throw new ArgumentNullException(nameof(passwordHashService));
         }
 
         public async Task<IActionResult> Index()
@@ -42,22 +50,76 @@ namespace Highdmin.Controllers
         public async Task<IActionResult> Create()
         {
             ViewBag.Roles = await _context.Roles.OrderBy(r => r.Nombre).ToListAsync();
-            return View(new User());
+            return View(new CreateUserViewModel());
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(User user)
+        public async Task<IActionResult> Create(CreateUserViewModel model)
         {
+            Console.WriteLine("=== DEBUGGING CREATE USER WITH VIEWMODEL ===");
+            Console.WriteLine("Creating user: " + (model?.UserName ?? "NULL"));
+            Console.WriteLine("Password provided: " + (!string.IsNullOrEmpty(model?.Password)));
+            Console.WriteLine("ModelState.IsValid: " + ModelState.IsValid);
+            
             if (ModelState.IsValid)
             {
-                user.EmpresaId = CurrentEmpresaId;
-                _context.Add(user);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                try
+                {
+                    // Crear el usuario desde el ViewModel
+                    var user = new User
+                    {
+                        UserName = model.UserName,
+                        Email = model.Email,
+                        EmpresaId = CurrentEmpresaId,
+                        IsActive = true,
+                        PasswordSalt = _passwordHashService.GenerateSalt()
+                    };
+                    
+                    user.PasswordHash = _passwordHashService.HashPassword(model.Password, user.PasswordSalt);
+                    user.LastPasswordChange = DateTime.UtcNow;
+                    
+                    Console.WriteLine("Saving user to database...");
+                    _context.Add(user);
+                    await _context.SaveChangesAsync();
+                    Console.WriteLine("User saved successfully!");
+                    
+                    TempData["SuccessMessage"] = "Usuario creado correctamente.";
+                    return RedirectToAction(nameof(Index));
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error al crear usuario: {ex.Message}");
+                    if (ex.InnerException != null)
+                    {
+                        Console.WriteLine($"Inner Exception: {ex.InnerException.Message}");
+                    }
+                    ModelState.AddModelError("", "Error al crear el usuario: " + ex.Message);
+                }
             }
+            
+            // Si llegamos aquí, hay errores de validación
+            if (!ModelState.IsValid)
+            {
+                Console.WriteLine("=== ERRORES DE VALIDACIÓN ===");
+                foreach (var modelState in ModelState)
+                {
+                    var key = modelState.Key;
+                    var errors = modelState.Value.Errors;
+                    if (errors.Count > 0)
+                    {
+                        Console.WriteLine($"Campo '{key}':");
+                        foreach (var error in errors)
+                        {
+                            Console.WriteLine($"  - {error.ErrorMessage}");
+                        }
+                    }
+                }
+                Console.WriteLine("=== FIN ERRORES DE VALIDACIÓN ===");
+            }
+            
             ViewBag.Roles = await _context.Roles.OrderBy(r => r.Nombre).ToListAsync();
-            return View(user);
+            return View(model);
         }
 
         public async Task<IActionResult> Details(int? id)
@@ -97,7 +159,7 @@ namespace Highdmin.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, User user)
+        public async Task<IActionResult> Edit(int id, User user, string newPassword)
         {
             if (id != user.UserId)
             {
@@ -108,8 +170,29 @@ namespace Highdmin.Controllers
             {
                 try
                 {
-                    _context.Update(user);
+                    // Obtener el usuario actual de la base de datos
+                    var existingUser = await _context.Users.FirstOrDefaultAsync(u => u.UserId == id && u.EmpresaId == CurrentEmpresaId);
+                    if (existingUser == null)
+                    {
+                        return NotFound();
+                    }
+
+                    // Actualizar campos básicos
+                    existingUser.UserName = user.UserName;
+                    existingUser.Email = user.Email;
+
+                    // Si se proporcionó una nueva contraseña, actualizarla
+                    if (!string.IsNullOrEmpty(newPassword))
+                    {
+                        existingUser.PasswordSalt = _passwordHashService.GenerateSalt();
+                        existingUser.PasswordHash = _passwordHashService.HashPassword(newPassword, existingUser.PasswordSalt);
+                        existingUser.LastPasswordChange = DateTime.Now;
+                    }
+
+                    _context.Update(existingUser);
                     await _context.SaveChangesAsync();
+
+                    TempData["SuccessMessage"] = "Usuario actualizado correctamente.";
                 }
                 catch (DbUpdateConcurrencyException)
                 {
