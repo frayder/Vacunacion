@@ -343,20 +343,7 @@
         }
     }
 
-    // Función para toggle del motivo de pérdida
-    function toggleMotivoPerdida() {
-        const checkbox = document.getElementById('MarcarComoPerdida');
-        const container = document.getElementById('motivoPerdidaContainer');
-        const select = document.getElementById('MotivoPerdida');
-        if (checkbox.checked) {
-            container.style.display = 'block';
-            select.required = true;
-        } else {
-            container.style.display = 'none';
-            select.required = false;
-            select.value = '';
-        }
-    }
+   
 
     // Ejecutar inmediatamente y con múltiples estrategias
     configurarEventosVacuna();
@@ -397,4 +384,5 @@
 
     // Exponer la función globalmente para el validador de pasos
     window.validateEsquemaVacunacion = validateEsquemaVacunacion;
+    
 </script>

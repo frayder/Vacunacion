@@ -187,6 +187,9 @@ namespace Highdmin.Models
         [Display(Name = "Antecedentes")]
         public virtual ICollection<AntecedenteMedico> AntecedentesMedicos { get; set; } = new List<AntecedenteMedico>();
 
+        // NUEVO: Relación con VacunasAplicadas
+        [Display(Name = "Vacunas Aplicadas")]
+        public virtual ICollection<VacunaAplicada> VacunasAplicadas { get; set; } = new List<VacunaAplicada>();
 
         [Display(Name = "Enfermedad/Contraindicación Vacuna")]
         public bool? EnfermedadContraindicacionVacuna { get; set; }

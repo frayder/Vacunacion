@@ -1,6 +1,7 @@
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 using Highdmin.Models;
-using System.Security.Claims;
 
 namespace Highdmin.Data
 {
@@ -31,6 +32,7 @@ namespace Highdmin.Data
         public DbSet<Paciente> Pacientes { get; set; }
         public DbSet<HistorialCargaPacientes> HistorialCargas  { get; set; }
         public DbSet<AntecedenteMedico> AntecedentesMedicos { get; set; }
+        public DbSet<VacunaAplicada> VacunasAplicadas { get; set; } // NUEVO
         public DbSet<Empresa> Empresas { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -286,6 +288,43 @@ namespace Highdmin.Data
                 entity.HasOne(a => a.RegistroVacunacion)
                       .WithMany(r => r.AntecedentesMedicos)
                       .HasForeignKey(a => a.RegistroVacunacionId)
+                      .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            // NUEVO: Configuración de VacunaAplicada
+            modelBuilder.Entity<VacunaAplicada>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.NombreVacuna).IsRequired().HasMaxLength(200);
+                entity.Property(e => e.Dosis).HasMaxLength(50);
+                entity.Property(e => e.LoteVacuna).IsRequired().HasMaxLength(100);
+                entity.Property(e => e.Jeringa).HasMaxLength(100);
+                entity.Property(e => e.LoteJeringa).HasMaxLength(100);
+                entity.Property(e => e.LoteDiluyente).HasMaxLength(100);
+                entity.Property(e => e.Gotero).HasMaxLength(100);
+                entity.Property(e => e.Observaciones).HasMaxLength(1000);
+                entity.Property(e => e.MotivoPerdida).HasMaxLength(200);
+                entity.Property(e => e.FechaAplicacion).IsRequired();
+                entity.Property(e => e.Activo).HasDefaultValue(true);
+                entity.Property(e => e.FechaCreacion).HasDefaultValueSql("CURRENT_TIMESTAMP");
+                entity.Property(e => e.MarcarComoPerdida).HasDefaultValue(false);
+
+                // Relación con RegistroVacunacion
+                entity.HasOne(v => v.RegistroVacunacion)
+                      .WithMany(r => r.VacunasAplicadas)
+                      .HasForeignKey(v => v.RegistroVacunacionId)
+                      .OnDelete(DeleteBehavior.Cascade);
+
+                // Relación con Insumo
+                entity.HasOne(v => v.Insumo)
+                      .WithMany()
+                      .HasForeignKey(v => v.InsumoId)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                // Relación con Empresa
+                entity.HasOne(v => v.Empresa)
+                      .WithMany()
+                      .HasForeignKey(v => v.EmpresaId)
                       .OnDelete(DeleteBehavior.Cascade);
             });
 

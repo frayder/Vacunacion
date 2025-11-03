@@ -863,21 +863,16 @@
                     if (!valor || !unidad) return null;
 
                     switch (unidad.toLowerCase()) {
-                        case 'Días':
                         case 'días':
-                        case 'Dias':
                         case 'dias':
                         case 'day':
                         case 'days':
                             return valor;
-                        case 'Meses':
                         case 'meses':
                         case 'months':
                         case 'month':
                             return valor * 30.44; // Promedio de días por mes
-                        case 'Anos':
                         case 'anos':
-                        case 'Años':
                         case 'años':
                         case 'years':
                         case 'year':
@@ -1107,7 +1102,7 @@
                         if (formData.FechaNacimiento) fechaNacimiento = formData.FechaNacimiento;
                         else if (formData.fechaNacimiento) fechaNacimiento = formData.fechaNacimiento;
                     }
-                    // 2) Intentar stepData_1 (datos guardados por paso)
+                    // 2) Intentar step1 (datos guardados por paso)
                     if (!fechaNacimiento) {
                         const step1 = localStorage.getItem('stepData_1');
                         if (step1) {
@@ -1587,11 +1582,11 @@
                     limpiarFormularioVacuna();
 
                     // Guardar en formData global
-                    if (!window.formData.vacunas) {
-                        window.formData.vacunas = [];
+                    if (!formData.vacunas) {
+                        formData.vacunas = [];
                     }
-                    window.formData.vacunas.push(vacuna);
-                    localStorage.setItem('vacunacionFormData', JSON.stringify(window.formData));
+                    formData.vacunas.push(vacuna);
+                    localStorage.setItem('vacunacionFormData', JSON.stringify(formData));
 
                     console.log('✅ Vacuna agregada correctamente:', vacuna);
                     
@@ -1659,6 +1654,21 @@
                     }
 
                     console.log('🗑️ Vacuna eliminada del esquema');
+                }
+            }
+
+             // Función para toggle del motivo de pérdida
+            function toggleMotivoPerdida() {
+                const checkbox = document.getElementById('MarcarComoPerdida');
+                const container = document.getElementById('motivoPerdidaContainer');
+                const select = document.getElementById('MotivoPerdida');
+                if (checkbox.checked) {
+                    container.style.display = 'block';
+                    select.required = true;
+                } else {
+                    container.style.display = 'none';
+                    select.required = false;
+                    select.value = '';
                 }
             }
 
@@ -1930,6 +1940,9 @@
 
                     // Actualizar texto de la opción por defecto
                     if (select.children.length > 0) {
+
+
+
                         select.children[0].textContent = defaultText;
                     }
 
@@ -2097,27 +2110,13 @@
                     // Recopilar todos los datos
                     const todosLosDatos = {};
                     for (let step = 1; step <= totalSteps; step++) {
-                        const stepData = localStorage.getItem(`stepData_${step}`);
-                        if (stepData) {
+                        const stepDataStr = localStorage.getItem(`stepData_${step}`);
+                        if (stepDataStr) {
                             try {
-                                const parsedData = JSON.parse(stepData);
-
-                                // Convertir posibles valores de texto a booleanos reales
-                                for (const [key, value] of Object.entries(parsedData)) {
-                                    if (typeof value === "string") {
-                                        const lowerValue = value.trim().toLowerCase();
-
-                                        if (["true", "si", "sí", "on"].includes(lowerValue)) {
-                                            parsedData[key] = true;
-                                        } else if (["false", "no"].includes(lowerValue)) {
-                                            parsedData[key] = false;
-                                        }
-                                    }
-                                }
-
-                                Object.assign(todosLosDatos, parsedData);
+                                const stepData = JSON.parse(stepDataStr);
+                                Object.assign(todosLosDatos, stepData);
                             } catch (e) {
-                                console.error(`Error al parsear datos del paso ${step}:`, e);
+                                console.warn(`Error al parsear datos del paso ${step}:`, e);
                             }
                         }
                     }
@@ -2127,24 +2126,39 @@
                     if (formDataStr) {
                         try {
                             const formDataObj = JSON.parse(formDataStr);
-                            if (formDataObj.antecedentes && formDataObj.antecedentes.length > 0) {
-                                // Convertir los antecedentes a un formato que el servidor pueda procesar
-                                const antecedentesParaEnviar = formDataObj.antecedentes.map(ant => ({
-                                    FechaRegistro: ant.fecha, // Usar la fecha original (yyyy-mm-dd)
-                                    Tipo: ant.tipo,
-                                    Descripcion: ant.descripcion,
-                                    Observaciones: ant.observaciones === 'N/A' ? null : ant.observaciones,
-                                    Activo: true
-                                }));
+                            
+                            // Agregar antecedentes
+                            if (formDataObj.antecedentes && Array.isArray(formDataObj.antecedentes)) {
+                                todosLosDatos.ArrayAntecedentes = JSON.stringify(formDataObj.antecedentes);
+                            }
 
-                                // Agregar al objeto que se enviará al servidor
-                                todosLosDatos.ArrayAntecedentes = JSON.stringify(antecedentesParaEnviar);
+                            // NUEVO: Agregar vacunas aplicadas
+                            if (formDataObj.vacunas && Array.isArray(formDataObj.vacunas)) {
+                                // Mapear los datos del frontend al formato del ViewModel
+                                const vacunasParaGuardar = formDataObj.vacunas.map(vacuna => ({
+                                    InsumoId: parseInt(vacuna.vacunaId),
+                                    NombreVacuna: vacuna.nombreVacuna,
+                                    Dosis: vacuna.dosis === 'GENERAL' ? null : vacuna.dosis,
+                                    LoteVacuna: vacuna.loteVacuna,
+                                    Jeringa: vacuna.jeringa || null,
+                                    LoteJeringa: vacuna.loteJeringa || null,
+                                    LoteDiluyente: vacuna.loteDiluyente || null,
+                                    Gotero: vacuna.gotero || null,
+                                    NumeroFrascos: vacuna.numeroFrascos ? parseInt(vacuna.numeroFrascos) : null,
+                                    Observaciones: vacuna.observaciones || null,
+                                    MarcarComoPerdida: vacuna.marcarComoPerdida || false,
+                                    MotivoPerdida: vacuna.motivoPerdida || null,
+                                    FechaAplicacion: new Date().toISOString(),
+                                    Activo: true
+                                })); 
+                                console.log('Vacunas para guardar:', vacunasParaGuardar);
+
+                                todosLosDatos.ArrayVacunasAplicadas = JSON.stringify(vacunasParaGuardar);
                             }
                         } catch (e) {
-                            console.error('Error al procesar antecedentes:', e);
+                            console.warn('Error al procesar formData:', e);
                         }
                     }
-
 
                     // Enviar via AJAX
                     const submitBtn = document.getElementById('submitBtn');
@@ -2157,35 +2171,41 @@
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
-                            'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+                            'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value
                         },
                         body: JSON.stringify(todosLosDatos)
                     })
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.success) {
-                                // Limpiar localStorage
-                                for (let step = 1; step <= totalSteps; step++) {
-                                    localStorage.removeItem(`stepData_${step}`);
-                                }
-                                localStorage.removeItem('vacunacionFormData');
-
-                                alert('Registro guardado correctamente');
-                                window.location.href = '/RegistroVacunacion/Index';
-                            } else {
-                                alert('Error: ' + data.message);
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            alert('✅ Registro guardado exitosamente');
+                            
+                            // Limpiar datos guardados
+                            clearStoredData();
+                            for (let step = 1; step <= totalSteps; step++) {
+                                localStorage.removeItem(`stepData_${step}`);
                             }
-                        })
-                        .catch(error => {
-                            console.error('Error:', error);
-                            alert('Error al guardar el registro');
-                        })
-                        .finally(() => {
+                            
+                            // Redirigir al índice
+                            window.location.href = '/RegistroVacunacion/Index';
+                        } else {
+                            alert('❌ Error: ' + data.message);
+                            
                             if (submitBtn) {
                                 submitBtn.disabled = false;
                                 submitBtn.innerHTML = '<i class="ri-save-line me-1"></i> Guardar Registro';
                             }
-                        });
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('❌ Error de comunicación con el servidor');
+                        
+                        if (submitBtn) {
+                            submitBtn.disabled = false;
+                            submitBtn.innerHTML = '<i class="ri-save-line me-1"></i> Guardar Registro';
+                        }
+                    });
                 });
             }
 
@@ -2324,6 +2344,223 @@
             window.mostrarAlertaSegunRangos = mostrarAlertaSegunRangos;
             window.toggleMarcarComoPerdida = toggleMarcarComoPerdida;
             window.toggleMostrarLoteDosis = toggleMostrarLoteDosis;
+            window.toggleMotivoPerdida = toggleMotivoPerdida;
+
+            // Función para mostrar mensajes de éxito
+            function mostrarMensajeExito(mensaje, duracion = 3000) {
+                // Crear el contenedor del mensaje si no existe
+                let mensajeContainer = document.getElementById('mensajeExitoContainer');
+                if (!mensajeContainer) {
+                    mensajeContainer = document.createElement('div');
+                    mensajeContainer.id = 'mensajeExitoContainer';
+                    mensajeContainer.style.cssText = `
+                        position: fixed;
+                        top: 20px;
+                        right: 20px;
+                        z-index: 9999;
+                        max-width: 400px;
+                    `;
+                    document.body.appendChild(mensajeContainer);
+                }
+
+                // Crear el elemento del mensaje
+                const mensajeElemento = document.createElement('div');
+                mensajeElemento.className = 'alert alert-success alert-dismissible fade show shadow-sm';
+                mensajeElemento.style.cssText = `
+                    margin-bottom: 10px;
+                    border: none;
+                    border-radius: 8px;
+                    animation: slideInRight 0.3s ease-out;
+                `;
+                
+                mensajeElemento.innerHTML = `
+                    <div class="d-flex align-items-center">
+                        <i class="ri-check-circle-line me-2 text-success fs-5"></i>
+                        <div class="flex-grow-1">
+                            <strong>¡Éxito!</strong>
+                            <div class="small">${mensaje}</div>
+                        </div>
+                        <button type="button" class="btn-close btn-close-sm" aria-label="Close"></button>
+                    </div>
+                    <div class="progress mt-2" style="height: 3px;">
+                        <div class="progress-bar bg-success progress-animation" role="progressbar" style="width: 100%; transition: width ${duracion}ms linear;"></div>
+                    </div>
+                `;
+
+                // Agregar el mensaje al contenedor
+                mensajeContainer.appendChild(mensajeElemento);
+
+                // Animar la barra de progreso
+                setTimeout(() => {
+                    const progressBar = mensajeElemento.querySelector('.progress-bar');
+                    if (progressBar) {
+                        progressBar.style.width = '0%';
+                    }
+                }, 100);
+
+                // Configurar el botón de cerrar
+                const btnClose = mensajeElemento.querySelector('.btn-close');
+                if (btnClose) {
+                    btnClose.addEventListener('click', () => {
+                        cerrarMensaje(mensajeElemento);
+                    });
+                }
+
+                // Auto-ocultar después de la duración especificada
+                setTimeout(() => {
+                    if (mensajeElemento.parentNode) {
+                        cerrarMensaje(mensajeElemento);
+                    }
+                }, duracion);
+
+                // Función para cerrar el mensaje con animación
+                function cerrarMensaje(elemento) {
+                    elemento.style.animation = 'slideOutRight 0.3s ease-in';
+                    setTimeout(() => {
+                        if (elemento.parentNode) {
+                            elemento.parentNode.removeChild(elemento);
+                        }
+                    }, 300);
+                }
+
+                console.log('✅ Mensaje de éxito mostrado:', mensaje);
+            }
+
+            // Función para mostrar mensajes de error (opcional)
+            function mostrarMensajeError(mensaje, duracion = 4000) {
+                // Crear el contenedor del mensaje si no existe
+                let mensajeContainer = document.getElementById('mensajeErrorContainer');
+                if (!mensajeContainer) {
+                    mensajeContainer = document.createElement('div');
+                    mensajeContainer.id = 'mensajeErrorContainer';
+                    mensajeContainer.style.cssText = `
+                        position: fixed;
+                        top: 20px;
+                        right: 20px;
+                        z-index: 9999;
+                        max-width: 400px;
+                    `;
+                    document.body.appendChild(mensajeContainer);
+                }
+
+                // Crear el elemento del mensaje
+                const mensajeElemento = document.createElement('div');
+                mensajeElemento.className = 'alert alert-danger alert-dismissible fade show shadow-sm';
+                mensajeElemento.style.cssText = `
+                    margin-bottom: 10px;
+                    border: none;
+                    border-radius: 8px;
+                    animation: slideInRight 0.3s ease-out;
+                `;
+                
+                mensajeElemento.innerHTML = `
+                    <div class="d-flex align-items-center">
+                        <i class="ri-error-warning-line me-2 text-danger fs-5"></i>
+                        <div class="flex-grow-1">
+                            <strong>¡Error!</strong>
+                            <div class="small">${mensaje}</div>
+                        </div>
+                        <button type="button" class="btn-close btn-close-sm" aria-label="Close"></button>
+                    </div>
+                    <div class="progress mt-2" style="height: 3px;">
+                        <div class="progress-bar bg-danger progress-animation" role="progressbar" style="width: 100%; transition: width ${duracion}ms linear;"></div>
+                    </div>
+                `;
+
+                // Agregar el mensaje al contenedor
+                mensajeContainer.appendChild(mensajeElemento);
+
+                // Animar la barra de progreso
+                setTimeout(() => {
+                    const progressBar = mensajeElemento.querySelector('.progress-bar');
+                    if (progressBar) {
+                        progressBar.style.width = '0%';
+                    }
+                }, 100);
+
+                // Configurar el botón de cerrar
+                const btnClose = mensajeElemento.querySelector('.btn-close');
+                if (btnClose) {
+                    btnClose.addEventListener('click', () => {
+                        cerrarMensaje(mensajeElemento);
+                    });
+                }
+
+                // Auto-ocultar después de la duración especificada
+                setTimeout(() => {
+                    if (mensajeElemento.parentNode) {
+                        cerrarMensaje(mensajeElemento);
+                    }
+                }, duracion);
+
+                // Función para cerrar el mensaje con animación
+                function cerrarMensaje(elemento) {
+                    elemento.style.animation = 'slideOutRight 0.3s ease-in';
+                    setTimeout(() => {
+                        if (elemento.parentNode) {
+                            elemento.parentNode.removeChild(elemento);
+                        }
+                    }, 300);
+                }
+
+                console.log('❌ Mensaje de error mostrado:', mensaje);
+            }
+
+            // Hacer las funciones globalmente accesibles
+            window.mostrarMensajeExito = mostrarMensajeExito;
+            window.mostrarMensajeError = mostrarMensajeError;
+
         })
     </script>
+
+    <!-- Estilos CSS para las animaciones de los mensajes -->
+    <style>
+        @@keyframes slideInRight {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @@keyframes slideOutRight {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+        }
+
+        .progress-animation {
+            transition: width linear;
+        }
+
+        /* Estilos adicionales para mensajes responsivos */
+        @@media (max-width: 768px) {
+            #mensajeExitoContainer,
+            #mensajeErrorContainer {
+                top: 10px !important;
+                right: 10px !important;
+                left: 10px !important;
+                max-width: none !important;
+            }
+        }
+
+        /* Estilo para el botón de cerrar más pequeño */
+        .btn-close-sm {
+            font-size: 0.75rem;
+            padding: 0.25rem;
+        }
+
+        /* Efecto hover para los mensajes */
+        .alert:hover .progress-bar {
+            animation-play-state: paused;
+        }
+    </style>
 }

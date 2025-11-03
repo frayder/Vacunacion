@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using Microsoft.EntityFrameworkCore;
+using System.Text.Json.Serialization;
 
 namespace Highdmin.ViewModels
 {
@@ -187,13 +188,19 @@ namespace Highdmin.ViewModels
         [Display(Name = "Antecedentes")]
         public string? ArrayAntecedentes { get; set; }
 
+        [Display(Name = "Vacunas Aplicadas")]
+        public string? ArrayVacunasAplicadas { get; set; }
+
         [Display(Name = "Enfermedad/Contraindicación Vacuna")]
+        [JsonConverter(typeof(JsonNullableBooleanConverter))]
         public bool? EnfermedadContraindicacionVacuna { get; set; }
 
         [Display(Name = "Reacción Biológica")]
+        [JsonConverter(typeof(JsonNullableBooleanConverter))]
         public bool? ReaccionBiologico { get; set; }
 
         [Display(Name = "Madre/Cuidador")]
+        [JsonConverter(typeof(JsonNullableBooleanConverter))]
         public bool? MadreCuidador { get; set; }
 
         [Display(Name = "Tipo de Identificación Cuidador")]
@@ -230,6 +237,7 @@ namespace Highdmin.ViewModels
         public int? PertenenciaEtnicaIdCuidador { get; set; }
 
         [Display(Name = "Estado Desplazado Cuidador")]
+        [JsonConverter(typeof(JsonNullableBooleanConverter))]
         public bool? EstadoDesplazadoCuidador { get; set; }
 
         [Display(Name = "Parentesco Cuidador")]
@@ -241,7 +249,8 @@ namespace Highdmin.ViewModels
         [Display(Name = "Responsable")]
         public string? Responsable { get; set; }
 
-        [Display(Name = "Ingreso PAIWEB")]
+        [Display(Name = "Ingreso PAI WEB")]
+        [JsonConverter(typeof(JsonNullableBooleanConverter))]
         public bool? IngresoPAIWEB { get; set; }
 
         [Display(Name = "Centro de Salud Responsable")]
@@ -250,7 +259,8 @@ namespace Highdmin.ViewModels
         [Display(Name = "Motivo de No Ingreso PAIWEB")]
         public string? MotivoNoIngresoPAIWEB { get; set; }
 
-        [Display(Name = "Marcar como perdida")]
+        [Display(Name = "Marcar Como Perdida")]
+        [JsonConverter(typeof(JsonNullableBooleanConverter))]
         public bool? MarcarComoPerdida { get; set; } = false;
 
         [Display(Name = "Motivo de Pérdida")]

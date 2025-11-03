@@ -765,83 +765,172 @@ namespace Highdmin.Controllers
         {
             try
             {
-                // Validar que el insumo existe y pertenece a la empresa actual
-                var insumo = await _context.Insumos
-                    .FirstOrDefaultAsync(i => i.Id == request.InsumoId && i.EmpresaId == CurrentEmpresaId);
-
-                if (insumo == null)
+                // 1. VALIDACIONES DE ENTRADA MÁS ROBUSTAS
+                if (request == null)
                 {
-                    return Json(new { success = false, message = "Insumo no encontrado" });
+                    return Json(new { success = false, message = "Los datos de la configuración son requeridos" });
                 }
 
-                // Validaciones
-                var edadMinEnDias = ConvertirADias(request.EdadMinima, request.UnidadMedidaEdadMinima);
-                var edadMaxEnDias = ConvertirADias(request.EdadMaxima, request.UnidadMedidaEdadMaxima);
-
-                if (edadMinEnDias >= edadMaxEnDias)
+                if (request.InsumoId <= 0)
                 {
-                    return Json(new { success = false, message = "La edad máxima debe ser mayor que la edad mínima considerando las unidades de medida" });
+                    return Json(new { success = false, message = "El ID del insumo es inválido" });
                 }
 
-                if (string.IsNullOrEmpty(request.UnidadMedidaEdadMinima) || string.IsNullOrEmpty(request.UnidadMedidaEdadMaxima))
+                if (string.IsNullOrWhiteSpace(request.UnidadMedidaEdadMinima) ||
+                    string.IsNullOrWhiteSpace(request.UnidadMedidaEdadMaxima))
                 {
                     return Json(new { success = false, message = "Las unidades de medida son obligatorias" });
                 }
 
-                // Crear la nueva configuración
-                var configuracionRango = new ConfiguracionRangoInsumo
+                if (string.IsNullOrWhiteSpace(request.DescripcionRango))
                 {
-                    InsumoId = request.InsumoId,
-                    EdadMinima = request.EdadMinima,
-                    EdadMaxima = request.EdadMaxima,
-                    UnidadMedidaEdadMinima = request.UnidadMedidaEdadMinima,
-                    UnidadMedidaEdadMaxima = request.UnidadMedidaEdadMaxima,
-                    Dosis = request.Dosis,
-                    DescripcionRango = request.DescripcionRango,
-                    FechaCreacion = DateTime.UtcNow,
-                    Estado = true
-                };
+                    return Json(new { success = false, message = "La descripción del rango es obligatoria" });
+                }
 
-                _context.ConfiguracionesRangoInsumo.Add(configuracionRango);
-                await _context.SaveChangesAsync();
+                // 2. USAR LA ESTRATEGIA DE EJECUCIÓN DE ENTITY FRAMEWORK CORRECTAMENTE
+                var strategy = _context.Database.CreateExecutionStrategy();
 
-                // Actualizar el resumen de rangos del insumo
-                var configuraciones = await _context.ConfiguracionesRangoInsumo
-                    .Where(cr => cr.InsumoId == request.InsumoId && cr.Estado)
-                    .Select(cr => new ConfiguracionRangoInsumoViewModel
+                // Crear una clase para el resultado de la operación
+                var result = await strategy.ExecuteAsync(async () =>
+                {
+                    using var transaction = await _context.Database.BeginTransactionAsync();
+
+                    try
                     {
-                        Id = cr.Id,
-                        EdadMinima = cr.EdadMinima,
-                        EdadMaxima = cr.EdadMaxima,
-                        UnidadMedidaEdadMinima = cr.UnidadMedidaEdadMinima,
-                        UnidadMedidaEdadMaxima = cr.UnidadMedidaEdadMaxima,
-                        Dosis = cr.Dosis,
-                        DescripcionRango = cr.DescripcionRango
-                    })
-                    .ToListAsync();
+                        // Validar que el insumo existe y pertenece a la empresa actual
+                        var insumo = await _context.Insumos
+                            .FirstOrDefaultAsync(i => i.Id == request.InsumoId && i.EmpresaId == CurrentEmpresaId);
 
-                insumo.RangoDosis = GenerarResumenRangos(configuraciones);
-                await _context.SaveChangesAsync();
+                        if (insumo == null)
+                        {
+                            throw new InvalidOperationException("Insumo no encontrado o no tiene permisos para modificarlo");
+                        }
 
+                        // 3. VALIDAR RANGOS DE EDAD CON MEJOR MANEJO DE UNIDADES
+                        var edadMinEnDias = ConvertirADias(request.EdadMinima, request.UnidadMedidaEdadMinima);
+                        var edadMaxEnDias = ConvertirADias(request.EdadMaxima, request.UnidadMedidaEdadMaxima);
+
+                        if (edadMinEnDias <= 0 || edadMaxEnDias <= 0)
+                        {
+                            throw new InvalidOperationException("Las unidades de medida especificadas no son válidas");
+                        }
+
+                        if (edadMinEnDias >= edadMaxEnDias)
+                        {
+                            throw new InvalidOperationException("La edad máxima debe ser mayor que la edad mínima considerando las unidades de medida");
+                        }
+
+                        // 4. VERIFICAR SOLAPAMIENTO CON CONFIGURACIONES EXISTENTES
+                        var configuracionesExistentes = await _context.ConfiguracionesRangoInsumo
+                            .Where(cr => cr.InsumoId == request.InsumoId && cr.Estado)
+                            .ToListAsync(); // Traer a memoria para poder usar ConvertirADias
+
+                        foreach (var configExistente in configuracionesExistentes)
+                        {
+                            var minExistenteDias = ConvertirADias(configExistente.EdadMinima, configExistente.UnidadMedidaEdadMinima);
+                            var maxExistenteDias = ConvertirADias(configExistente.EdadMaxima, configExistente.UnidadMedidaEdadMaxima);
+
+                            // Verificar solapamiento
+                            if ((edadMinEnDias >= minExistenteDias && edadMinEnDias < maxExistenteDias) ||
+                                (edadMaxEnDias > minExistenteDias && edadMaxEnDias <= maxExistenteDias) ||
+                                (edadMinEnDias <= minExistenteDias && edadMaxEnDias >= maxExistenteDias))
+                            {
+                                throw new InvalidOperationException($"El rango de edad se solapa con una configuración existente: {configExistente.DescripcionRango}");
+                            }
+                        }
+
+                        // 5. CREAR LA NUEVA CONFIGURACIÓN
+                        var configuracionRango = new ConfiguracionRangoInsumo
+                        {
+                            InsumoId = request.InsumoId,
+                            EdadMinima = request.EdadMinima,
+                            EdadMaxima = request.EdadMaxima,
+                            UnidadMedidaEdadMinima = request.UnidadMedidaEdadMinima.Trim(),
+                            UnidadMedidaEdadMaxima = request.UnidadMedidaEdadMaxima.Trim(),
+                            Dosis = string.IsNullOrWhiteSpace(request.Dosis) ? null : request.Dosis.Trim(),
+                            DescripcionRango = request.DescripcionRango.Trim(),
+                            FechaCreacion = DateTime.UtcNow,
+                            Estado = true
+                        };
+
+                        _context.ConfiguracionesRangoInsumo.Add(configuracionRango);
+                        await _context.SaveChangesAsync();
+
+                        // 6. ACTUALIZAR EL RESUMEN DE RANGOS DEL INSUMO
+                        // Primero obtener todas las configuraciones sin ordenar
+                        var todasLasConfiguracionesRaw = await _context.ConfiguracionesRangoInsumo
+                            .Where(cr => cr.InsumoId == request.InsumoId && cr.Estado)
+                            .Select(cr => new ConfiguracionRangoInsumoViewModel
+                            {
+                                Id = cr.Id,
+                                EdadMinima = cr.EdadMinima,
+                                EdadMaxima = cr.EdadMaxima,
+                                UnidadMedidaEdadMinima = cr.UnidadMedidaEdadMinima,
+                                UnidadMedidaEdadMaxima = cr.UnidadMedidaEdadMaxima,
+                                Dosis = cr.Dosis,
+                                DescripcionRango = cr.DescripcionRango
+                            })
+                            .ToListAsync();
+
+                        // Ahora ordenar en memoria usando ConvertirADias
+                        var todasLasConfiguraciones = todasLasConfiguracionesRaw
+                            .OrderBy(cr => ConvertirADias(cr.EdadMinima, cr.UnidadMedidaEdadMinima))
+                            .ToList();
+
+                        insumo.RangoDosis = GenerarResumenRangos(todasLasConfiguraciones);
+                        _context.Update(insumo);
+                        await _context.SaveChangesAsync();
+
+                        await transaction.CommitAsync();
+
+                        // Retornar la configuración creada para usar fuera del ExecuteAsync
+                        return configuracionRango;
+                    }
+                    catch (Exception ex)
+                    {
+                        await transaction.RollbackAsync();
+                        Console.WriteLine($"Error en transacción interna AgregarConfiguracionRango: {ex.Message}");
+                        throw;
+                    }
+                });
+
+                // Construir la respuesta después de que la transacción sea exitosa
                 return Json(new
                 {
                     success = true,
                     message = "Configuración agregada exitosamente",
                     configuracion = new
                     {
-                        Id = configuracionRango.Id,
-                        EdadMinima = configuracionRango.EdadMinima,
-                        EdadMaxima = configuracionRango.EdadMaxima,
-                        UnidadMedidaEdadMinima = configuracionRango.UnidadMedidaEdadMinima,
-                        UnidadMedidaEdadMaxima = configuracionRango.UnidadMedidaEdadMaxima,
-                        Dosis = configuracionRango.Dosis,
-                        DescripcionRango = configuracionRango.DescripcionRango
+                        Id = result.Id,
+                        EdadMinima = result.EdadMinima,
+                        EdadMaxima = result.EdadMaxima,
+                        UnidadMedidaEdadMinima = result.UnidadMedidaEdadMinima,
+                        UnidadMedidaEdadMaxima = result.UnidadMedidaEdadMaxima,
+                        Dosis = result.Dosis,
+                        DescripcionRango = result.DescripcionRango,
+                        FechaCreacion = result.FechaCreacion
                     }
+                });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return Json(new
+                {
+                    success = false,
+                    message = ex.Message
                 });
             }
             catch (Exception ex)
             {
-                return Json(new { success = false, message = "Error: " + ex.Message });
+                Console.WriteLine($"Error al agregar configuración de rango: {ex.Message}");
+                Console.WriteLine($"StackTrace: {ex.StackTrace}");
+
+                return Json(new
+                {
+                    success = false,
+                    message = "Error interno del servidor: " + ex.Message,
+                    details = ex.InnerException?.Message ?? "Sin detalles adicionales"
+                });
             }
         }
 
@@ -850,45 +939,73 @@ namespace Highdmin.Controllers
         {
             try
             {
-                var configuracion = await _context.ConfiguracionesRangoInsumo
-                    .Include(cr => cr.Insumo)
-                    .FirstOrDefaultAsync(cr => cr.Id == id && cr.Insumo.EmpresaId == CurrentEmpresaId);
+                // Usar la estrategia de ejecución de Entity Framework
+                var strategy = _context.Database.CreateExecutionStrategy();
 
-                if (configuracion == null)
+                await strategy.ExecuteAsync(async () =>
                 {
-                    return Json(new { success = false, message = "Configuración no encontrada" });
-                }
+                    using var transaction = await _context.Database.BeginTransactionAsync();
 
-                var insumoId = configuracion.InsumoId;
-                _context.ConfiguracionesRangoInsumo.Remove(configuracion);
-                await _context.SaveChangesAsync();
+                    try
+                    {
+                        var configuracion = await _context.ConfiguracionesRangoInsumo
+                            .Include(cr => cr.Insumo)
+                            .FirstOrDefaultAsync(cr => cr.Id == id && cr.Insumo.EmpresaId == CurrentEmpresaId);
 
-                // Actualizar el resumen de rangos del insumo
-                var insumo = await _context.Insumos.FindAsync(insumoId);
-                if (insumo != null)
-                {
-                    var configuracionesRestantes = await _context.ConfiguracionesRangoInsumo
-                        .Where(cr => cr.InsumoId == insumoId && cr.Estado)
-                        .Select(cr => new ConfiguracionRangoInsumoViewModel
+                        if (configuracion == null)
                         {
-                            Id = cr.Id,
-                            EdadMinima = cr.EdadMinima,
-                            EdadMaxima = cr.EdadMaxima,
-                            UnidadMedidaEdadMinima = cr.UnidadMedidaEdadMinima,
-                            UnidadMedidaEdadMaxima = cr.UnidadMedidaEdadMaxima,
-                            Dosis = cr.Dosis,
-                            DescripcionRango = cr.DescripcionRango
-                        })
-                        .ToListAsync();
+                            throw new InvalidOperationException("Configuración no encontrada");
+                        }
 
-                    insumo.RangoDosis = GenerarResumenRangos(configuracionesRestantes);
-                    await _context.SaveChangesAsync();
-                }
+                        var insumoId = configuracion.InsumoId;
+                        _context.ConfiguracionesRangoInsumo.Remove(configuracion);
+                        await _context.SaveChangesAsync();
+
+                        // Actualizar el resumen de rangos del insumo
+                        var insumo = await _context.Insumos.FindAsync(insumoId);
+                        if (insumo != null)
+                        {
+                            var configuracionesRestantes = await _context.ConfiguracionesRangoInsumo
+                                .Where(cr => cr.InsumoId == insumoId && cr.Estado)
+                                .Select(cr => new ConfiguracionRangoInsumoViewModel
+                                {
+                                    Id = cr.Id,
+                                    EdadMinima = cr.EdadMinima,
+                                    EdadMaxima = cr.EdadMaxima,
+                                    UnidadMedidaEdadMinima = cr.UnidadMedidaEdadMinima,
+                                    UnidadMedidaEdadMaxima = cr.UnidadMedidaEdadMaxima,
+                                    Dosis = cr.Dosis,
+                                    DescripcionRango = cr.DescripcionRango
+                                })
+                                .ToListAsync();
+
+                            insumo.RangoDosis = GenerarResumenRangos(configuracionesRestantes);
+                            _context.Update(insumo);
+                            await _context.SaveChangesAsync();
+                        }
+
+                        await transaction.CommitAsync();
+
+                        // Retornar un valor simple para el ExecuteAsync
+                        return true;
+                    }
+                    catch (Exception ex)
+                    {
+                        await transaction.RollbackAsync();
+                        Console.WriteLine($"Error en transacción EliminarConfiguracionRango: {ex.Message}");
+                        throw;
+                    }
+                });
 
                 return Json(new { success = true, message = "Configuración eliminada exitosamente" });
             }
+            catch (InvalidOperationException ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
             catch (Exception ex)
             {
+                Console.WriteLine($"Error al eliminar configuración de rango: {ex.Message}");
                 return Json(new { success = false, message = "Error: " + ex.Message });
             }
         }
@@ -905,13 +1022,55 @@ namespace Highdmin.Controllers
         }
         private int ConvertirADias(int edad, string unidad)
         {
-            return unidad switch
+            if (string.IsNullOrWhiteSpace(unidad))
+                return 0;
+
+            return unidad.Trim().ToLowerInvariant() switch
             {
-                "Dias" => edad,
-                "Meses" => edad * 30,  // Aproximadamente 30 días por mes
-                "Anos" => edad * 365,  // Aproximadamente 365 días por año
+                "dias" or "días" or "day" or "days" => edad,
+                "meses" or "mes" or "months" or "month" => edad * 30,  // Aproximadamente 30 días por mes
+                "anos" or "años" or "año" or "years" or "year" => edad * 365,  // Aproximadamente 365 días por año
                 _ => 0
             };
+        }
+
+        // AGREGAR MÉTODO PARA VALIDAR LA ESTRUCTURA DE LA REQUEST
+        private bool ValidarRequest(AgregarConfiguracionRangoRequest request, out string mensajeError)
+        {
+            mensajeError = string.Empty;
+
+            if (request == null)
+            {
+                mensajeError = "Los datos de la configuración son requeridos";
+                return false;
+            }
+
+            if (request.InsumoId <= 0)
+            {
+                mensajeError = "El ID del insumo es inválido";
+                return false;
+            }
+
+            if (request.EdadMinima < 0 || request.EdadMaxima < 0)
+            {
+                mensajeError = "Las edades no pueden ser negativas";
+                return false;
+            }
+
+            if (string.IsNullOrWhiteSpace(request.UnidadMedidaEdadMinima) ||
+                string.IsNullOrWhiteSpace(request.UnidadMedidaEdadMaxima))
+            {
+                mensajeError = "Las unidades de medida son obligatorias";
+                return false;
+            }
+
+            if (string.IsNullOrWhiteSpace(request.DescripcionRango))
+            {
+                mensajeError = "La descripción del rango es obligatoria";
+                return false;
+            }
+
+            return true;
         }
     }
 }

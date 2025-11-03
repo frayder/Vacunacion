@@ -57,7 +57,7 @@ namespace Highdmin.Controllers
                 CanCreate = permissions["Create"],
                 CanUpdate = permissions["Update"],
                 CanDelete = permissions["Delete"]
-                
+
             };
 
             return View(viewModel);
@@ -74,31 +74,31 @@ namespace Highdmin.Controllers
         private async Task<string> GenerarConsecutivoAsync()
         {
             var año = DateTime.Now.Year;
-    var prefijo = $"VAC-{año}-";
-    
-    // Obtener el último consecutivo del año actual
-    var ultimoConsecutivo = await _context.RegistrosVacunacion
-        .Where(r => r.Consecutivo.StartsWith(prefijo) && r.EmpresaId == CurrentEmpresaId)
-        .OrderByDescending(r => r.Consecutivo)
-        .Select(r => r.Consecutivo)
-        .FirstOrDefaultAsync();
+            var prefijo = $"VAC-{año}-";
 
-    if (string.IsNullOrEmpty(ultimoConsecutivo))
-    {
-        return $"{prefijo}000001";
-    }
+            // Obtener el último consecutivo del año actual
+            var ultimoConsecutivo = await _context.RegistrosVacunacion
+                .Where(r => r.Consecutivo.StartsWith(prefijo) && r.EmpresaId == CurrentEmpresaId)
+                .OrderByDescending(r => r.Consecutivo)
+                .Select(r => r.Consecutivo)
+                .FirstOrDefaultAsync();
 
-    // Extraer el número del consecutivo
-    var numeroStr = ultimoConsecutivo.Substring(prefijo.Length);
-    if (int.TryParse(numeroStr, out int numero))
-    {
-        numero++;
-        return $"{prefijo}{numero:D6}";
-    }
+            if (string.IsNullOrEmpty(ultimoConsecutivo))
+            {
+                return $"{prefijo}000001";
+            }
 
-    // Si hay algún problema con el parsing, generar con timestamp
-    var timestamp = DateTime.Now.ToString("HHmmss");
-    return $"VAC-{año}-{timestamp}";
+            // Extraer el número del consecutivo
+            var numeroStr = ultimoConsecutivo.Substring(prefijo.Length);
+            if (int.TryParse(numeroStr, out int numero))
+            {
+                numero++;
+                return $"{prefijo}{numero:D6}";
+            }
+
+            // Si hay algún problema con el parsing, generar con timestamp
+            var timestamp = DateTime.Now.ToString("HHmmss");
+            return $"VAC-{año}-{timestamp}";
         }
 
         [HttpGet]
@@ -213,7 +213,7 @@ namespace Highdmin.Controllers
                 double ConvertToDays(int valor, string unidad)
                 {
                     if (string.IsNullOrWhiteSpace(unidad)) unidad = "Anos";
-                        unidad = unidad.Trim().ToLowerInvariant();
+                    unidad = unidad.Trim().ToLowerInvariant();
                     // Soportar variantes comunes
                     if (unidad == "dias" || unidad == "d") // dias, d
                         return valor;
@@ -258,7 +258,7 @@ namespace Highdmin.Controllers
                         }
                     })
                     .ToList();
- 
+
 
                 return Json(filtrados);
             }
@@ -383,64 +383,74 @@ namespace Highdmin.Controllers
         {
             try
             {
-                // Log de los datos recibidos del request ANTES del model binding
 
                 // Crear un modelo para capturar todos los datos del formulario
                 var json = System.Text.Json.JsonSerializer.Serialize(datos);
-                // Configuramos las opciones para que acepte números entre comillas
+
+                // Configuramos las opciones para que acepte números entre comillas Y maneje booleanos flexiblemente
                 var options = new JsonSerializerOptions
                 {
                     PropertyNameCaseInsensitive = true,
-                    NumberHandling = JsonNumberHandling.AllowReadingFromString
+                    NumberHandling = JsonNumberHandling.AllowReadingFromString,
+                    Converters =
+                    {
+                        new JsonBooleanConverter(),
+                        new JsonNullableBooleanConverter()
+                    }
                 };
 
                 var modelo = JsonSerializer.Deserialize<RegistroVacunacionItemViewModel>(json, options);
 
+                if (modelo == null)
+                {
+                    return Json(new { success = false, message = "Error al procesar los datos del formulario" });
+                }
+
 
                 // Mapear todos los datos del ViewModel a la entidad del modelo de datos
-
                 var Consecutivo = await GenerarConsecutivoAsync();
                 var utcNow = DateTime.UtcNow;
 
-                 DateTime ConvertirAUtc(DateTime? fecha)
-        {
-            if (!fecha.HasValue)
-                return utcNow;
+                DateTime ConvertirAUtc(DateTime? fecha)
+                {
+                    if (!fecha.HasValue)
+                        return utcNow;
 
-            var fechaValue = fecha.Value;
-            
-            return fechaValue.Kind switch
-            {
-                DateTimeKind.Utc => fechaValue,
-                DateTimeKind.Local => fechaValue.ToUniversalTime(),
-                DateTimeKind.Unspecified => DateTime.SpecifyKind(fechaValue, DateTimeKind.Utc),
-                _ => DateTime.SpecifyKind(fechaValue, DateTimeKind.Utc)
-            };
-        }
+                    var fechaValue = fecha.Value;
 
-        DateTime? ConvertirAUtcNullable(DateTime? fecha)
-        {
-            if (!fecha.HasValue)
-                return null;
+                    return fechaValue.Kind switch
+                    {
+                        DateTimeKind.Utc => fechaValue,
+                        DateTimeKind.Local => fechaValue.ToUniversalTime(),
+                        DateTimeKind.Unspecified => DateTime.SpecifyKind(fechaValue, DateTimeKind.Utc),
+                        _ => DateTime.SpecifyKind(fechaValue, DateTimeKind.Utc)
+                    };
+                }
 
-            return ConvertirAUtc(fecha);
-        }
+                DateTime? ConvertirAUtcNullable(DateTime? fecha)
+                {
+                    if (!fecha.HasValue)
+                        return null;
+
+                    return ConvertirAUtc(fecha);
+                }
 
                 var entidad = new RegistrosVacunacion
                 {
                     // DATOS BÁSICOS (Paso 1)
                     Consecutivo = Consecutivo,
-                    PrimerNombre = modelo.PrimerNombre,
-                    SegundoNombre = modelo.SegundoNombre,
-                    PrimerApellido = modelo.PrimerApellido,
-                    SegundoApellido = modelo.SegundoApellido,
-                    TipoDocumento = modelo.TipoDocumento,
-                    NumeroDocumento = modelo.NumeroDocumento,
+                    PrimerNombre = modelo.PrimerNombre ?? string.Empty,
+                    SegundoNombre = modelo.SegundoNombre ?? string.Empty,
+                    PrimerApellido = modelo.PrimerApellido ?? string.Empty,
+                    SegundoApellido = modelo.SegundoApellido ?? string.Empty,
+                    TipoDocumento = modelo.TipoDocumento ?? string.Empty,
+                    NumeroDocumento = modelo.NumeroDocumento ?? string.Empty,
                     FechaNacimiento = ConvertirAUtc(modelo.FechaNacimiento),
-                    Genero = modelo.Genero,
+                    Genero = modelo.Genero ?? string.Empty,
                     Telefono = modelo.Telefono,
                     Direccion = modelo.Direccion,
                     NombreCompleto = $"{modelo.PrimerNombre} {modelo.SegundoNombre} {modelo.PrimerApellido} {modelo.SegundoApellido}".Trim(),
+
                     // DATOS COMPLEMENTARIOS (Paso 2)
                     AseguradoraId = modelo.AseguradoraId,
                     RegimenAfiliacionId = modelo.RegimenAfiliacionId,
@@ -494,18 +504,20 @@ namespace Highdmin.Controllers
 
                     // ESQUEMA VACUNACIÓN (Paso 6)
                     TipoCarnetId = modelo.TipoCarnetId,
-                    Vacuna = modelo.Vacuna,
+                    Vacuna = modelo.Vacuna ?? "N/A", // Valor por defecto si no hay vacunas
                     Observaciones = modelo.Observaciones,
                     Dosis = modelo.Dosis,
                     FechaAplicacion = ConvertirAUtc(modelo.FechaRegistro),
                     FechaRegistro = ConvertirAUtc(modelo.FechaRegistro),
+
                     // RESPONSABLE (Paso 7)
                     Responsable = modelo.Responsable,
-                    IngresoPAIWEB = modelo.IngresoPAIWEB,
+                    IngresoPAIWEB = modelo.IngresoPAIWEB ?? false,
                     CentroSaludResponsable = modelo.CentroSaludResponsable,
-                    MarcarComoPerdida = modelo.MarcarComoPerdida,
+                    MarcarComoPerdida = modelo.MarcarComoPerdida ?? false,
                     MotivoPerdida = modelo.MotivoPerdida,
                     EmpresaId = CurrentEmpresaId,
+
                     // CAMPOS DE CONTROL
                     NotasFinales = modelo.NotasFinales,
                     Estado = true,
@@ -518,12 +530,95 @@ namespace Highdmin.Controllers
                 // Guarda en base de datos
                 _context.RegistrosVacunacion.Add(entidad);
                 await _context.SaveChangesAsync();
+
+                // Guardar antecedentes médicos 
                 await GuardarAntecedentesMedicos(entidad.Id, modelo.ArrayAntecedentes, modelo.NumeroDocumento);
+
+                // Guardar vacunas aplicadas 
+                await GuardarVacunasAplicadas(entidad.Id, modelo.ArrayVacunasAplicadas, modelo.NumeroDocumento);
+
                 return Json(new { success = true, message = "Registro guardado correctamente", id = entidad.Id });
             }
             catch (Exception ex)
             {
+                // Log más detallado del error 
                 return Json(new { success = false, message = "Ocurrió un error al guardar el registro: " + ex.Message });
+            }
+        }
+
+        // NUEVO: Método para procesar y guardar las vacunas aplicadas
+        private async Task GuardarVacunasAplicadas(int registroVacunacionId, string? arrayVacunasAplicadas, string numeroDocumentoPaciente)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(arrayVacunasAplicadas))
+                    return;
+
+                DateTime ConvertirAUtc(DateTime fecha)
+                {
+                    return fecha.Kind switch
+                    {
+                        DateTimeKind.Utc => fecha,
+                        DateTimeKind.Local => fecha.ToUniversalTime(),
+                        DateTimeKind.Unspecified => DateTime.SpecifyKind(fecha, DateTimeKind.Utc),
+                        _ => DateTime.SpecifyKind(fecha, DateTimeKind.Utc)
+                    };
+                }
+
+                // Deserializar el array de vacunas desde JSON
+                var options = new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true,
+                    NumberHandling = JsonNumberHandling.AllowReadingFromString
+                };
+
+                var vacunas = JsonSerializer.Deserialize<List<VacunaAplicadaViewModel>>(arrayVacunasAplicadas, options);
+
+                if (vacunas == null || !vacunas.Any())
+                    return;
+
+                // Crear las entidades de vacunas aplicadas
+                var entidadesVacunas = new List<VacunaAplicada>();
+
+                foreach (var vacuna in vacunas)
+                {
+                    var entidadVacuna = new VacunaAplicada
+                    {
+                        RegistroVacunacionId = registroVacunacionId,
+                        InsumoId = vacuna.InsumoId,
+                        NombreVacuna = vacuna.NombreVacuna,
+                        Dosis = vacuna.Dosis,
+                        LoteVacuna = vacuna.LoteVacuna,
+                        Jeringa = vacuna.Jeringa,
+                        LoteJeringa = vacuna.LoteJeringa,
+                        LoteDiluyente = vacuna.LoteDiluyente,
+                        Gotero = vacuna.Gotero,
+                        NumeroFrascos = vacuna.NumeroFrascos,
+                        Observaciones = vacuna.Observaciones,
+                        MarcarComoPerdida = vacuna.MarcarComoPerdida,
+                        MotivoPerdida = vacuna.MotivoPerdida,
+                        FechaAplicacion = ConvertirAUtc(vacuna.FechaAplicacion),
+                        Activo = vacuna.Activo,
+                        NumeroDocumentoPaciente = numeroDocumentoPaciente,
+                        FechaCreacion = DateTime.UtcNow,
+                        EmpresaId = CurrentEmpresaId
+                    };
+
+                    entidadesVacunas.Add(entidadVacuna);
+                }
+
+                // Guardar todas las vacunas en la base de datos
+                if (entidadesVacunas.Any())
+                {
+                    _context.VacunasAplicadas.AddRange(entidadesVacunas);
+                    await _context.SaveChangesAsync();
+                }
+            }
+            catch (Exception ex)
+            {
+                // Log del error pero no fallar la operación principal
+                Console.WriteLine($"Error al guardar vacunas aplicadas: {ex.Message}");
+                throw; // Re-lanzar para que se maneje en el método principal
             }
         }
 
@@ -545,7 +640,7 @@ namespace Highdmin.Controllers
                         _ => DateTime.SpecifyKind(fecha, DateTimeKind.Utc)
                     };
                 }
-        
+
                 // Deserializar el array de antecedentes desde JSON
                 var options = new JsonSerializerOptions
                 {
@@ -594,149 +689,222 @@ namespace Highdmin.Controllers
                 throw; // Re-lanzar para que se maneje en el método principal
             }
         }
-    
+
         [HttpGet]
-public async Task<IActionResult> Details(int id)
-{
-    var registro = await _context.RegistrosVacunacion
-        .FirstOrDefaultAsync(r => r.Id == id);
-
-    if (registro == null)
-    {
-        return NotFound();
-    }
-
-    var viewModel = new RegistroVacunacionItemViewModel
-    {
-        Id = registro.Id,
-        Consecutivo = registro.Consecutivo,
-        FechaRegistro = registro.FechaRegistro,
-        PrimerNombre = registro.PrimerNombre,
-        SegundoNombre = registro.SegundoNombre,
-        PrimerApellido = registro.PrimerApellido,
-        SegundoApellido = registro.SegundoApellido,
-        TipoDocumento = registro.TipoDocumento,
-        NumeroDocumento = registro.NumeroDocumento,
-
-        FechaNacimiento = registro.FechaNacimiento,
-        Genero = registro.Genero,
-        Telefono = registro.Telefono,
-        Direccion = registro.Direccion,
-        AseguradoraId = registro.AseguradoraId,
-        RegimenAfiliacionId = registro.RegimenAfiliacionId,
-        PertenenciaEtnicaId = registro.PertenenciaEtnicaId,
-        CentroAtencionId = registro.CentroAtencionId,
-        CondicionUsuariaId = registro.CondicionUsuariaId,
-        TipoCarnetId = registro.TipoCarnetId,
-        Vacuna = registro.Vacuna,
-        Observaciones = registro.Observaciones,
-        NotasFinales = registro.NotasFinales,
-        FechaCreacion = registro.FechaCreacion,
-        FechaModificacion = registro.FechaModificacion,
-        UsuarioCreadorId = registro.UsuarioCreadorId,
-        UsuarioModificadorId = registro.UsuarioModificadorId,
-        FechaAtencion = registro.FechaAtencion,
-        EsquemaCompleto = registro.EsquemaCompleto,
-        Sexo = registro.Sexo,
-        OrientacionSexual = registro.OrientacionSexual,
-        EdadGestacional = registro.EdadGestacional,
-        PesoInfante = registro.PesoInfante,
-        PaisNacimiento = registro.PaisNacimiento,
-        EstatusMigratorio = registro.EstatusMigratorio,
-        Desplazado = registro.Desplazado,
-        Discapacitado = registro.Discapacitado,
-        Fallecido = registro.Fallecido,
-        VictimaConflictoArmado = registro.VictimaConflictoArmado,
-        Estudia = registro.Estudia,
-        PaisResidencia = registro.PaisResidencia,
-        DepartamentoResidencia = registro.DepartamentoResidencia,
-        MunicipioResidencia = registro.MunicipioResidencia,
-        ComunaLocalidad = registro.ComunaLocalidad,
-        Area = registro.Area,
-        Celular = registro.Celular,
-        Email = registro.Email,
-        AutorizaLlamadas = registro.AutorizaLlamadas,
-        AutorizaEnvioCorreo = registro.AutorizaEnvioCorreo,
-        Relacion = registro.Relacion,
-        EnfermedadContraindicacionVacuna = registro.EnfermedadContraindicacionVacuna,
-        ReaccionBiologico = registro.ReaccionBiologico,
-        MadreCuidador = registro.MadreCuidador,
-        TipoIdentificacionCuidador = registro.TipoIdentificacionCuidador,
-        NumeroDocumentoCuidador = registro.NumeroDocumentoCuidador,
-        PrimerNombreCuidador = registro.PrimerNombreCuidador,
-        SegundoNombreCuidador = registro.SegundoNombreCuidador,
-        PrimerApellidoCuidador = registro.PrimerApellidoCuidador,
-        SegundoApellidoCuidador = registro.SegundoApellidoCuidador,
-        EmailCuidador = registro.EmailCuidador,
-        TelefonoCuidador = registro.TelefonoCuidador,
-        CelularCuidador = registro.CelularCuidador,
-        RegimenAfiliacionCuidador = registro.RegimenAfiliacionCuidador,
-        PertenenciaEtnicaIdCuidador = registro.PertenenciaEtnicaIdCuidador,
-        EstadoDesplazadoCuidador = registro.EstadoDesplazadoCuidador,
-        ParentescoCuidador = registro.ParentescoCuidador,
-        Dosis = registro.Dosis,
-        Responsable = registro.Responsable,
-        IngresoPAIWEB = registro.IngresoPAIWEB,
-        CentroSaludResponsable = registro.CentroSaludResponsable,
-        MotivoNoIngresoPAIWEB = registro.MotivoNoIngresoPAIWEB,
-        NombreCompleto = $"{registro.PrimerNombre} {registro.SegundoNombre} {registro.PrimerApellido} {registro.SegundoApellido}".Trim()
-    };
-
-    return View(viewModel);
-}
-
-[HttpGet]
-public async Task<IActionResult> Delete(int id)
-{
-    var registro = await _context.RegistrosVacunacion
-        .FirstOrDefaultAsync(r => r.Id == id);
-
-    if (registro == null)
-    {
-        return NotFound();
-    }
-
-    var viewModel = new RegistroVacunacionItemViewModel
-    {
-        Id = registro.Id,
-        Consecutivo = registro.Consecutivo,
-        FechaRegistro = registro.FechaRegistro,
-        NombreCompleto = $"{registro.PrimerNombre} {registro.SegundoNombre} {registro.PrimerApellido} {registro.SegundoApellido}".Trim(),
-        NumeroDocumento = registro.NumeroDocumento,
-        TipoDocumento = registro.TipoDocumento,
-        Vacuna = registro.Vacuna,
-        FechaAtencion = registro.FechaAtencion,
-        IngresoPAIWEB = registro.IngresoPAIWEB
-    };
-
-    return View(viewModel);
-}
-
-[HttpPost, ActionName("Delete")]
-[ValidateAntiForgeryToken]
-public async Task<IActionResult> DeleteConfirmed(int id)
-{
-    try
-    {
-        var registro = await _context.RegistrosVacunacion.FirstOrDefaultAsync(m => m.Id == id && m.EmpresaId == CurrentEmpresaId);
-        if (registro != null)
+        public async Task<IActionResult> Details(int id)
         {
-            _context.RegistrosVacunacion.Remove(registro);
-            await _context.SaveChangesAsync();
-            
-            TempData["SuccessMessage"] = "El registro de vacunación ha sido eliminado exitosamente.";
+            var registro = await _context.RegistrosVacunacion
+                .FirstOrDefaultAsync(r => r.Id == id);
+
+            if (registro == null)
+            {
+                return NotFound();
+            }
+
+            var viewModel = new RegistroVacunacionItemViewModel
+            {
+                Id = registro.Id,
+                Consecutivo = registro.Consecutivo,
+                FechaRegistro = registro.FechaRegistro,
+                PrimerNombre = registro.PrimerNombre,
+                SegundoNombre = registro.SegundoNombre,
+                PrimerApellido = registro.PrimerApellido,
+                SegundoApellido = registro.SegundoApellido,
+                TipoDocumento = registro.TipoDocumento,
+                NumeroDocumento = registro.NumeroDocumento,
+
+                FechaNacimiento = registro.FechaNacimiento,
+                Genero = registro.Genero,
+                Telefono = registro.Telefono,
+                Direccion = registro.Direccion,
+                AseguradoraId = registro.AseguradoraId,
+                RegimenAfiliacionId = registro.RegimenAfiliacionId,
+                PertenenciaEtnicaId = registro.PertenenciaEtnicaId,
+                CentroAtencionId = registro.CentroAtencionId,
+                CondicionUsuariaId = registro.CondicionUsuariaId,
+                TipoCarnetId = registro.TipoCarnetId,
+                Vacuna = registro.Vacuna,
+                Observaciones = registro.Observaciones,
+                NotasFinales = registro.NotasFinales,
+                FechaCreacion = registro.FechaCreacion,
+                FechaModificacion = registro.FechaModificacion,
+                UsuarioCreadorId = registro.UsuarioCreadorId,
+                UsuarioModificadorId = registro.UsuarioModificadorId,
+                FechaAtencion = registro.FechaAtencion,
+                EsquemaCompleto = registro.EsquemaCompleto,
+                Sexo = registro.Sexo,
+                OrientacionSexual = registro.OrientacionSexual,
+                EdadGestacional = registro.EdadGestacional,
+                PesoInfante = registro.PesoInfante,
+                PaisNacimiento = registro.PaisNacimiento,
+                EstatusMigratorio = registro.EstatusMigratorio,
+                Desplazado = registro.Desplazado,
+                Discapacitado = registro.Discapacitado,
+                Fallecido = registro.Fallecido,
+                VictimaConflictoArmado = registro.VictimaConflictoArmado,
+                Estudia = registro.Estudia,
+                PaisResidencia = registro.PaisResidencia,
+                DepartamentoResidencia = registro.DepartamentoResidencia,
+                MunicipioResidencia = registro.MunicipioResidencia,
+                ComunaLocalidad = registro.ComunaLocalidad,
+                Area = registro.Area,
+                Celular = registro.Celular,
+                Email = registro.Email,
+                AutorizaLlamadas = registro.AutorizaLlamadas,
+                AutorizaEnvioCorreo = registro.AutorizaEnvioCorreo,
+                Relacion = registro.Relacion,
+                EnfermedadContraindicacionVacuna = registro.EnfermedadContraindicacionVacuna,
+                ReaccionBiologico = registro.ReaccionBiologico,
+                MadreCuidador = registro.MadreCuidador,
+                TipoIdentificacionCuidador = registro.TipoIdentificacionCuidador,
+                NumeroDocumentoCuidador = registro.NumeroDocumentoCuidador,
+                PrimerNombreCuidador = registro.PrimerNombreCuidador,
+                SegundoNombreCuidador = registro.SegundoNombreCuidador,
+                PrimerApellidoCuidador = registro.PrimerApellidoCuidador,
+                SegundoApellidoCuidador = registro.SegundoApellidoCuidador,
+                EmailCuidador = registro.EmailCuidador,
+                TelefonoCuidador = registro.TelefonoCuidador,
+                CelularCuidador = registro.CelularCuidador,
+                RegimenAfiliacionCuidador = registro.RegimenAfiliacionCuidador,
+                PertenenciaEtnicaIdCuidador = registro.PertenenciaEtnicaIdCuidador,
+                EstadoDesplazadoCuidador = registro.EstadoDesplazadoCuidador,
+                ParentescoCuidador = registro.ParentescoCuidador,
+                Dosis = registro.Dosis,
+                Responsable = registro.Responsable,
+                IngresoPAIWEB = registro.IngresoPAIWEB,
+                CentroSaludResponsable = registro.CentroSaludResponsable,
+                MotivoNoIngresoPAIWEB = registro.MotivoNoIngresoPAIWEB,
+                NombreCompleto = $"{registro.PrimerNombre} {registro.SegundoNombre} {registro.PrimerApellido} {registro.SegundoApellido}".Trim()
+            };
+
+            return View(viewModel);
         }
+
+        [HttpGet]
+        public async Task<IActionResult> Delete(int id)
+        {
+            var registro = await _context.RegistrosVacunacion
+                .FirstOrDefaultAsync(r => r.Id == id);
+
+            if (registro == null)
+            {
+                return NotFound();
+            }
+
+            var viewModel = new RegistroVacunacionItemViewModel
+            {
+                Id = registro.Id,
+                Consecutivo = registro.Consecutivo,
+                FechaRegistro = registro.FechaRegistro,
+                NombreCompleto = $"{registro.PrimerNombre} {registro.SegundoNombre} {registro.PrimerApellido} {registro.SegundoApellido}".Trim(),
+                NumeroDocumento = registro.NumeroDocumento,
+                TipoDocumento = registro.TipoDocumento,
+                Vacuna = registro.Vacuna,
+                FechaAtencion = registro.FechaAtencion,
+                IngresoPAIWEB = registro.IngresoPAIWEB
+            };
+
+            return View(viewModel);
+        }
+
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteConfirmed(int id)
+        {
+            try
+            {
+                var registro = await _context.RegistrosVacunacion.FirstOrDefaultAsync(m => m.Id == id && m.EmpresaId == CurrentEmpresaId);
+                if (registro != null)
+                {
+                    _context.RegistrosVacunacion.Remove(registro);
+                    await _context.SaveChangesAsync();
+
+                    TempData["SuccessMessage"] = "El registro de vacunación ha sido eliminado exitosamente.";
+                }
+                else
+                {
+                    TempData["ErrorMessage"] = "No se encontró el registro a eliminar.";
+                }
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = "Ocurrió un error al eliminar el registro: " + ex.Message;
+            }
+
+            return RedirectToAction(nameof(Index));
+        }
+    }
+}
+
+// Convertidor personalizado para manejar valores booleanos desde JSON
+public class JsonBooleanConverter : JsonConverter<bool>
+{
+    public override bool Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+    {
+        switch (reader.TokenType)
+        {
+            case JsonTokenType.True:
+                return true;
+            case JsonTokenType.False:
+                return false;
+            case JsonTokenType.String:
+                string? stringValue = reader.GetString();
+                if (bool.TryParse(stringValue, out bool boolValue))
+                    return boolValue;
+                if (stringValue?.ToLower() == "true" || stringValue == "1")
+                    return true;
+                if (stringValue?.ToLower() == "false" || stringValue == "0" || string.IsNullOrEmpty(stringValue))
+                    return false;
+                break;
+            case JsonTokenType.Number:
+                return reader.GetInt32() != 0;
+            case JsonTokenType.Null:
+                return false;
+        }
+        return false;
+    }
+
+    public override void Write(Utf8JsonWriter writer, bool value, JsonSerializerOptions options)
+    {
+        writer.WriteBooleanValue(value);
+    }
+}
+
+// Convertidor para booleanos nullable
+public class JsonNullableBooleanConverter : JsonConverter<bool?>
+{
+    public override bool? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+    {
+        switch (reader.TokenType)
+        {
+            case JsonTokenType.True:
+                return true;
+            case JsonTokenType.False:
+                return false;
+            case JsonTokenType.String:
+                string? stringValue = reader.GetString();
+                if (bool.TryParse(stringValue, out bool boolValue))
+                    return boolValue;
+                if (stringValue?.ToLower() == "true" || stringValue == "1")
+                    return true;
+                if (stringValue?.ToLower() == "false" || stringValue == "0")
+                    return false;
+                if (string.IsNullOrEmpty(stringValue))
+                    return null;
+                break;
+            case JsonTokenType.Number:
+                return reader.GetInt32() != 0;
+            case JsonTokenType.Null:
+                return null;
+        }
+        return null;
+    }
+
+    public override void Write(Utf8JsonWriter writer, bool? value, JsonSerializerOptions options)
+    {
+        if (value.HasValue)
+            writer.WriteBooleanValue(value.Value);
         else
-        {
-            TempData["ErrorMessage"] = "No se encontró el registro a eliminar.";
-        }
-    }
-    catch (Exception ex)
-    {
-        TempData["ErrorMessage"] = "Ocurrió un error al eliminar el registro: " + ex.Message;
-    }
-
-    return RedirectToAction(nameof(Index));
-}
+            writer.WriteNullValue();
     }
 }
