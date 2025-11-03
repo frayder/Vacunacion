@@ -519,7 +519,9 @@
                             restoreCurrentStepData();
                             setTimeout(() => {
                                 activarFlujoVacunaRestaurada();
+                                cargarJeringas();
                                 initializeVacunasLogic();
+                                restoreVacunas();
                             }, 200);
                         }, 100);
                     });
@@ -542,6 +544,7 @@
                 try {
                     await loadTiposCarnet();
                     await listarInsumos();
+                    await cargarJeringas();
 
                 } catch (error) {
                     // Error silenciado intencionalmente
@@ -1084,6 +1087,67 @@
                 }
             }
 
+            async function cargarJeringas() {
+                const jeringaSelect = document.getElementById('Jeringa');
+                if (!jeringaSelect) {
+                    console.warn('Select de jeringa no encontrado');
+                    return;
+                }
+
+                try {
+                    console.log('🔄 Cargando jeringas...');
+                    const response = await fetch('/RegistroVacunacion/GetJeringas');
+                    
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    
+                    const jeringas = await response.json();
+                    
+                    // Limpiar opciones existentes excepto la primera
+                    while (jeringaSelect.children.length > 1) {
+                        jeringaSelect.removeChild(jeringaSelect.lastChild);
+                    }
+                    
+                    // Agregar las jeringas
+                    if (jeringas && jeringas.length > 0) {
+                        jeringas.forEach(jeringa => {
+                            const option = document.createElement('option');
+                            option.value = jeringa.value;
+                            option.textContent = `${jeringa.text} (${jeringa.codigo})`;
+                            option.setAttribute('data-codigo', jeringa.codigo);
+                            option.setAttribute('data-descripcion', jeringa.descripcion || '');
+                            jeringaSelect.appendChild(option);
+                        });
+                        
+                        console.log(`✅ Se cargaron ${jeringas.length} jeringas`);
+                    } else {
+                        // Agregar opción de "No hay jeringas disponibles"
+                        const option = document.createElement('option');
+                        option.value = '';
+                        option.textContent = 'No hay jeringas disponibles';
+                        option.disabled = true;
+                        jeringaSelect.appendChild(option);
+                        
+                        console.log('⚠️ No se encontraron jeringas disponibles');
+                    }
+                    
+                } catch (error) {
+                    console.error('❌ Error al cargar jeringas:', error);
+                    
+                    // Mostrar mensaje de error en el select
+                    while (jeringaSelect.children.length > 1) {
+                        jeringaSelect.removeChild(jeringaSelect.lastChild);
+                    }
+                    
+                    const option = document.createElement('option');
+                    option.value = '';
+                    option.textContent = 'Error al cargar jeringas';
+                    option.disabled = true;
+                    jeringaSelect.appendChild(option);
+                }
+            }
+
             function listarInsumosDosis(vacunaId) {
                 const dosisSelect = document.querySelector('select[name="Dosis"]');
                 if (!dosisSelect) return;
@@ -1398,7 +1462,7 @@
                 const vacunaSelect = document.getElementById('VacunaSeleccionada');
                 const dosisSelect = document.querySelector('select[name="Dosis"]');
                 const loteVacuna = document.getElementById('loteVacuna')?.value;
-                const jeringa = document.getElementById('Jeringa')?.value;
+                const jeringaSelected = document.querySelector('select[name="Jeringa"]')
                 const loteJeringa = document.getElementById('loteJeringa')?.value;
                 const loteDiluyente = document.getElementById('loteDiluyente')?.value;
                 const gotero = document.getElementById('gotero')?.value;
@@ -1411,6 +1475,11 @@
                 if (!vacunaSelect.value) {
                     alert('Por favor seleccione un insumo (vacuna)');
                     return;
+                }
+
+                let jeringa = null;
+                if (jeringaSelected && jeringaSelected.selectedOptions[0]) {
+                    jeringa = jeringaSelected.selectedOptions[0].textContent;
                 }
 
                 if (!loteVacuna || loteVacuna.trim() === '') {
@@ -1674,7 +1743,7 @@
 
             // Función para restaurar vacunas guardadas
             function restoreVacunas() {
-                if (window.formData.vacunas && window.formData.vacunas.length > 0) {
+                if (formData.vacunas && formData.vacunas.length > 0) {
                     const tableBody = document.getElementById('vacunasTableBody');
                     const listaContainer = document.getElementById('listaVacunas');
 
@@ -1686,7 +1755,7 @@
                         listaContainer.style.display = 'block';
 
                         // Agregar cada vacuna
-                        window.formData.vacunas.forEach(vacuna => {
+                        formData.vacunas.forEach(vacuna => {
                             const estadoVacuna = vacuna.marcarComoPerdida ? 
                                 `<span class="badge bg-warning">Perdida (${vacuna.motivoPerdida})</span>` : 
                                 `<span class="badge bg-success">Aplicada</span>`;
@@ -1694,22 +1763,103 @@
                             const dosisTexto = vacuna.dosis === 'GENERAL' ? 'N/A' : `Dosis ${vacuna.dosis}`;
 
                             const row = document.createElement('tr');
-                            row.innerHTML = `
-                                <td>${vacuna.fechaFormateada}</td>
-                                <td>${vacuna.nombreVacuna}</td>
-                                <td>${dosisTexto}</td>
-                                <td>
-                                    <strong>Lote:</strong> ${vacuna.loteVacuna}<br>
-                                    ${vacuna.jeringa ? `<strong>Jeringa:</strong> ${vacuna.jeringa}<br>` : ''}
-                                    ${vacuna.observaciones ? `<strong>Obs:</strong> ${vacuna.observaciones}` : ''}
-                                </td>
-                                <td>${estadoVacuna}</td>
-                                <td>
-                                    <button type="button" class="btn btn-danger btn-sm" onclick="eliminarVacuna(this, ${vacuna.id})">
-                                        <i class="ri-delete-bin-line"></i>
+                             row.innerHTML = `
+                        <div class="card mb-3 vacuna-card" data-vacuna-id="${vacuna.id}">
+                            <div class="card-header bg-light">
+                                <div class="justify-content-between d-flex align-items-center">
+                                    <div class="row">
+                                        <div class="col">
+                                            <h6 class="mb-0 text-primary">${vacuna.nombreVacuna}</h6>
+                                            <small class="text-muted">
+                                                <i class="ri-calendar-line me-1"></i>${vacuna.fechaFormateada}
+                                            </small>
+                                        </div>
+                                        <div class="col-auto">
+                                            ${vacuna.marcarComoPerdida ? 
+                                                `<span class="badge bg-warning text-dark">
+                                                    <i class="ri-error-warning-line me-1"></i>Perdida
+                                                </span>` : 
+                                                `<span class="badge bg-success">
+                                                    <i class="ri-check-line me-1"></i>Aplicada
+                                                </span>`
+                                            }
+                                        </div>
+                                    </div>
+
+                                    <button type="button" class="btn btn-outline-danger btn-sm" onclick="eliminarVacuna(this, ${vacuna.id})">
+                                        <i class="ri-delete-bin-line me-1"></i>Eliminar
                                     </button>
-                                </td>
-                            `;
+                                   
+                                </div>
+                            </div>
+                            
+                            <div class="card-body">
+                                <div class="row">
+                                    <!-- Información principal -->
+                                    <div class="d-flex col-md-6">
+                                        <div class="info-group">
+                                            <label class="info-label">Dosis:</label>
+                                            <span class="badge bg-primary ms-1">
+                                                ${vacuna.dosis === 'GENERAL' ? 'General' : `Dosis ${vacuna.dosis}`}
+                                            </span>
+                                        </div>
+                                        <div class="info-group mx-5">
+                                            <label class="info-label mx-1">Lote Vacuna: 
+                                            <span class="info-value text-primary fw-bold">${vacuna.loteVacuna}</span></label>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Información adicional -->
+                                    <div class="col-md-6 d-flex">
+                                        ${vacuna.jeringa ? `
+                                        <div class="info-group mx-5">
+                                            <label class="info-label mx-1">Jeringa:</label>
+                                            <span class="info-value">${vacuna.jeringa}</span>
+                                        </div>` : ''}
+                                        
+                                        ${vacuna.numeroFrascos ? `
+                                        <div class="info-group mx-5">
+                                            <label class="info-label mx-1">N° Frascos:
+                                            <span class="info-value">${vacuna.numeroFrascos}</span></label>
+                                        </div>` : ''}
+                                    </div>
+                                </div>
+                                
+                                <!-- Lotes adicionales -->
+                                ${(vacuna.loteJeringa || vacuna.loteDiluyente || vacuna.gotero) ? `
+                                <div class="row mt-2 pt-2 border-top"> 
+                                        <h6 class="text-muted mb-1">Información de Lotes:</h6>
+                                        <div class="row">
+                                            ${vacuna.loteJeringa ? `
+                                            <div class="col-md-3">
+                                                <small >Lote Jeringa:<strong class="mx-1"> ${vacuna.loteJeringa}</strong></small>
+                                            </div>` : ''}
+                                            ${vacuna.loteDiluyente ? `
+                                            <div class="col-md-3">
+                                                <small >Lote Diluyente:<strong class="mx-1"> ${vacuna.loteDiluyente}</strong></small>
+                                            </div>` : ''}
+                                            ${vacuna.gotero ? `
+                                            <div class="col-md-3">
+                                                <small >Gotero:<strong class="mx-1"> ${vacuna.gotero}</strong></small>
+                                            </div>` : ''}
+
+                                            ${vacuna.observaciones ? `
+                                            <div class="col-md-3">
+                                                <small>Observaciones:<strong class="mx-1"> ${vacuna.observaciones}</strong></small>
+                                            </div>` : ''}
+                                        </div> 
+                                </div>` : ''} 
+                                
+                                <!-- Motivo de pérdida -->
+                                ${vacuna.marcarComoPerdida && vacuna.motivoPerdida ? `
+                                <div class="mt-3">
+                                    <div class="alert alert-warning py-2 mb-0">
+                                        <small><strong>Motivo de Pérdida:</strong> ${vacuna.motivoPerdida}</small>
+                                    </div>
+                                </div>` : ''}
+                            </div>
+                        </div>
+                    `;
                             tableBody.appendChild(row);
                         });
 

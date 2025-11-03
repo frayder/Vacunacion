@@ -833,6 +833,43 @@ namespace Highdmin.Controllers
 
             return RedirectToAction(nameof(Index));
         }
+
+         [HttpGet]
+        public async Task<IActionResult> GetInsumosByTipo(string tipo)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(tipo))
+                {
+                    return Json(new { error = "El tipo de insumo es requerido" });
+                }
+
+                var insumos = await _context.Insumos
+                    .Where(a => a.Estado && a.EmpresaId == CurrentEmpresaId && a.Tipo.ToLower() == tipo.ToLower())
+                    .OrderBy(a => a.Nombre)
+                    .Select(a => new
+                    {
+                        value = a.Id,
+                        text = a.Nombre,
+                        codigo = a.Codigo,
+                        tipo = a.Tipo,
+                        descripcion = a.Descripcion
+                    })
+                    .ToListAsync();
+
+                return Json(insumos);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { error = "Error al cargar insumos: " + ex.Message });
+            }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetJeringas()
+        {
+            return await GetInsumosByTipo("Jeringa");
+        }
     }
 }
 
