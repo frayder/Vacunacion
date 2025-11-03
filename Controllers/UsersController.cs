@@ -49,7 +49,10 @@ namespace Highdmin.Controllers
 
         public async Task<IActionResult> Create()
         {
-            ViewBag.Roles = await _context.Roles.OrderBy(r => r.Nombre).ToListAsync();
+            ViewBag.Roles = await _context.Roles
+                .Where(r => r.EmpresaId == CurrentEmpresaId)
+                .OrderBy(r => r.Nombre)
+                .ToListAsync();
             return View(new CreateUserViewModel());
         }
 
@@ -60,12 +63,24 @@ namespace Highdmin.Controllers
             Console.WriteLine("=== DEBUGGING CREATE USER WITH VIEWMODEL ===");
             Console.WriteLine("Creating user: " + (model?.UserName ?? "NULL"));
             Console.WriteLine("Password provided: " + (!string.IsNullOrEmpty(model?.Password)));
+            Console.WriteLine("Role ID: " + model?.RoleId);
             Console.WriteLine("ModelState.IsValid: " + ModelState.IsValid);
             
             if (ModelState.IsValid)
             {
                 try
                 {
+                    // Verificar que el rol existe y pertenece a la empresa actual
+                    var roleExists = await _context.Roles
+                        .AnyAsync(r => r.Id == model.RoleId && r.EmpresaId == CurrentEmpresaId);
+                    
+                    if (!roleExists)
+                    {
+                        ModelState.AddModelError("RoleId", "El rol seleccionado no es válido.");
+                        ViewBag.Roles = await _context.Roles.OrderBy(r => r.Nombre).ToListAsync();
+                        return View(model);
+                    }
+
                     // Crear el usuario desde el ViewModel
                     var user = new User
                     {
@@ -82,9 +97,21 @@ namespace Highdmin.Controllers
                     Console.WriteLine("Saving user to database...");
                     _context.Add(user);
                     await _context.SaveChangesAsync();
-                    Console.WriteLine("User saved successfully!");
                     
-                    TempData["SuccessMessage"] = "Usuario creado correctamente.";
+                    // Asignar el rol al usuario
+                    var userRole = new UserRole
+                    {
+                        UserId = user.UserId,
+                        RoleId = model.RoleId,
+                        EmpresaId = CurrentEmpresaId
+                    };
+                    
+                    _context.UserRoles.Add(userRole);
+                    await _context.SaveChangesAsync();
+                    
+                    Console.WriteLine("User and role assigned successfully!");
+                    
+                    TempData["SuccessMessage"] = "Usuario creado correctamente con el rol asignado.";
                     return RedirectToAction(nameof(Index));
                 }
                 catch (Exception ex)
@@ -118,7 +145,10 @@ namespace Highdmin.Controllers
                 Console.WriteLine("=== FIN ERRORES DE VALIDACIÓN ===");
             }
             
-            ViewBag.Roles = await _context.Roles.OrderBy(r => r.Nombre).ToListAsync();
+            ViewBag.Roles = await _context.Roles
+                .Where(r => r.EmpresaId == CurrentEmpresaId)
+                .OrderBy(r => r.Nombre)
+                .ToListAsync();
             return View(model);
         }
 
@@ -148,20 +178,44 @@ namespace Highdmin.Controllers
                 return NotFound();
             }
 
-            var user = await _context.Users.FirstOrDefaultAsync(m => m.UserId == id && m.EmpresaId == CurrentEmpresaId);
+            var user = await _context.Users
+                .Include(u => u.UserRoles)
+                .FirstOrDefaultAsync(m => m.UserId == id && m.EmpresaId == CurrentEmpresaId);
+            
             if (user == null)
             {
                 return NotFound();
             }
-            ViewBag.Roles = await _context.Roles.OrderBy(r => r.Nombre).ToListAsync();
-            return View(user);
+
+            // Obtener el rol actual del usuario
+            var currentUserRole = user.UserRoles.FirstOrDefault();
+
+            var viewModel = new EditUserViewModel
+            {
+                UserId = user.UserId,
+                UserName = user.UserName ?? string.Empty,
+                Email = user.Email ?? string.Empty,
+                RoleId = currentUserRole?.RoleId ?? 0,
+                PasswordHash = user.PasswordHash,
+                PasswordSalt = user.PasswordSalt,
+                LastPasswordChange = user.LastPasswordChange,
+                EmpresaId = user.EmpresaId,
+                IsActive = user.IsActive
+            };
+
+            ViewBag.Roles = await _context.Roles
+                .Where(r => r.EmpresaId == CurrentEmpresaId)
+                .OrderBy(r => r.Nombre)
+                .ToListAsync();
+                
+            return View(viewModel);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, User user, string newPassword)
+        public async Task<IActionResult> Edit(int id, EditUserViewModel model)
         {
-            if (id != user.UserId)
+            if (id != model.UserId)
             {
                 return NotFound();
             }
@@ -170,33 +224,75 @@ namespace Highdmin.Controllers
             {
                 try
                 {
+                    // Verificar que el rol existe y pertenece a la empresa actual
+                    var roleExists = await _context.Roles
+                        .AnyAsync(r => r.Id == model.RoleId && r.EmpresaId == CurrentEmpresaId);
+                    
+                    if (!roleExists)
+                    {
+                        ModelState.AddModelError("RoleId", "El rol seleccionado no es válido.");
+                        ViewBag.Roles = await _context.Roles
+                            .Where(r => r.EmpresaId == CurrentEmpresaId)
+                            .OrderBy(r => r.Nombre)
+                            .ToListAsync();
+                        return View(model);
+                    }
+
                     // Obtener el usuario actual de la base de datos
-                    var existingUser = await _context.Users.FirstOrDefaultAsync(u => u.UserId == id && u.EmpresaId == CurrentEmpresaId);
+                    var existingUser = await _context.Users
+                        .Include(u => u.UserRoles)
+                        .FirstOrDefaultAsync(u => u.UserId == id && u.EmpresaId == CurrentEmpresaId);
+                    
                     if (existingUser == null)
                     {
                         return NotFound();
                     }
 
                     // Actualizar campos básicos
-                    existingUser.UserName = user.UserName;
-                    existingUser.Email = user.Email;
+                    existingUser.UserName = model.UserName;
+                    existingUser.Email = model.Email;
 
                     // Si se proporcionó una nueva contraseña, actualizarla
-                    if (!string.IsNullOrEmpty(newPassword))
+                    if (!string.IsNullOrEmpty(model.NewPassword))
                     {
                         existingUser.PasswordSalt = _passwordHashService.GenerateSalt();
-                        existingUser.PasswordHash = _passwordHashService.HashPassword(newPassword, existingUser.PasswordSalt);
-                        existingUser.LastPasswordChange = DateTime.Now;
+                        existingUser.PasswordHash = _passwordHashService.HashPassword(model.NewPassword, existingUser.PasswordSalt);
+                        existingUser.LastPasswordChange = DateTime.UtcNow;
+                    }
+
+                    // Actualizar rol del usuario
+                    var currentUserRole = existingUser.UserRoles.FirstOrDefault();
+                    
+                    if (currentUserRole != null)
+                    {
+                        // Si ya tiene un rol, actualizarlo
+                        if (currentUserRole.RoleId != model.RoleId)
+                        {
+                            currentUserRole.RoleId = model.RoleId;
+                            _context.UserRoles.Update(currentUserRole);
+                        }
+                    }
+                    else
+                    {
+                        // Si no tiene rol, crear uno nuevo
+                        var newUserRole = new UserRole
+                        {
+                            UserId = existingUser.UserId,
+                            RoleId = model.RoleId,
+                            EmpresaId = CurrentEmpresaId
+                        };
+                        _context.UserRoles.Add(newUserRole);
                     }
 
                     _context.Update(existingUser);
                     await _context.SaveChangesAsync();
 
                     TempData["SuccessMessage"] = "Usuario actualizado correctamente.";
+                    return RedirectToAction(nameof(Index));
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!UserExists(user.UserId))
+                    if (!UserExists(model.UserId))
                     {
                         return NotFound();
                     }
@@ -205,10 +301,13 @@ namespace Highdmin.Controllers
                         throw;
                     }
                 }
-                return RedirectToAction(nameof(Index));
             }
-            ViewBag.Roles = await _context.Roles.OrderBy(r => r.Nombre).ToListAsync();
-            return View(user);
+
+            ViewBag.Roles = await _context.Roles
+                .Where(r => r.EmpresaId == CurrentEmpresaId)
+                .OrderBy(r => r.Nombre)
+                .ToListAsync();
+            return View(model);
         }
 
         public async Task<IActionResult> Delete(int? id)

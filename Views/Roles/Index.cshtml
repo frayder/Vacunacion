@@ -3,6 +3,7 @@
 
 @{
     ViewData["Title"] = "Gestión de Roles";
+    Layout = "~/Views/Shared/_VerticalLayout.cshtml";
 }
 
 <div class="container-fluid px-4">
@@ -65,7 +66,7 @@
                                     <i class="fas fa-users me-1"></i>
                                     Usuarios
                                 </th>
-                                <th width="150">
+                                <th width="150" class="text-center">
                                     <i class="fas fa-cogs me-1"></i>
                                     Acciones
                                 </th>
@@ -96,17 +97,18 @@
                                             <a asp-action="Details" asp-route-id="@item.Id" 
                                                class="btn btn-info btn-sm" 
                                                title="Ver detalles">
-                                                <i class="fas fa-eye"></i>
+                                                <i class="ri-eye-line"></i> 
                                             </a>
                                             <a asp-action="Edit" asp-route-id="@item.Id" 
                                                class="btn btn-warning btn-sm" 
                                                title="Editar">
                                                 <i class="fas fa-edit"></i>
+                                                <i class="ri-edit-line"></i>
                                             </a>
                                             <a asp-action="Delete" asp-route-id="@item.Id" 
                                                class="btn btn-danger btn-sm" 
                                                title="Eliminar">
-                                                <i class="fas fa-trash"></i>
+                                                <i class="ri-delete-bin-5-line"></i>
                                             </a>
                                         </div>
                                     </td>
