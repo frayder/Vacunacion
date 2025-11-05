@@ -83,7 +83,7 @@ namespace Highdmin.ViewModels
         public int? TipoCarnetId { get; set; }
 
         [Display(Name = "Vacuna")]
-        public string Vacuna { get; set; } = string.Empty;    
+        public string Vacuna { get; set; } = string.Empty;
 
         [Display(Name = "Observaciones")]
         public string Observaciones { get; set; } = string.Empty;
@@ -220,7 +220,7 @@ namespace Highdmin.ViewModels
 
         [Display(Name = "Segundo Apellido Cuidador")]
         public string? SegundoApellidoCuidador { get; set; }
-        
+
         [Display(Name = "Email Cuidador")]
         public string? EmailCuidador { get; set; }
 
@@ -265,5 +265,76 @@ namespace Highdmin.ViewModels
 
         [Display(Name = "Motivo de Pérdida")]
         public string? MotivoPerdida { get; set; }
+
+        [Display(Name = "Aseguradora")]
+        public string? AseguradoraNombre { get; set; }
+
+        [Display(Name = "Régimen de Afiliación")]
+        public string? RegimenAfiliacionNombre { get; set; }
+
+        [Display(Name = "Pertenencia Étnica")]
+        public string? PertenenciaEtnicaNombre { get; set; }
+
+        [Display(Name = "Centro de Atención")]
+        public string? CentroAtencionNombre { get; set; }
+
+        [Display(Name = "Condición Usuario/a")]
+        public string? CondicionUsuariaNombre { get; set; }
+
+        [Display(Name = "Tipo de Carnet")]
+        public string? TipoCarnetNombre { get; set; }
+
+        [Display(Name = "Vacunas Aplicadas")]
+        public List<VacunaAplicadaItemViewModel> VacunasAplicadasList { get; set; } = new();
+    }
+
+    public class VacunaAplicadaItemViewModel
+    {
+        public int Id { get; set; }
+
+        [Display(Name = "Nombre de la Vacuna")]
+        public string NombreVacuna { get; set; } = string.Empty;
+
+        [Display(Name = "Dosis")]
+        public string? Dosis { get; set; }
+
+        [Display(Name = "Lote de la Vacuna")]
+        public string LoteVacuna { get; set; } = string.Empty;
+
+        [Display(Name = "Jeringa")]
+        public string? Jeringa { get; set; }
+
+        [Display(Name = "Lote Jeringa")]
+        public string? LoteJeringa { get; set; }
+
+        [Display(Name = "Lote Diluyente")]
+        public string? LoteDiluyente { get; set; }
+
+        [Display(Name = "Gotero")]
+        public string? Gotero { get; set; }
+
+        [Display(Name = "Número de Frascos")]
+        public int? NumeroFrascos { get; set; }
+
+        [Display(Name = "Observaciones")]
+        public string? Observaciones { get; set; }
+
+        [Display(Name = "Fecha de Aplicación")]
+        public DateTime FechaAplicacion { get; set; }
+
+        [Display(Name = "Marcar como Perdida")]
+        public bool MarcarComoPerdida { get; set; }
+
+        [Display(Name = "Motivo de Pérdida")]
+        public string? MotivoPerdida { get; set; }
+
+        [Display(Name = "Insumo")]
+        public string? InsumoNombre { get; set; }
+
+        [Display(Name = "Código Insumo")]
+        public string? InsumoCodigo { get; set; }
+
+        [Display(Name = "Tipo Insumo")]
+        public string? InsumoTipo { get; set; }
     }
 }

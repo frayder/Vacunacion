@@ -110,43 +110,120 @@
     </div>
 </div>
 
+@section Styles {
+    <style>
+        /* Estilos personalizados para tabs mejorados */
+        .nav-pills .nav-link {
+            border-radius: 0.5rem;
+            margin: 0 0.25rem;
+            transition: all 0.3s ease;
+            background: transparent;
+            border: 2px solid transparent;
+            color: #6c757d;
+            font-weight: 500;
+            min-height: 48px;
+        }
+        
+        .nav-pills .nav-link:hover {
+            background-color: rgba(13, 110, 253, 0.1);
+            color: #0d6efd;
+            border-color: rgba(13, 110, 253, 0.2);
+            transform: translateY(-1px);
+        }
+        
+        .nav-pills .nav-link.active {
+            background: linear-gradient(135deg, #0d6efd 0%, #0056b3 100%);
+            color: white;
+            border-color: #0d6efd;
+            box-shadow: 0 4px 12px rgba(13, 110, 253, 0.3);
+        }
+        
+        .nav-pills .nav-link i {
+            font-size: 1.1rem;
+        }
+        
+        .nav-border-top-primary .nav-link.active::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60%;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, #0d6efd, transparent);
+            border-radius: 0 0 3px 3px;
+        }
+        
+        .nav-border-top-primary .nav-link {
+            position: relative;
+        }
+        
+        .tab-content {
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        
+        @@keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Responsivo para móviles */
+        @@media (max-width: 576px) {
+            .nav-pills .nav-link {
+                margin: 0.125rem;
+                font-size: 0.875rem;
+            }
+        }
+    </style>
+}
+
 <!-- Main Content Tabs -->
 <div class="row">
     <div class="col-lg-12">
         <div class="card">
-            <div class="card-header">
-                <ul class="nav nav-tabs-custom card-header-tabs border-bottom-0" role="tablist">
-                    <li class="nav-item">
-                        <a class="nav-link active" data-bs-toggle="tab" href="#personal-info" role="tab">
-                            <i class="fas fa-user"></i> Información Personal
+            <div class="card-header border-0 pb-0">
+                <ul class="nav nav-pills nav-justified nav-border-top nav-border-top-primary mb-3" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <a class="nav-link active d-flex align-items-center justify-content-center" data-bs-toggle="tab" href="#personal-info" role="tab" aria-controls="personal-info" aria-selected="true">
+                            <i class="ri-user-line me-1"></i>
+                            <span class="d-none d-sm-inline">Información Personal</span>
+                            <span class="d-sm-none">Personal</span>
                         </a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" data-bs-toggle="tab" href="#health-info" role="tab">
-                            <i class="fas fa-heartbeat"></i> Información de Salud
+                    <li class="nav-item" role="presentation">
+                        <a class="nav-link d-flex align-items-center justify-content-center" data-bs-toggle="tab" href="#health-info" role="tab" aria-controls="health-info" aria-selected="false">
+                            <i class="ri-heart-pulse-line me-1"></i>
+                            <span class="d-none d-sm-inline">Información de Salud</span>
+                            <span class="d-sm-none">Salud</span>
                         </a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" data-bs-toggle="tab" href="#vaccine-info" role="tab">
-                            <i class="fas fa-syringe"></i> Información de Vacunación
+                    <li class="nav-item" role="presentation">
+                        <a class="nav-link d-flex align-items-center justify-content-center" data-bs-toggle="tab" href="#vaccine-info" role="tab" aria-controls="vaccine-info" aria-selected="false">
+                            <i class="ri-vaccine-line me-1"></i>
+                            <span class="d-none d-sm-inline">Información de Vacunación</span>
+                            <span class="d-sm-none">Vacunación</span>
                         </a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" data-bs-toggle="tab" href="#caregiver-info" role="tab">
-                            <i class="fas fa-user-friends"></i> Información del Cuidador
+                    <li class="nav-item" role="presentation">
+                        <a class="nav-link d-flex align-items-center justify-content-center" data-bs-toggle="tab" href="#caregiver-info" role="tab" aria-controls="caregiver-info" aria-selected="false">
+                            <i class="ri-parent-line me-1"></i>
+                            <span class="d-none d-sm-inline">Información del Cuidador</span>
+                            <span class="d-sm-none">Cuidador</span>
                         </a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" data-bs-toggle="tab" href="#additional-info" role="tab">
-                            <i class="fas fa-info-circle"></i> Información Adicional
+                    <li class="nav-item" role="presentation">
+                        <a class="nav-link d-flex align-items-center justify-content-center" data-bs-toggle="tab" href="#additional-info" role="tab" aria-controls="additional-info" aria-selected="false">
+                            <i class="ri-information-line me-1"></i>
+                            <span class="d-none d-sm-inline">Información Adicional</span>
+                            <span class="d-sm-none">Adicional</span>
                         </a>
                     </li>
                 </ul>
             </div>
-            <div class="card-body">
-                <div class="tab-content">
+            <div class="card-body pt-0">
+                <div class="tab-content text-muted">
                     <!-- Personal Information Tab -->
-                    <div class="tab-pane active" id="personal-info" role="tabpanel">
+                    <div class="tab-pane fade show active" id="personal-info" role="tabpanel" aria-labelledby="personal-info-tab">
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="table-responsive">
@@ -232,39 +309,107 @@
                     </div>
 
                     <!-- Health Information Tab -->
-                    <div class="tab-pane" id="health-info" role="tabpanel">
+                    <div class="tab-pane fade" id="health-info" role="tabpanel" aria-labelledby="health-info-tab">
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="table-responsive">
                                     <table class="table table-borderless table-sm">
                                         <tbody>
                                             <tr>
-                                                <td class="fw-medium text-muted">Aseguradora ID:</td>
-                                                <td>@Model.AseguradoraId</td>
+                                                <td class="fw-medium text-muted">Aseguradora:</td>
+                                                <td>
+                                                    @if (!string.IsNullOrEmpty(Model.AseguradoraNombre))
+                                                    {
+                                                        <span class="badge bg-info-subtle text-info">@Model.AseguradoraNombre</span>
+                                                        <small class="text-muted d-block">ID: @Model.AseguradoraId</small>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="text-muted">No asignada</span>
+                                                    }
+                                                </td>
                                             </tr>
                                             <tr>
-                                                <td class="fw-medium text-muted">Régimen de Afiliación ID:</td>
-                                                <td>@Model.RegimenAfiliacionId</td>
+                                                <td class="fw-medium text-muted">Régimen de Afiliación:</td>
+                                                <td>
+                                                    @if (!string.IsNullOrEmpty(Model.RegimenAfiliacionNombre))
+                                                    {
+                                                        <span class="badge bg-primary-subtle text-primary">@Model.RegimenAfiliacionNombre</span>
+                                                        <small class="text-muted d-block">ID: @Model.RegimenAfiliacionId</small>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="text-muted">No asignado</span>
+                                                    }
+                                                </td>
                                             </tr>
                                             <tr>
-                                                <td class="fw-medium text-muted">Pertenencia Étnica ID:</td>
-                                                <td>@Model.PertenenciaEtnicaId</td>
+                                                <td class="fw-medium text-muted">Pertenencia Étnica:</td>
+                                                <td>
+                                                    @if (!string.IsNullOrEmpty(Model.PertenenciaEtnicaNombre))
+                                                    {
+                                                        <span class="badge bg-success-subtle text-success">@Model.PertenenciaEtnicaNombre</span>
+                                                        <small class="text-muted d-block">ID: @Model.PertenenciaEtnicaId</small>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="text-muted">No asignada</span>
+                                                    }
+                                                </td>
                                             </tr>
                                             <tr>
-                                                <td class="fw-medium text-muted">Centro de Atención ID:</td>
-                                                <td>@Model.CentroAtencionId</td>
+                                                <td class="fw-medium text-muted">Centro de Atención:</td>
+                                                <td>
+                                                    @if (!string.IsNullOrEmpty(Model.CentroAtencionNombre))
+                                                    {
+                                                        <span class="badge bg-warning-subtle text-warning">@Model.CentroAtencionNombre</span>
+                                                        <small class="text-muted d-block">ID: @Model.CentroAtencionId</small>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="text-muted">No asignado</span>
+                                                    }
+                                                </td>
                                             </tr>
                                             <tr>
-                                                <td class="fw-medium text-muted">Condición Usuaria ID:</td>
-                                                <td>@Model.CondicionUsuariaId</td>
+                                                <td class="fw-medium text-muted">Condición Usuario/a:</td>
+                                                <td>
+                                                    @if (!string.IsNullOrEmpty(Model.CondicionUsuariaNombre))
+                                                    {
+                                                        <span class="badge bg-secondary-subtle text-secondary">@Model.CondicionUsuariaNombre</span>
+                                                        <small class="text-muted d-block">ID: @Model.CondicionUsuariaId</small>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="text-muted">No asignada</span>
+                                                    }
+                                                </td>
                                             </tr>
                                             <tr>
                                                 <td class="fw-medium text-muted">Peso del Infante:</td>
-                                                <td>@Model.PesoInfante kg</td>
+                                                <td>
+                                                    @if (Model.PesoInfante.HasValue)
+                                                    {
+                                                        <span class="fw-semibold text-primary">@Model.PesoInfante.Value kg</span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="text-muted">No registrado</span>
+                                                    }
+                                                </td>
                                             </tr>
                                             <tr>
                                                 <td class="fw-medium text-muted">Edad Gestacional:</td>
-                                                <td>@Model.EdadGestacional semanas</td>
+                                                <td>
+                                                    @if (Model.EdadGestacional.HasValue)
+                                                    {
+                                                        <span class="fw-semibold text-primary">@Model.EdadGestacional.Value semanas</span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="text-muted">No registrada</span>
+                                                    }
+                                                </td>
                                             </tr>
                                         </tbody>
                                     </table>
@@ -276,11 +421,29 @@
                                         <tbody>
                                             <tr>
                                                 <td class="fw-medium text-muted">Lugar de Parto:</td>
-                                                <td>@Model.LugardeParto</td>
+                                                <td>
+                                                    @if (!string.IsNullOrEmpty(Model.LugardeParto))
+                                                    {
+                                                        <span class="fw-semibold">@Model.LugardeParto</span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="text-muted">No registrado</span>
+                                                    }
+                                                </td>
                                             </tr>
                                             <tr>
                                                 <td class="fw-medium text-muted">Estatus Migratorio:</td>
-                                                <td>@Model.EstatusMigratorio</td>
+                                                <td>
+                                                    @if (!string.IsNullOrEmpty(Model.EstatusMigratorio))
+                                                    {
+                                                        <span class="fw-semibold">@Model.EstatusMigratorio</span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="text-muted">No registrado</span>
+                                                    }
+                                                </td>
                                             </tr>
                                             <tr>
                                                 <td class="fw-medium text-muted">Desplazado:</td>
@@ -311,7 +474,7 @@
                         <!-- Medical Conditions -->
                         <div class="row mt-4">
                             <div class="col-12">
-                                <h6 class="mb-3">Condiciones Médicas</h6>
+                                <h6 class="mb-3"><i class="ri-heart-pulse-line me-1 text-danger"></i>Condiciones Médicas</h6>
                                 <div class="table-responsive">
                                     <table class="table table-borderless table-sm">
                                         <tbody>
@@ -331,27 +494,42 @@
                     </div>
 
                     <!-- Vaccine Information Tab -->
-                    <div class="tab-pane" id="vaccine-info" role="tabpanel">
-                        <div class="row">
+                    <div class="tab-pane fade" id="vaccine-info" role="tabpanel" aria-labelledby="vaccine-info-tab">
+                        <!-- Información General de Vacunación -->
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <h6 class="mb-3"><i class="ri-information-line me-1 text-primary"></i>Información General</h6>
+                            </div>
                             <div class="col-md-6">
                                 <div class="table-responsive">
                                     <table class="table table-borderless table-sm">
                                         <tbody>
                                             <tr>
-                                                <td class="fw-medium text-muted">Tipo de Carnet ID:</td>
-                                                <td>@Model.TipoCarnetId</td>
-                                            </tr>
-                                            <tr>
-                                                <td class="fw-medium text-muted">Vacuna:</td>
-                                                <td><span class="badge bg-primary-subtle text-primary fs-6">@Model.Vacuna</span></td>
-                                            </tr>
-                                            <tr>
-                                                <td class="fw-medium text-muted">Dosis:</td>
-                                                <td>@Model.Dosis</td>
+                                                <td class="fw-medium text-muted">Tipo de Carnet:</td>
+                                                <td>
+                                                    @if (!string.IsNullOrEmpty(Model.TipoCarnetNombre))
+                                                    {
+                                                        <span class="badge bg-info-subtle text-info">@Model.TipoCarnetNombre</span>
+                                                        <small class="text-muted d-block">ID: @Model.TipoCarnetId</small>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="text-muted">No asignado</span>
+                                                    }
+                                                </td>
                                             </tr>
                                             <tr>
                                                 <td class="fw-medium text-muted">Fecha de Atención:</td>
-                                                <td>@Model.FechaAtencion?.ToString("dd/MM/yyyy")</td>
+                                                <td>
+                                                    @if (Model.FechaAtencion.HasValue)
+                                                    {
+                                                        <span class="fw-semibold text-primary">@Model.FechaAtencion.Value.ToString("dd/MM/yyyy")</span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="text-muted">No registrada</span>
+                                                    }
+                                                </td>
                                             </tr>
                                             <tr>
                                                 <td class="fw-medium text-muted">Esquema Completo:</td>
@@ -367,7 +545,16 @@
                                         <tbody>
                                             <tr>
                                                 <td class="fw-medium text-muted">Responsable:</td>
-                                                <td>@Model.Responsable</td>
+                                                <td>
+                                                    @if (!string.IsNullOrEmpty(Model.Responsable))
+                                                    {
+                                                        <span class="fw-semibold">@Model.Responsable</span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="text-muted">No asignado</span>
+                                                    }
+                                                </td>
                                             </tr>
                                             <tr>
                                                 <td class="fw-medium text-muted">Ingreso PAIWEB:</td>
@@ -375,7 +562,16 @@
                                             </tr>
                                             <tr>
                                                 <td class="fw-medium text-muted">Centro de Salud Responsable:</td>
-                                                <td>@Model.CentroSaludResponsable</td>
+                                                <td>
+                                                    @if (!string.IsNullOrEmpty(Model.CentroSaludResponsable))
+                                                    {
+                                                        <span class="fw-semibold">@Model.CentroSaludResponsable</span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="text-muted">No asignado</span>
+                                                    }
+                                                </td>
                                             </tr>
                                             @if (Model.IngresoPAIWEB == false)
                                             {
@@ -390,12 +586,156 @@
                             </div>
                         </div>
 
-                        <!-- Observations -->
+                        <!-- Tabla de Vacunas Aplicadas -->
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <h6 class="mb-0"><i class="ri-vaccine-line me-1 text-success"></i>Vacunas Aplicadas</h6>
+                                    <span class="badge bg-primary-subtle text-primary">
+                                        Total: @(Model.VacunasAplicadasList?.Count ?? 0)
+                                    </span>
+                                </div>
+                                
+                                @if (Model.VacunasAplicadasList != null && Model.VacunasAplicadasList.Any())
+                                {
+                                    <div class="table-responsive">
+                                        <table class="table table-striped table-hover align-middle">
+                                            <thead class="table-light">
+                                                <tr>
+                                                    <th class="fw-semibold">#</th>
+                                                    <th class="fw-semibold">Vacuna/Insumo</th>
+                                                    <th class="fw-semibold">Dosis</th>
+                                                    <th class="fw-semibold">Lotes</th>
+                                                    <th class="fw-semibold">Fecha Aplicación</th>
+                                                    <th class="fw-semibold">Estado</th>
+                                                    <th class="fw-semibold">Observaciones</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @for (int i = 0; i < Model.VacunasAplicadasList.Count; i++)
+                                                {
+                                                    var vacuna = Model.VacunasAplicadasList[i];
+                                                    <tr>
+                                                        <td class="fw-medium">@(i + 1)</td>
+                                                        <td>
+                                                            <div class="d-flex flex-column">
+                                                                <span class="fw-semibold text-primary">@vacuna.NombreVacuna</span>
+                                                                @if (!string.IsNullOrEmpty(vacuna.InsumoNombre))
+                                                                {
+                                                                    <small class="text-muted">
+                                                                        <i class="ri-capsule-line me-1"></i>@vacuna.InsumoNombre
+                                                                        @if (!string.IsNullOrEmpty(vacuna.InsumoCodigo))
+                                                                        {
+                                                                            <span class="badge bg-secondary-subtle text-secondary ms-1">@vacuna.InsumoCodigo</span>
+                                                                        }
+                                                                    </small>
+                                                                }
+                                                                @if (!string.IsNullOrEmpty(vacuna.InsumoTipo))
+                                                                {
+                                                                    <small class="text-info">Tipo: @vacuna.InsumoTipo</small>
+                                                                }
+                                                            </div>
+                                                        </td>
+                                                        <td>
+                                                            @if (!string.IsNullOrEmpty(vacuna.Dosis))
+                                                            {
+                                                                <span class="badge bg-info-subtle text-info">@vacuna.Dosis</span>
+                                                            }
+                                                            else
+                                                            {
+                                                                <span class="text-muted">-</span>
+                                                            }
+                                                        </td>
+                                                        <td>
+                                                            <div class="d-flex flex-column gap-1">
+                                                                @if (!string.IsNullOrEmpty(vacuna.LoteVacuna))
+                                                                {
+                                                                    <small><strong>Vacuna:</strong> <code>@vacuna.LoteVacuna</code></small>
+                                                                }
+                                                                @if (!string.IsNullOrEmpty(vacuna.LoteJeringa))
+                                                                {
+                                                                    <small><strong>Jeringa:</strong> <code>@vacuna.LoteJeringa</code></small>
+                                                                }
+                                                                @if (!string.IsNullOrEmpty(vacuna.LoteDiluyente))
+                                                                {
+                                                                    <small><strong>Diluyente:</strong> <code>@vacuna.LoteDiluyente</code></small>
+                                                                }
+                                                                @if (!string.IsNullOrEmpty(vacuna.Gotero))
+                                                                {
+                                                                    <small><strong>Gotero:</strong> @vacuna.Gotero</small>
+                                                                }
+                                                                @if (vacuna.NumeroFrascos.HasValue && vacuna.NumeroFrascos > 0)
+                                                                {
+                                                                    <small><strong>Frascos:</strong> @vacuna.NumeroFrascos</small>
+                                                                }
+                                                            </div>
+                                                        </td>
+                                                        <td>
+                                                            <div class="d-flex flex-column">
+                                                                <span class="fw-semibold">@vacuna.FechaAplicacion.ToString("dd/MM/yyyy")</span>
+                                                                <small class="text-muted">@vacuna.FechaAplicacion.ToString("HH:mm")</small>
+                                                            </div>
+                                                        </td>
+                                                        <td>
+                                                            @if (vacuna.MarcarComoPerdida)
+                                                            {
+                                                                <span class="badge bg-danger-subtle text-danger">
+                                                                    <i class="ri-close-circle-line me-1"></i>Perdida
+                                                                </span>
+                                                                @if (!string.IsNullOrEmpty(vacuna.MotivoPerdida))
+                                                                {
+                                                                    <div class="mt-1">
+                                                                        <small class="text-danger">@vacuna.MotivoPerdida</small>
+                                                                    </div>
+                                                                }
+                                                            }
+                                                            else
+                                                            {
+                                                                <span class="badge bg-success-subtle text-success">
+                                                                    <i class="ri-check-circle-line me-1"></i>Aplicada
+                                                                </span>
+                                                            }
+                                                        </td>
+                                                        <td>
+                                                            @if (!string.IsNullOrEmpty(vacuna.Observaciones))
+                                                            {
+                                                                <div class="text-truncate" style="max-width: 200px;" title="@vacuna.Observaciones">
+                                                                    <i class="ri-sticky-note-line me-1 text-warning"></i>
+                                                                    @vacuna.Observaciones
+                                                                </div>
+                                                            }
+                                                            else
+                                                            {
+                                                                <span class="text-muted">-</span>
+                                                            }
+                                                        </td>
+                                                    </tr>
+                                                }
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="text-center py-5">
+                                        <div class="avatar-lg mx-auto mb-3">
+                                            <span class="avatar-title bg-light text-muted rounded-circle fs-2">
+                                                <i class="ri-vaccine-line"></i>
+                                            </span>
+                                        </div>
+                                        <h6 class="text-muted">No hay vacunas aplicadas registradas</h6>
+                                        <p class="text-muted mb-0">Las vacunas aplicadas aparecerán aquí cuando se registren.</p>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+
+                        <!-- Observaciones Generales -->
                         @if (!string.IsNullOrEmpty(Model.Observaciones))
                         {
                             <div class="row mt-4">
                                 <div class="col-12">
-                                    <h6 class="mb-3">Observaciones</h6>
+                                    <h6 class="mb-3"><i class="ri-information-line me-1 text-info"></i>Observaciones Generales</h6>
                                     <div class="alert alert-info">
                                         <i class="ri-information-line me-2"></i>
                                         @Model.Observaciones
@@ -408,7 +748,7 @@
                         {
                             <div class="row mt-3">
                                 <div class="col-12">
-                                    <h6 class="mb-3">Notas Finales</h6>
+                                    <h6 class="mb-3"><i class="ri-sticky-note-line me-1 text-warning"></i>Notas Finales</h6>
                                     <div class="alert alert-warning">
                                         <i class="ri-sticky-note-line me-2"></i>
                                         @Model.NotasFinales
@@ -419,7 +759,7 @@
                     </div>
 
                     <!-- Caregiver Information Tab -->
-                    <div class="tab-pane" id="caregiver-info" role="tabpanel">
+                    <div class="tab-pane fade" id="caregiver-info" role="tabpanel" aria-labelledby="caregiver-info-tab">
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="table-responsive">
@@ -497,7 +837,7 @@
                     </div>
 
                     <!-- Additional Information Tab -->
-                    <div class="tab-pane" id="additional-info" role="tabpanel">
+                    <div class="tab-pane fade" id="additional-info" role="tabpanel" aria-labelledby="additional-info-tab">
                         <div class="row">
                             <div class="col-md-6">
                                 <h6 class="mb-3">Ubicación</h6>

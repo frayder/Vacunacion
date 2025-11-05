@@ -694,6 +694,14 @@ namespace Highdmin.Controllers
         public async Task<IActionResult> Details(int id)
         {
             var registro = await _context.RegistrosVacunacion
+                .Include(r => r.Aseguradora)
+                .Include(r => r.RegimenAfiliacion)
+                .Include(r => r.PertenenciaEtnica)
+                .Include(r => r.CentroAtencion)
+                .Include(r => r.CondicionUsuaria)
+                .Include(r => r.TipoCarnet)
+                .Include(r => r.VacunasAplicadas)
+                .ThenInclude(va => va.Insumo)
                 .FirstOrDefaultAsync(r => r.Id == id);
 
             if (registro == null)
@@ -723,6 +731,16 @@ namespace Highdmin.Controllers
                 CentroAtencionId = registro.CentroAtencionId,
                 CondicionUsuariaId = registro.CondicionUsuariaId,
                 TipoCarnetId = registro.TipoCarnetId,
+
+                // Nombres de las entidades relacionadas
+                AseguradoraNombre = registro.Aseguradora?.Nombre,
+                RegimenAfiliacionNombre = registro.RegimenAfiliacion?.Nombre,
+                PertenenciaEtnicaNombre = registro.PertenenciaEtnica?.Nombre,
+                CentroAtencionNombre = registro.CentroAtencion?.Nombre,
+                CondicionUsuariaNombre = registro.CondicionUsuaria?.Nombre,
+                TipoCarnetNombre = registro.TipoCarnet?.Nombre,
+
+
                 Vacuna = registro.Vacuna,
                 Observaciones = registro.Observaciones,
                 NotasFinales = registro.NotasFinales,
@@ -774,7 +792,30 @@ namespace Highdmin.Controllers
                 IngresoPAIWEB = registro.IngresoPAIWEB,
                 CentroSaludResponsable = registro.CentroSaludResponsable,
                 MotivoNoIngresoPAIWEB = registro.MotivoNoIngresoPAIWEB,
-                NombreCompleto = $"{registro.PrimerNombre} {registro.SegundoNombre} {registro.PrimerApellido} {registro.SegundoApellido}".Trim()
+                NombreCompleto = $"{registro.PrimerNombre} {registro.SegundoNombre} {registro.PrimerApellido} {registro.SegundoApellido}".Trim(),
+                VacunasAplicadasList = registro.VacunasAplicadas
+                    .Where(va => va.Activo)
+                    .Select(va => new VacunaAplicadaItemViewModel
+                    {
+                        Id = va.Id,
+                        NombreVacuna = va.NombreVacuna,
+                        Dosis = va.Dosis,
+                        LoteVacuna = va.LoteVacuna,
+                        Jeringa = va.Jeringa,
+                        LoteJeringa = va.LoteJeringa,
+                        LoteDiluyente = va.LoteDiluyente,
+                        Gotero = va.Gotero,
+                        NumeroFrascos = va.NumeroFrascos,
+                        Observaciones = va.Observaciones,
+                        FechaAplicacion = va.FechaAplicacion,
+                        MarcarComoPerdida = va.MarcarComoPerdida,
+                        MotivoPerdida = va.MotivoPerdida,
+                        InsumoNombre = va.Insumo?.Nombre,
+                        InsumoCodigo = va.Insumo?.Codigo,
+                        InsumoTipo = va.Insumo?.Tipo
+                    })
+                    .OrderByDescending(va => va.FechaAplicacion)
+                    .ToList()
             };
 
             return View(viewModel);
@@ -834,7 +875,7 @@ namespace Highdmin.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-         [HttpGet]
+        [HttpGet]
         public async Task<IActionResult> GetInsumosByTipo(string tipo)
         {
             try
@@ -922,9 +963,9 @@ public class JsonNullableBooleanConverter : JsonConverter<bool?>
                 string? stringValue = reader.GetString();
                 if (bool.TryParse(stringValue, out bool boolValue))
                     return boolValue;
-                if (stringValue?.ToLower() == "true" || stringValue == "1")
+                if (stringValue?.ToLower() == "true" || stringValue == "1" || stringValue?.ToLower() == "si")
                     return true;
-                if (stringValue?.ToLower() == "false" || stringValue == "0")
+                if (stringValue?.ToLower() == "false" || stringValue == "0" || stringValue?.ToLower() == "no")
                     return false;
                 if (string.IsNullOrEmpty(stringValue))
                     return null;

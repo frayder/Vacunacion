@@ -222,7 +222,7 @@
                                 <th class="sort" data-sort="vacunas">Vacunas Aplicadas</th> 
                                 <th class="sort text-center" data-sort="estado">Ingreso PAIWEB</th>
                                 <th class="sort" data-sort="fecha">Fecha Registro</th>
-                                <th>Acciones</th>
+                                <th align="center">Acciones</th>
                             </tr>
                         </thead>
                         <tbody class="list form-check-all">
@@ -246,17 +246,14 @@
                                             } 
                                         </td>
                                         <td class="fecha">@registro.FechaRegistro</td>
-                                        @if (Model.CanUpdate || Model.CanDelete)
-                                        {
-                                            <td>
-                                                @await Component.InvokeAsync("ActionButtons", 
-                                                    ActionButtonsHelper
-                                                        .CreateDefault(registro.Id, "RegistroVacunacion", $"Código: {registro.Consecutivo}")
-                                                        .WithEdit(Model.CanUpdate)
-                                                        .WithDelete(Model.CanDelete, "¿Está seguro de que desea eliminar este registro de vacunación?")
-                                                )
-                                            </td>
-                                        }  
+                                        <td align="center">
+                                             @* //Acciones     *@
+                                            <div class="d-flex gap-2">
+                                                <a asp-action="Details" asp-route-id="@registro.Id" class="btn btn-sm btn-outline-primary" title="Ver detalles">
+                                                    <i class="ri-eye-line"></i>
+                                                </a> 
+                                            </div>
+                                        </td> 
                                     </tr>
                                 }
                             }

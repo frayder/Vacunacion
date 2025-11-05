@@ -456,12 +456,8 @@ namespace Highdmin.Controllers
                             insumo.Nombre = viewModel.Nombre;
                             insumo.Tipo = viewModel.Tipo;
                             insumo.Descripcion = viewModel.Descripcion;
-                            insumo.Estado = viewModel.Estado;
-                            insumo.RangoDosis = GenerarResumenRangos(viewModel.ConfiguracionesRango);
-
-                            // Eliminar configuraciones existentes
-                            _context.ConfiguracionesRangoInsumo.RemoveRange(insumo.ConfiguracionesRango);
-
+                            insumo.Estado = viewModel.Estado; 
+                            
                             // Agregar nuevas configuraciones
                             if (viewModel.ConfiguracionesRango != null && viewModel.ConfiguracionesRango.Any())
                             {
@@ -820,24 +816,6 @@ namespace Highdmin.Controllers
                             throw new InvalidOperationException("La edad máxima debe ser mayor que la edad mínima considerando las unidades de medida");
                         }
 
-                        // 4. VERIFICAR SOLAPAMIENTO CON CONFIGURACIONES EXISTENTES
-                        var configuracionesExistentes = await _context.ConfiguracionesRangoInsumo
-                            .Where(cr => cr.InsumoId == request.InsumoId && cr.Estado)
-                            .ToListAsync(); // Traer a memoria para poder usar ConvertirADias
-
-                        foreach (var configExistente in configuracionesExistentes)
-                        {
-                            var minExistenteDias = ConvertirADias(configExistente.EdadMinima, configExistente.UnidadMedidaEdadMinima);
-                            var maxExistenteDias = ConvertirADias(configExistente.EdadMaxima, configExistente.UnidadMedidaEdadMaxima);
-
-                            // Verificar solapamiento
-                            if ((edadMinEnDias >= minExistenteDias && edadMinEnDias < maxExistenteDias) ||
-                                (edadMaxEnDias > minExistenteDias && edadMaxEnDias <= maxExistenteDias) ||
-                                (edadMinEnDias <= minExistenteDias && edadMaxEnDias >= maxExistenteDias))
-                            {
-                                throw new InvalidOperationException($"El rango de edad se solapa con una configuración existente: {configExistente.DescripcionRango}");
-                            }
-                        }
 
                         // 5. CREAR LA NUEVA CONFIGURACIÓN
                         var configuracionRango = new ConfiguracionRangoInsumo

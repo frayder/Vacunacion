@@ -35,11 +35,11 @@
                         </div>
                         <div class="step-indicator" data-step="4">
                             <div class="step-circle">4</div>
-                            <span class="step-label">Condición Usuario</span>
+                            <span class="step-label">Condición Usuaria</span>
                         </div>
                         <div class="step-indicator" data-step="5">
                             <div class="step-circle">5</div>
-                            <span class="step-label">Médico/Cuidador</span>
+                            <span class="step-label">Madre /Cuidador</span>
                         </div>
                         <div class="step-indicator" data-step="6">
                             <div class="step-circle">6</div>
@@ -561,7 +561,6 @@
                 const selectedOption = vacunaSelect.selectedOptions[0];
                 const dosisSelectContainer = document.getElementById('dosisSelectContainer');
                 const sinRangoDosisContainer = document.getElementById('sinRangoDosisContainer');
-
                 if (selectedOption && dosisSelectContainer && sinRangoDosisContainer) {
                     const rangoDosis = selectedOption.getAttribute('data-rango-dosis');
 
@@ -1665,9 +1664,11 @@
             }
 
             // Función para limpiar el formulario después de agregar una vacuna
-            function limpiarFormularioVacuna() {
-                // Limpiar selects
-                document.getElementById('VacunaSeleccionada').value = '';
+            function limpiarFormularioVacuna() { 
+
+                const vacunaSelect = document.querySelector('select[name="Vacuna"]');
+                if (vacunaSelect) vacunaSelect.value = '';
+ 
                 const dosisSelect = document.querySelector('select[name="Dosis"]');
                 if (dosisSelect) dosisSelect.value = '';
 
@@ -1691,11 +1692,7 @@
 
                 // Ocultar sección de datos de vacuna
                 const datosVacuna = document.getElementById('datosVacunaSeleccionada');
-                if (datosVacuna) datosVacuna.style.display = 'none';
-
-                // Ocultar detalles de vacuna
-                const detallesVacuna = document.getElementById('detallesVacuna');
-                if (detallesVacuna) detallesVacuna.style.display = 'none';
+                if (datosVacuna) datosVacuna.style.display = 'none'; 
             }
 
             // Función para eliminar vacuna
@@ -2391,8 +2388,7 @@
                 try {
                     const url = `/Pacientes/BuscarPorIdentificacion?identificacion=${encodeURIComponent(identificacion)}`;
                     const resp = await fetch(url, { method: 'GET', headers: { 'Accept': 'application/json' } });
-                    if (!resp.ok) {
-                        console.error('Respuesta no OK', resp.status);
+                    if (!resp.ok) { 
                         alert('Error al consultar el paciente.');
                         return;
                     }
@@ -2425,6 +2421,8 @@
                         const vm = el.parentElement?.querySelector('.validation-message');
                         if (vm) vm.style.display = 'none';
                     });
+
+                    configurarCalculoEdad();
 
                 } catch (err) {
                     console.error('Error consultando paciente:', err);

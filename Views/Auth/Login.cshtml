@@ -1,117 +1,489 @@
 @{
     Layout = "~/Views/Shared/_BaseLayout.cshtml";
-    ViewBag.Title = "Login In";
+    ViewBag.Title = "Iniciar Sesión - VaccinePro";
 }
 
-<div class="auth-bg d-flex min-vh-100 justify-content-center align-items-center">
-    <div class="row g-0 justify-content-center w-100 m-xxl-5 px-xxl-4 m-3">
-        <div class="col-xl-4 col-lg-5 col-md-6">
-            <div class="card overflow-hidden text-center h-100 p-xxl-4 p-3 mb-0">
-                
-                <div  class="avatar-md mx-auto mb-2 mt-3">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                        class="lucide lucide-syringe h-8 w-8 text-[#2E37A4]" aria-hidden="true">
-                        <path d="m18 2 4 4"></path>
-                        <path d="m17 7 3-3"></path>
-                        <path d="M19 9 8.7 19.3c-1 1-2.5 1-3.4 0l-.6-.6c-1-1-1-2.5 0-3.4L15 5"></path>
-                        <path d="m9 11 4 4"></path>
-                        <path d="m5 19-3 3"></path>
-                        <path d="m14 4 6 6"></path>
-                    </svg>
-                </div>
+<style>
+    :root {
+        --primary-color: #2E37A4;
+        --primary-gradient: linear-gradient(135deg, #2E37A4 0%, #3b45b9 100%);
+        --secondary-color: #f8f9ff;
+        --accent-color: #4CAF50;
+        --text-primary: #2c3e50;
+        --text-secondary: #6c757d;
+        --border-color: #e1e5e9;
+        --shadow-light: 0 0 35px rgba(46, 55, 164, 0.1);
+        --shadow-medium: 0 10px 40px rgba(46, 55, 164, 0.15);
+    }
 
-                <h4 class="fw-semibold mb-2 fs-18">Sistema de Gestión de Vacunación</h4>
+    .auth-container {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        position: relative;
+        overflow: hidden;
+    }
 
-                <p class="text-muted mb-4">Ingrese sus credenciales para acceder.</p>
+    .auth-container::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="white" opacity="0.1"/><circle cx="75" cy="25" r="1" fill="white" opacity="0.08"/><circle cx="50" cy="50" r="1" fill="white" opacity="0.12"/><circle cx="25" cy="75" r="1" fill="white" opacity="0.1"/><circle cx="75" cy="75" r="1" fill="white" opacity="0.09"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+        animation: float 20s ease-in-out infinite;
+    }
 
-                <form method="post" asp-action="Login" asp-controller="Auth" class="text-start mb-3">
-                    @Html.AntiForgeryToken()
-                    <div class="mb-3">
-                        <label class="form-label" for="nombreUsuario">Usuario o Email</label>
-                        <input type="text" id="nombreUsuario" name="nombreUsuario" class="form-control"
-                            placeholder="Ingrese su usuario o email" required>
-                    </div>
+    @@keyframes float {
+        0%, 100% { transform: translateY(0px) rotate(0deg); }
+        33% { transform: translateY(-10px) rotate(1deg); }
+        66% { transform: translateY(5px) rotate(-1deg); }
+    }
 
-                    <div class="mb-3">
-                        <label class="form-label" for="password">Contraseña</label>
-                        <input type="password" id="password" name="password" class="form-control"
-                            placeholder="Ingrese su contraseña" required>
-                    </div>
+    .login-card {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(20px);
+        border-radius: 24px;
+        box-shadow: var(--shadow-medium);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        width: 100%;
+        max-width: 450px;
+        padding: 3rem 2.5rem;
+        position: relative;
+        z-index: 1;
+        animation: slideIn 0.8s ease-out;
+    }
 
-                    <div class="d-flex justify-content-end mb-3">
+    @@keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: translateY(30px) scale(0.95);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+    }
 
-                        <a href=@Url.Action("RecoverPassword", "Auth")
-                            class="text-muted border-bottom border-dashed">¿Olvidaste tu contraseña?</a>
-                    </div>
+    .brand-section {
+        text-align: center;
+        margin-bottom: 2.5rem;
+    }
 
-                    @if (ViewBag.Error != null)
-                    {
-                        <div class="alert alert-danger d-flex align-items-center" role="alert">
-                            <i class="ri-error-warning-line me-2"></i>
-                            <div>
-                                <strong>Error de conexión</strong><br>
-                                <small>@ViewBag.Error</small>
-                            </div>
-                        </div>
-                    }
+    .brand-icon {
+        width: 80px;
+        height: 80px;
+        background: var(--primary-gradient);
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1.5rem;
+        box-shadow: var(--shadow-light);
+        animation: pulse 2s ease-in-out infinite;
+    }
 
-                    <div class="d-grid">
-                        <button class="btn btn-primary fw-semibold" style="background-color: #3b45b9;" type="submit"
-                            id="loginBtn">
-                            <span class="spinner-border spinner-border-sm d-none" role="status"
-                                aria-hidden="true"></span>
-                            Iniciar Sesión
-                        </button>
-                    </div>
-                </form>
+    @@keyframes pulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+    }
 
-                @* <p class="text-muted fs-14 mb-4">Don't have an account? <a href=@Url.Action("Register", "Auth") class="fw-semibold text-danger ms-1">Sign Up !</a></p> *@
+    .brand-icon svg {
+        width: 40px;
+        height: 40px;
+        color: white;
+    }
 
-                <p class="mt-auto mb-0">
-                    <script>document.write(new Date().getFullYear())</script> © VaccinePro - By <span
-                        class="fw-bold text-decoration-underline text-uppercase text-reset fs-12">I Analitycs</span>
-                </p>
+    .brand-title {
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin-bottom: 0.5rem;
+        letter-spacing: -0.025em;
+    }
+
+    .brand-subtitle {
+        color: var(--text-secondary);
+        font-size: 1rem;
+        margin-bottom: 0;
+    }
+
+    .form-floating {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-floating > .form-control {
+        height: 58px;
+        border: 2px solid var(--border-color);
+        border-radius: 12px;
+        font-size: 1rem;
+        padding: 1rem 0.75rem 0.25rem 0.75rem;
+        transition: all 0.3s ease;
+        background: rgba(255, 255, 255, 0.8);
+    }
+
+    .form-floating > .form-control:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 0.2rem rgba(46, 55, 164, 0.15);
+        background: white;
+    }
+
+    .form-floating > label {
+        color: var(--text-secondary);
+        font-weight: 500;
+        padding: 1rem 0.75rem;
+    }
+
+    .password-toggle {
+        position: absolute;
+        right: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        color: var(--text-secondary);
+        cursor: pointer;
+        z-index: 10;
+        padding: 8px;
+        border-radius: 6px;
+        transition: all 0.2s ease;
+    }
+
+    .password-toggle:hover {
+        color: var(--primary-color);
+        background: rgba(46, 55, 164, 0.1);
+    }
+
+    .forgot-password {
+        text-align: right;
+        margin-bottom: 2rem;
+    }
+
+    .forgot-password a {
+        color: var(--primary-color);
+        text-decoration: none;
+        font-weight: 500;
+        font-size: 0.9rem;
+        transition: all 0.2s ease;
+        position: relative;
+    }
+
+    .forgot-password a::after {
+        content: '';
+        position: absolute;
+        width: 0;
+        height: 2px;
+        bottom: -2px;
+        left: 0;
+        background: var(--primary-color);
+        transition: width 0.3s ease;
+    }
+
+    .forgot-password a:hover::after {
+        width: 100%;
+    }
+
+    .login-btn {
+        background: var(--primary-gradient);
+        border: none;
+        border-radius: 12px;
+        height: 56px;
+        font-weight: 600;
+        font-size: 1.1rem;
+        letter-spacing: 0.5px;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .login-btn::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+        transition: left 0.5s;
+    }
+
+    .login-btn:hover::before {
+        left: 100%;
+    }
+
+    .login-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(46, 55, 164, 0.3);
+    }
+
+    .login-btn:active {
+        transform: translateY(0);
+    }
+
+    .alert-custom {
+        background: rgba(220, 53, 69, 0.1);
+        border: 1px solid rgba(220, 53, 69, 0.2);
+        border-radius: 12px;
+        color: #dc3545;
+        padding: 1rem;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        animation: shake 0.5s ease-in-out;
+    }
+
+    @@keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        25% { transform: translateX(-5px); }
+        75% { transform: translateX(5px); }
+    }
+
+    .alert-icon {
+        width: 20px;
+        height: 20px;
+        margin-right: 12px;
+        flex-shrink: 0;
+    }
+
+    .footer-text {
+        text-align: center;
+        margin-top: 2rem;
+        padding-top: 2rem;
+        border-top: 1px solid var(--border-color);
+        color: var(--text-secondary);
+        font-size: 0.875rem;
+    }
+
+    .company-name {
+        color: var(--primary-color);
+        font-weight: 600;
+    }
+
+    /* Responsive */
+    @@media (max-width: 576px) {
+        .login-card {
+            padding: 2rem 1.5rem;
+            margin: 1rem;
+            border-radius: 20px;
+        }
+        
+        .brand-title {
+            font-size: 1.5rem;
+        }
+        
+        .brand-icon {
+            width: 70px;
+            height: 70px;
+        }
+        
+        .brand-icon svg {
+            width: 35px;
+            height: 35px;
+        }
+    }
+
+    /* Mejoras de accesibilidad */
+    .form-control:focus {
+        outline: none;
+    }
+
+    .login-btn:focus {
+        outline: 2px solid var(--primary-color);
+        outline-offset: 2px;
+    }
+
+    /* Animación del loading */
+    .loading-spinner {
+        animation: spin 1s linear infinite;
+    }
+
+    @@keyframes spin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+</style>
+
+<div class="auth-container">
+    <div class="login-card">
+        <div class="brand-section">
+            <div class="brand-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="m18 2 4 4"></path>
+                    <path d="m17 7 3-3"></path>
+                    <path d="M19 9 8.7 19.3c-1 1-2.5 1-3.4 0l-.6-.6c-1-1-1-2.5 0-3.4L15 5"></path>
+                    <path d="m9 11 4 4"></path>
+                    <path d="m5 19-3 3"></path>
+                    <path d="m14 4 6 6"></path>
+                </svg>
             </div>
+            <h1 class="brand-title">VaccinePro</h1>
+            <p class="brand-subtitle">Sistema de Gestión de Vacunación</p>
+        </div>
+
+        <form method="post" asp-action="Login" asp-controller="Auth" novalidate>
+            @Html.AntiForgeryToken()
+            
+            @if (ViewBag.Error != null)
+            {
+                <div class="alert-custom">
+                    <svg class="alert-icon" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
+                    </svg>
+                    <div>
+                        <div class="fw-semibold">Error de autenticación</div>
+                        <div>@ViewBag.Error</div>
+                    </div>
+                </div>
+            }
+
+            <div class="form-floating">
+                <input type="text" 
+                       class="form-control" 
+                       id="nombreUsuario" 
+                       name="nombreUsuario" 
+                       placeholder="Usuario o Email"
+                       autocomplete="username"
+                       required>
+                <label for="nombreUsuario">Usuario o Email</label>
+            </div>
+
+            <div class="form-floating position-relative">
+                <input type="password" 
+                       class="form-control pe-5" 
+                       id="password" 
+                       name="password" 
+                       placeholder="Contraseña"
+                       autocomplete="current-password"
+                       required>
+                <label for="password">Contraseña</label>
+                <button type="button" class="password-toggle" onclick="togglePassword()">
+                    <svg id="eyeIcon" width="20" height="20" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M10 12a2 2 0 100-4 2 2 0 000 4z"></path>
+                        <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd"></path>
+                    </svg>
+                </button>
+            </div>
+
+            <div class="forgot-password">
+                <a href="@Url.Action("RecoverPassword", "Auth")">¿Olvidaste tu contraseña?</a>
+            </div>
+
+            <div class="d-grid">
+                <button class="btn btn-primary login-btn" type="submit" id="loginBtn">
+                    <span id="loginText">Iniciar Sesión</span>
+                    <span id="loginSpinner" class="spinner-border spinner-border-sm loading-spinner d-none ms-2" role="status" aria-hidden="true"></span>
+                </button>
+            </div>
+        </form>
+
+        <div class="footer-text">
+            <script>document.write(new Date().getFullYear())</script> © <span class="company-name">VaccinePro</span> - Desarrollado por <strong>I Analytics</strong>
         </div>
     </div>
 </div>
 
 @section scripts {
     <script>
+        // Función para alternar visibilidad de contraseña
+        function togglePassword() {
+            const passwordInput = document.getElementById('password');
+            const eyeIcon = document.getElementById('eyeIcon');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                eyeIcon.innerHTML = `
+                    <path d="M3.707 2.293a1 1 0 00-1.414 1.414l14 14a1 1 0 001.414-1.414l-1.473-1.473A10.014 10.014 0 0019.542 10C18.268 5.943 14.478 3 10 3a9.958 9.958 0 00-4.512 1.074l-1.78-1.781zm4.261 4.26l1.514 1.515a2.003 2.003 0 012.45 2.45l1.514 1.514a4 4 0 00-5.478-5.478z"></path>
+                    <path d="M12.454 16.697L9.75 13.992a4 4 0 01-3.742-3.741L2.335 6.578A9.98 9.98 0 00.458 10c1.274 4.057 5.065 7 9.542 7 .847 0 1.669-.105 2.454-.303z"></path>
+                `;
+            } else {
+                passwordInput.type = 'password';
+                eyeIcon.innerHTML = `
+                    <path d="M10 12a2 2 0 100-4 2 2 0 000 4z"></path>
+                    <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd"></path>
+                `;
+            }
+        }
+
         document.addEventListener('DOMContentLoaded', function () {
             const loginForm = document.querySelector('form');
             const loginBtn = document.getElementById('loginBtn');
-            const spinner = loginBtn.querySelector('.spinner-border');
-
-            loginForm.addEventListener('submit', function (e) {
-                // Mostrar spinner y deshabilitar botón
-                spinner.classList.remove('d-none');
-                loginBtn.disabled = true;
-                loginBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Iniciando sesión...';
-
-                // El formulario se enviará normalmente
-            });
-
-            // Si hay un error, restaurar el botón
-            @if (ViewBag.Error != null)
-                {
-                    <text>
-                        spinner.classList.add('d-none');
-                        loginBtn.disabled = false;
-                        loginBtn.innerHTML = 'Iniciar Sesión';
-                    </text>
-            }
-
-                // Auto-enfocar el primer campo vacío
-                const usernameField = document.getElementById('nombreUsuario');
+            const loginText = document.getElementById('loginText');
+            const loginSpinner = document.getElementById('loginSpinner');
+            const usernameField = document.getElementById('nombreUsuario');
             const passwordField = document.getElementById('password');
 
+            // Manejar envío del formulario
+            loginForm.addEventListener('submit', function (e) {
+                // Validación básica
+                if (!usernameField.value.trim() || !passwordField.value.trim()) {
+                    e.preventDefault();
+                    return;
+                }
+
+                // Mostrar estado de carga
+                loginBtn.disabled = true;
+                loginText.textContent = 'Iniciando sesión...';
+                loginSpinner.classList.remove('d-none');
+                loginBtn.classList.add('loading');
+            });
+
+            // Auto-enfoque inteligente
             if (!usernameField.value) {
                 usernameField.focus();
             } else if (!passwordField.value) {
                 passwordField.focus();
             }
+
+            // Restaurar estado del botón si hay error
+            @if (ViewBag.Error != null)
+            {
+                <text>
+                    loginBtn.disabled = false;
+                    loginText.textContent = 'Iniciar Sesión';
+                    loginSpinner.classList.add('d-none');
+                    loginBtn.classList.remove('loading');
+                </text>
+            }
+
+            // Validación en tiempo real
+            function validateField(field) {
+                if (field.value.trim()) {
+                    field.classList.remove('is-invalid');
+                    field.classList.add('is-valid');
+                } else {
+                    field.classList.remove('is-valid');
+                }
+            }
+
+            usernameField.addEventListener('blur', () => validateField(usernameField));
+            passwordField.addEventListener('blur', () => validateField(passwordField));
+
+            // Enter key navigation
+            usernameField.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    passwordField.focus();
+                }
+            });
+
+            passwordField.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter' && usernameField.value.trim() && passwordField.value.trim()) {
+                    loginForm.submit();
+                }
+            });
+        });
+
+        // Prevenir envío múltiple
+        let formSubmitted = false;
+        document.querySelector('form').addEventListener('submit', function(e) {
+            if (formSubmitted) {
+                e.preventDefault();
+                return false;
+            }
+            formSubmitted = true;
         });
     </script>
 }

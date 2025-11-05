@@ -26,23 +26,24 @@
                     <label class="form-label fw-bold">¿Las vacunas fueron ingresadas al aplicativo PAIWEB?</label>
                     <div class="mt-2">
                         <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="radio" name="IngresoPAIWEB" id="paiwebSi" value="si" onchange="
+                            <input class="form-check-input" type="radio" name="IngresoPAIWEB" id="paiwebSi" value="true" onchange="
+                                document.getElementById('resumenPAIWEB').textContent = 'Sí - Ingresado en PAIWEB';
+                                document.getElementById('resumenPAIWEB').className = 'text-success mb-3';
                                 document.getElementById('motivoNoIngreso').style.display = 'none';
                                 document.getElementById('NotasFinales').required = false;
                                 document.getElementById('NotasFinales').value = '';
-                                document.getElementById('resumenPAIWEB').textContent = 'Sí - Ingresado en PAIWEB';
-                                document.getElementById('resumenPAIWEB').className = 'text-success mb-3';
                             ">
                             <label class="form-check-label" for="paiwebSi">
                                 SÍ
                             </label>
                         </div>
                         <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="radio" name="IngresoPAIWEB" id="paiwebNo" value="no" onchange="
-                                document.getElementById('motivoNoIngreso').style.display = 'block';
-                                document.getElementById('NotasFinales').required = true;
+                            <input class="form-check-input" type="radio" name="IngresoPAIWEB" id="paiwebNo" value="false" onchange="
                                 document.getElementById('resumenPAIWEB').textContent = 'No - No ingresado en PAIWEB';
                                 document.getElementById('resumenPAIWEB').className = 'text-warning mb-3';
+                                document.getElementById('motivoNoIngreso').style.display = 'block';
+                                document.getElementById('NotasFinales').required = true;
+                                
                             ">
                             <label class="form-check-label" for="paiwebNo">
                                 NO
@@ -79,7 +80,9 @@
             <div class="col-md-12">
                 <div class="mb-3">
                     <label class="form-label fw-bold">Centro de salud</label>
-                    <select class="form-select" name="CentroSaludResponsable">
+                    <select class="form-select" name="CentroSaludResponsable"onchange="
+                                document.getElementById('resumenCentro').textContent = this.options[this.selectedIndex].text || 'No especificado'; 
+                            ">
                         <option value="">Sistema Central</option>
                         <!-- Opciones se cargarán dinámicamente -->
                     </select> 
