@@ -1094,7 +1094,6 @@
                 }
 
                 try {
-                    console.log('🔄 Cargando jeringas...');
                     const response = await fetch('/RegistroVacunacion/GetJeringas');
                     
                     if (!response.ok) {
@@ -1119,7 +1118,6 @@
                             jeringaSelect.appendChild(option);
                         });
                         
-                        console.log(`✅ Se cargaron ${jeringas.length} jeringas`);
                     } else {
                         // Agregar opción de "No hay jeringas disponibles"
                         const option = document.createElement('option');
@@ -1128,7 +1126,6 @@
                         option.disabled = true;
                         jeringaSelect.appendChild(option);
                         
-                        console.log('⚠️ No se encontraron jeringas disponibles');
                     }
                     
                 } catch (error) {
@@ -1344,7 +1341,23 @@
                 }
 
                 if (currentStep < totalSteps) {
-                    currentStep++;
+
+                    let nextStepNumber = currentStep + 1;
+        
+                    // Si estamos en el paso 3 (Antecedentes Médicos) y el sexo es HOMBRE, saltar al paso 5 (Madre/Cuidador)
+                    if (currentStep === 3) {
+                        const sexoSeleccionado = obtenerSexoSeleccionado();
+                        if (sexoSeleccionado === 'HOMBRE') {
+                            nextStepNumber = 5; // Saltar al paso 5 (Madre/Cuidador)
+                            
+                            // Mostrar mensaje informativo
+                            if (typeof window.mostrarMensajeExito === 'function') {
+                                window.mostrarMensajeExito('Se ha saltado el paso "Condición Usuaria" porque el paciente es hombre.', 3000);
+                            }
+                        }
+                    }
+
+                    currentStep = nextStepNumber;
 
                     try {
                         const url = '/RegistroVacunacion/LoadStep?step=' + currentStep;
@@ -1377,12 +1390,57 @@
                 }
             }
 
+            // NUEVA FUNCIÓN: Obtener el sexo seleccionado desde los datos guardados
+            function obtenerSexoSeleccionado() {
+                // Primero intentar obtener desde los datos globales del formulario
+                if (formData && formData.Sexo) {
+                    return formData.Sexo;
+                }
+                
+                // Si no está en formData, buscar en localStorage
+                const datosComplementarios = localStorage.getItem('stepData_2');
+                if (datosComplementarios) {
+                    try {
+                        const datos = JSON.parse(datosComplementarios);
+                        if (datos.Sexo) {
+                            return datos.Sexo;
+                        }
+                    } catch (e) {
+                        console.warn('Error al parsear datos complementarios:', e);
+                    }
+                }
+                
+                // Como último recurso, buscar en el DOM actual si estamos en el paso 2
+                const sexoInputs = document.querySelectorAll('input[name="Sexo"]:checked');
+                if (sexoInputs.length > 0) {
+                    return sexoInputs[0].value;
+                }
+                
+                return null;
+            }
+
             function prevStep() {
                 if (currentStep > 1) {
                     // Guardar los datos del paso actual
                     saveCurrentStepData();
 
-                    currentStep--;
+                    // NUEVA LÓGICA: Manejar navegación hacia atrás considerando pasos saltados
+                    let prevStepNumber = currentStep - 1;
+                    
+                    // Si estamos en el paso 5 (Madre/Cuidador) y llegamos desde el paso 3 (saltando el 4), regresar al paso 3
+                    if (currentStep === 5) {
+                        const sexoSeleccionado = obtenerSexoSeleccionado();
+                        if (sexoSeleccionado === 'HOMBRE') {
+                            prevStepNumber = 3; // Regresar al paso 3 (Antecedentes Médicos)
+                            
+                            // Mostrar mensaje informativo
+                            if (typeof window.mostrarMensajeExito === 'function') {
+                                window.mostrarMensajeExito('Regresando al paso "Antecedentes Médicos", saltando "Condición Usuaria" porque el paciente es hombre.', 3000);
+                            }
+                        }
+                    }
+
+                    currentStep = prevStepNumber;
 
                     fetch('/RegistroVacunacion/LoadStep?step=' + currentStep)
                         .then(response => response.text())
@@ -1656,7 +1714,6 @@
                     formData.vacunas.push(vacuna);
                     localStorage.setItem('vacunacionFormData', JSON.stringify(formData));
 
-                    console.log('✅ Vacuna agregada correctamente:', vacuna);
                     
                     // Opcional: mostrar mensaje de éxito
                     mostrarMensajeExito('Vacuna agregada correctamente al esquema de vacunación');
@@ -1719,7 +1776,6 @@
                         listaContainer.style.display = 'none';
                     }
 
-                    console.log('🗑️ Vacuna eliminada del esquema');
                 }
             }
 
@@ -1860,7 +1916,6 @@
                             tableBody.appendChild(row);
                         });
 
-                        console.log(`🔄 Restauradas ${window.formData.vacunas.length} vacunas del esquema`);
                     }
                 }
             }
@@ -2298,7 +2353,6 @@
                                     FechaAplicacion: new Date().toISOString(),
                                     Activo: true
                                 })); 
-                                console.log('Vacunas para guardar:', vacunasParaGuardar);
 
                                 todosLosDatos.ArrayVacunasAplicadas = JSON.stringify(vacunasParaGuardar);
                             }
@@ -2571,7 +2625,6 @@
                     }, 300);
                 }
 
-                console.log('✅ Mensaje de éxito mostrado:', mensaje);
             }
 
             // Función para mostrar mensajes de error (opcional)
@@ -2650,9 +2703,23 @@
                         }
                     }, 300);
                 }
-
-                console.log('❌ Mensaje de error mostrado:', mensaje);
             }
+
+             
+                // Configurar listeners para los radio buttons de Sexo
+            const sexoInputs = document.querySelectorAll('input[name="Sexo"]'); 
+            sexoInputs.forEach(input => {
+                input.addEventListener('change', function() {
+                    if (this.checked) {
+                        
+                        // Actualizar formData inmediatamente
+                        if (typeof window.formData !== 'undefined') {
+                            window.formData.Sexo = this.value;
+                            localStorage.setItem('vacunacionFormData', JSON.stringify(window.formData));
+                        } 
+                    }
+                });
+            }); 
 
             // Hacer las funciones globalmente accesibles
             window.mostrarMensajeExito = mostrarMensajeExito;
