@@ -40,10 +40,7 @@
                 <div class="d-flex gap-2">
                     <a asp-action="Index" class="btn btn-secondary">
                         <i class="ri-arrow-left-line align-bottom me-1"></i> Volver
-                    </a>
-                    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">
-                        <i class="ri-pencil-line align-bottom me-1"></i> Editar
-                    </a>
+                    </a> 
                 </div>
             </div>
         </div>
@@ -760,157 +757,554 @@
 
                     <!-- Caregiver Information Tab -->
                     <div class="tab-pane fade" id="caregiver-info" role="tabpanel" aria-labelledby="caregiver-info-tab">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="table-responsive">
-                                    <table class="table table-borderless table-sm">
-                                        <tbody>
-                                            <tr>
-                                                <td class="fw-medium text-muted">Madre/Cuidador:</td>
-                                                <td>@Model.MadreCuidador</td>
-                                            </tr>
-                                            <tr>
-                                                <td class="fw-medium text-muted">Tipo de Identificación:</td>
-                                                <td>@Model.TipoIdentificacionCuidador</td>
-                                            </tr>
-                                            <tr>
-                                                <td class="fw-medium text-muted">Número de Documento:</td>
-                                                <td>@Model.NumeroDocumentoCuidador</td>
-                                            </tr>
-                                            <tr>
-                                                <td class="fw-medium text-muted">Primer Nombre:</td>
-                                                <td>@Model.PrimerNombreCuidador</td>
-                                            </tr>
-                                            <tr>
-                                                <td class="fw-medium text-muted">Segundo Nombre:</td>
-                                                <td>@Model.SegundoNombreCuidador</td>
-                                            </tr>
-                                            <tr>
-                                                <td class="fw-medium text-muted">Primer Apellido:</td>
-                                                <td>@Model.PrimerApellidoCuidador</td>
-                                            </tr>
-                                            <tr>
-                                                <td class="fw-medium text-muted">Segundo Apellido:</td>
-                                                <td>@Model.SegundoApellidoCuidador</td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="table-responsive">
-                                    <table class="table table-borderless table-sm">
-                                        <tbody>
-                                            <tr>
-                                                <td class="fw-medium text-muted">Email:</td>
-                                                <td>@Model.EmailCuidador</td>
-                                            </tr>
-                                            <tr>
-                                                <td class="fw-medium text-muted">Teléfono:</td>
-                                                <td>@Model.TelefonoCuidador</td>
-                                            </tr>
-                                            <tr>
-                                                <td class="fw-medium text-muted">Celular:</td>
-                                                <td>@Model.CelularCuidador</td>
-                                            </tr>
-                                            <tr>
-                                                <td class="fw-medium text-muted">Parentesco:</td>
-                                                <td>@Model.ParentescoCuidador</td>
-                                            </tr>
-                                            <tr>
-                                                <td class="fw-medium text-muted">Régimen de Afiliación:</td>
-                                                <td>@Model.RegimenAfiliacionCuidador</td>
-                                            </tr>
-                                            <tr>
-                                                <td class="fw-medium text-muted">Pertenencia Étnica ID:</td>
-                                                <td>@Model.PertenenciaEtnicaIdCuidador</td>
-                                            </tr>
-                                            <tr>
-                                                <td class="fw-medium text-muted">Estado Desplazado:</td>
-                                                <td><span class="badge bg-@(Model.EstadoDesplazadoCuidador == true ? "warning" : "success")-subtle text-@(Model.EstadoDesplazadoCuidador == true ? "warning" : "success")">@(Model.EstadoDesplazadoCuidador == true ? "Sí" : "No")</span></td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+    <div class="row">
+        <div class="col-md-6">
+            <h6 class="mb-3"><i class="ri-user-line me-1 text-primary"></i>Información Personal del Cuidador</h6>
+            <div class="table-responsive">
+                <table class="table table-borderless table-sm">
+                    <tbody>
+                        <tr>
+                            <td class="fw-medium text-muted">Madre/Cuidador:</td>
+                            <td>
+                                @if (Model.MadreCuidador.HasValue)
+                                {
+                                    <span class="badge bg-@(Model.MadreCuidador.Value ? "success" : "info")-subtle text-@(Model.MadreCuidador.Value ? "success" : "info")">
+                                        @(Model.MadreCuidador.Value ? "Madre" : "Cuidador")
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">No especificado</span>
+                                }
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="fw-medium text-muted">Tipo de Identificación:</td>
+                            <td>
+                                @if (!string.IsNullOrEmpty(Model.TipoIdentificacionCuidador))
+                                {
+                                    <span class="fw-semibold">@Model.TipoIdentificacionCuidador</span>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">No registrado</span>
+                                }
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="fw-medium text-muted">Número de Documento:</td>
+                            <td>
+                                @if (!string.IsNullOrEmpty(Model.NumeroDocumentoCuidador))
+                                {
+                                    <span class="fw-semibold text-primary">@Model.NumeroDocumentoCuidador</span>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">No registrado</span>
+                                }
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="fw-medium text-muted">Primer Nombre:</td>
+                            <td>
+                                @if (!string.IsNullOrEmpty(Model.PrimerNombreCuidador))
+                                {
+                                    <span class="fw-semibold">@Model.PrimerNombreCuidador</span>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">No registrado</span>
+                                }
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="fw-medium text-muted">Segundo Nombre:</td>
+                            <td>
+                                @if (!string.IsNullOrEmpty(Model.SegundoNombreCuidador))
+                                {
+                                    <span class="fw-semibold">@Model.SegundoNombreCuidador</span>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">No registrado</span>
+                                }
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="fw-medium text-muted">Primer Apellido:</td>
+                            <td>
+                                @if (!string.IsNullOrEmpty(Model.PrimerApellidoCuidador))
+                                {
+                                    <span class="fw-semibold">@Model.PrimerApellidoCuidador</span>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">No registrado</span>
+                                }
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="fw-medium text-muted">Segundo Apellido:</td>
+                            <td>
+                                @if (!string.IsNullOrEmpty(Model.SegundoApellidoCuidador))
+                                {
+                                    <span class="fw-semibold">@Model.SegundoApellidoCuidador</span>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">No registrado</span>
+                                }
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <h6 class="mb-3"><i class="ri-contacts-line me-1 text-info"></i>Información de Contacto y Afiliación</h6>
+            <div class="table-responsive">
+                <table class="table table-borderless table-sm">
+                    <tbody>
+                        <tr>
+                            <td class="fw-medium text-muted">Email:</td>
+                            <td>
+                                @if (!string.IsNullOrEmpty(Model.EmailCuidador))
+                                {
+                                    <a href="mailto:@Model.EmailCuidador" class="text-primary">@Model.EmailCuidador</a>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">No registrado</span>
+                                }
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="fw-medium text-muted">Teléfono:</td>
+                            <td>
+                                @if (!string.IsNullOrEmpty(Model.TelefonoCuidador))
+                                {
+                                    <span class="fw-semibold">@Model.TelefonoCuidador</span>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">No registrado</span>
+                                }
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="fw-medium text-muted">Celular:</td>
+                            <td>
+                                @if (!string.IsNullOrEmpty(Model.CelularCuidador))
+                                {
+                                    <span class="fw-semibold">@Model.CelularCuidador</span>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">No registrado</span>
+                                }
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="fw-medium text-muted">Parentesco:</td>
+                            <td>
+                                @if (!string.IsNullOrEmpty(Model.ParentescoCuidador))
+                                {
+                                    <span class="badge bg-secondary-subtle text-secondary">@Model.ParentescoCuidador</span>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">No registrado</span>
+                                }
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="fw-medium text-muted">Régimen de Afiliación:</td>
+                            <td>
+                                @if (!string.IsNullOrEmpty(Model.RegimenAfiliacionCuidadorNombre))
+                                {
+                                    <span class="badge bg-primary-subtle text-primary">@Model.RegimenAfiliacionCuidadorNombre</span>
+                                    <small class="text-muted d-block">ID: @Model.RegimenAfiliacionCuidador</small>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">No asignado</span>
+                                }
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="fw-medium text-muted">Pertenencia Étnica:</td>
+                            <td>
+                                @if (!string.IsNullOrEmpty(Model.PertenenciaEtnicaCuidadorNombre))
+                                {
+                                    <span class="badge bg-success-subtle text-success">@Model.PertenenciaEtnicaCuidadorNombre</span>
+                                    <small class="text-muted d-block">ID: @Model.PertenenciaEtnicaIdCuidador</small>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">No asignada</span>
+                                }
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="fw-medium text-muted">Estado Desplazado:</td>
+                            <td>
+                                @if (Model.EstadoDesplazadoCuidador.HasValue)
+                                {
+                                    <span class="badge bg-@(Model.EstadoDesplazadoCuidador.Value ? "warning" : "success")-subtle text-@(Model.EstadoDesplazadoCuidador.Value ? "warning" : "success")">
+                                        @(Model.EstadoDesplazadoCuidador.Value ? "Sí" : "No")
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">No especificado</span>
+                                }
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
 
                     <!-- Additional Information Tab -->
                     <div class="tab-pane fade" id="additional-info" role="tabpanel" aria-labelledby="additional-info-tab">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <h6 class="mb-3">Ubicación</h6>
-                                <div class="table-responsive">
-                                    <table class="table table-borderless table-sm">
-                                        <tbody>
-                                            <tr>
-                                                <td class="fw-medium text-muted">Departamento de Residencia:</td>
-                                                <td>@Model.DepartamentoResidencia</td>
-                                            </tr>
-                                            <tr>
-                                                <td class="fw-medium text-muted">Municipio de Residencia:</td>
-                                                <td>@Model.MunicipioResidencia</td>
-                                            </tr>
-                                            <tr>
-                                                <td class="fw-medium text-muted">Comuna/Localidad:</td>
-                                                <td>@Model.ComunaLocalidad</td>
-                                            </tr>
-                                            <tr>
-                                                <td class="fw-medium text-muted">Área:</td>
-                                                <td>@Model.Area</td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <h6 class="mb-3">Permisos de Comunicación</h6>
-                                <div class="table-responsive">
-                                    <table class="table table-borderless table-sm">
-                                        <tbody>
-                                            <tr>
-                                                <td class="fw-medium text-muted">Autoriza Llamadas:</td>
-                                                <td><span class="badge bg-@(Model.AutorizaLlamadas ? "success" : "danger")-subtle text-@(Model.AutorizaLlamadas ? "success" : "danger")">@(Model.AutorizaLlamadas ? "Sí" : "No")</span></td>
-                                            </tr>
-                                            <tr>
-                                                <td class="fw-medium text-muted">Autoriza Envío de Correo:</td>
-                                                <td><span class="badge bg-@(Model.AutorizaEnvioCorreo ? "success" : "danger")-subtle text-@(Model.AutorizaEnvioCorreo ? "success" : "danger")">@(Model.AutorizaEnvioCorreo ? "Sí" : "No")</span></td>
-                                            </tr>
-                                            <tr>
-                                                <td class="fw-medium text-muted">Relación:</td>
-                                                <td>@Model.Relacion</td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
+                        <!-- Información Geográfica -->
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <div class="card border-0 shadow-sm">
+                                    <div class="card-header bg-primary-subtle">
+                                        <h6 class="mb-0 text-primary">
+                                            <i class="ri-map-pin-line me-2"></i>
+                                            Información Geográfica y Ubicación
+                                        </h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="d-flex align-items-center mb-3">
+                                                    <div class="flex-shrink-0">
+                                                        <div class="avatar-sm bg-primary-subtle rounded-circle d-flex align-items-center justify-content-center">
+                                                            <i class="ri-government-line text-primary"></i>
+                                                        </div>
+                                                    </div>
+                                                    <div class="flex-grow-1 ms-3">
+                                                        <h6 class="mb-1 fw-semibold">Departamento de Residencia</h6>
+                                                        <p class="text-muted mb-0">
+                                                            @if (!string.IsNullOrEmpty(Model.DepartamentoResidencia))
+                                                            {
+                                                                <span class="fw-medium text-dark">@Model.DepartamentoResidencia</span>
+                                                            }
+                                                            else
+                                                            {
+                                                                <span class="text-muted fst-italic">No registrado</span>
+                                                            }
+                                                        </p>
+                                                    </div>
+                                                </div>
+
+                                                <div class="d-flex align-items-center mb-3">
+                                                    <div class="flex-shrink-0">
+                                                        <div class="avatar-sm bg-info-subtle rounded-circle d-flex align-items-center justify-content-center">
+                                                            <i class="ri-building-line text-info"></i>
+                                                        </div>
+                                                    </div>
+                                                    <div class="flex-grow-1 ms-3">
+                                                        <h6 class="mb-1 fw-semibold">Municipio de Residencia</h6>
+                                                        <p class="text-muted mb-0">
+                                                            @if (!string.IsNullOrEmpty(Model.MunicipioResidencia))
+                                                            {
+                                                                <span class="fw-medium text-dark">@Model.MunicipioResidencia</span>
+                                                            }
+                                                            else
+                                                            {
+                                                                <span class="text-muted fst-italic">No registrado</span>
+                                                            }
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="col-md-6">
+                                                <div class="d-flex align-items-center mb-3">
+                                                    <div class="flex-shrink-0">
+                                                        <div class="avatar-sm bg-success-subtle rounded-circle d-flex align-items-center justify-content-center">
+                                                            <i class="ri-community-line text-success"></i>
+                                                        </div>
+                                                    </div>
+                                                    <div class="flex-grow-1 ms-3">
+                                                        <h6 class="mb-1 fw-semibold">Comuna/Localidad</h6>
+                                                        <p class="text-muted mb-0">
+                                                            @if (!string.IsNullOrEmpty(Model.ComunaLocalidad))
+                                                            {
+                                                                <span class="fw-medium text-dark">@Model.ComunaLocalidad</span>
+                                                            }
+                                                            else
+                                                            {
+                                                                <span class="text-muted fst-italic">No registrada</span>
+                                                            }
+                                                        </p>
+                                                    </div>
+                                                </div>
+
+                                                <div class="d-flex align-items-center mb-3">
+                                                    <div class="flex-shrink-0">
+                                                        <div class="avatar-sm bg-warning-subtle rounded-circle d-flex align-items-center justify-content-center">
+                                                            <i class="ri-landscape-line text-warning"></i>
+                                                        </div>
+                                                    </div>
+                                                    <div class="flex-grow-1 ms-3">
+                                                        <h6 class="mb-1 fw-semibold">Área</h6>
+                                                        <p class="text-muted mb-0">
+                                                            @if (!string.IsNullOrEmpty(Model.Area))
+                                                            {
+                                                                <span class="badge bg-warning-subtle text-warning fs-6">@Model.Area</span>
+                                                            }
+                                                            else
+                                                            {
+                                                                <span class="text-muted fst-italic">No registrada</span>
+                                                            }
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="row mt-4">
-                            <div class="col-md-6">
-                                <h6 class="mb-3">Control de Registro</h6>
-                                <div class="table-responsive">
-                                    <table class="table table-borderless table-sm">
-                                        <tbody>
-                                            <tr>
-                                                <td class="fw-medium text-muted">Fecha de Creación:</td>
-                                                <td>@Model.FechaCreacion</td>
-                                            </tr>
-                                            <tr>
-                                                <td class="fw-medium text-muted">Fecha de Modificación:</td>
-                                                <td>@Model.FechaModificacion?.ToString("dd/MM/yyyy HH:mm")</td>
-                                            </tr>
-                                            <tr>
-                                                <td class="fw-medium text-muted">Usuario Creador ID:</td>
-                                                <td>@Model.UsuarioCreadorId</td>
-                                            </tr>
-                                            <tr>
-                                                <td class="fw-medium text-muted">Usuario Modificador ID:</td>
-                                                <td>@Model.UsuarioModificadorId</td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
+                        <!-- Permisos de Comunicación -->
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <div class="card border-0 shadow-sm">
+                                    <div class="card-header bg-info-subtle">
+                                        <h6 class="mb-0 text-info">
+                                            <i class="ri-notification-line me-2"></i>
+                                            Preferencias de Comunicación
+                                        </h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row">
+                                            <div class="col-md-4">
+                                                <div class="text-center p-3 border rounded-3 bg-light">
+                                                    <div class="avatar-sm mx-auto mb-3">
+                                                        <span class="avatar-title bg-@(Model.AutorizaLlamadas ? "success" : "danger")-subtle text-@(Model.AutorizaLlamadas ? "success" : "danger") rounded-circle">
+                                                            <i class="ri-phone-line fs-4"></i>
+                                                        </span>
+                                                    </div>
+                                                    <h6 class="mb-2">Llamadas Telefónicas</h6>
+                                                    <span class="badge bg-@(Model.AutorizaLlamadas ? "success" : "danger")-subtle text-@(Model.AutorizaLlamadas ? "success" : "danger") fs-6 px-3 py-2">
+                                                        <i class="ri-@(Model.AutorizaLlamadas ? "check" : "close")-line me-1"></i>
+                                                        @(Model.AutorizaLlamadas ? "Autorizado" : "No Autorizado")
+                                                    </span>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-md-4">
+                                                <div class="text-center p-3 border rounded-3 bg-light">
+                                                    <div class="avatar-sm mx-auto mb-3">
+                                                        <span class="avatar-title bg-@(Model.AutorizaEnvioCorreo ? "success" : "danger")-subtle text-@(Model.AutorizaEnvioCorreo ? "success" : "danger") rounded-circle">
+                                                            <i class="ri-mail-line fs-4"></i>
+                                                        </span>
+                                                    </div>
+                                                    <h6 class="mb-2">Correo Electrónico</h6>
+                                                    <span class="badge bg-@(Model.AutorizaEnvioCorreo ? "success" : "danger")-subtle text-@(Model.AutorizaEnvioCorreo ? "success" : "danger") fs-6 px-3 py-2">
+                                                        <i class="ri-@(Model.AutorizaEnvioCorreo ? "check" : "close")-line me-1"></i>
+                                                        @(Model.AutorizaEnvioCorreo ? "Autorizado" : "No Autorizado")
+                                                    </span>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-md-4">
+                                                <div class="text-center p-3 border rounded-3 bg-light">
+                                                    <div class="avatar-sm mx-auto mb-3">
+                                                        <span class="avatar-title bg-secondary-subtle text-secondary rounded-circle">
+                                                            <i class="ri-user-heart-line fs-4"></i>
+                                                        </span>
+                                                    </div>
+                                                    <h6 class="mb-2">Relación</h6>
+                                                    @if (!string.IsNullOrEmpty(Model.Relacion))
+                                                    {
+                                                        <span class="badge bg-secondary-subtle text-secondary fs-6 px-3 py-2">@Model.Relacion</span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="text-muted fst-italic">No especificada</span>
+                                                    }
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Control de Registro y Auditoria -->
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="card border-0 shadow-sm">
+                                    <div class="card-header bg-secondary-subtle">
+                                        <h6 class="mb-0 text-secondary">
+                                            <i class="ri-history-line me-2"></i>
+                                            Control de Registro y Auditoría
+                                        </h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row g-4">
+                                            <!-- Información de Creación -->
+                                            <div class="col-md-6">
+                                                <div class="border-start border-primary border-3 ps-3">
+                                                    <div class="d-flex align-items-center mb-3">
+                                                        <div class="flex-shrink-0">
+                                                            <div class="avatar-sm bg-primary-subtle rounded-circle d-flex align-items-center justify-content-center">
+                                                                <i class="ri-add-circle-line text-primary"></i>
+                                                            </div>
+                                                        </div>
+                                                        <div class="flex-grow-1 ms-3">
+                                                            <h6 class="mb-1 text-primary fw-semibold">
+                                                                <i class="ri-calendar-check-line me-1"></i>Creación del Registro
+                                                            </h6>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="ps-4">
+                                                        <div class="mb-3">
+                                                            <label class="form-label text-muted fw-medium mb-1">Fecha y Hora</label>
+                                                            <div class="d-flex align-items-center">
+                                                                <i class="ri-time-line text-muted me-2"></i>
+                                                                <span class="fw-semibold">
+                                                                    @if (Model.FechaCreacion != null)
+                                                                    {
+                                                                        @Model.FechaCreacion.ToString("dd/MM/yyyy 'a las' HH:mm")
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        <span class="text-muted fst-italic">No disponible</span>
+                                                                    }
+                                                                </span>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="mb-0">
+                                                            <label class="form-label text-muted fw-medium mb-1">Usuario Creador</label>
+                                                            <div class="d-flex align-items-center">
+                                                                <i class="ri-user-add-line text-muted me-2"></i>
+                                                                @if (Model.UsuarioCreadorId.HasValue)
+                                                                {
+                                                                    <span class="badge bg-primary-subtle text-primary fs-6 px-3 py-1">
+                                                                        ID: @Model.UsuarioCreadorId
+                                                                    </span>
+                                                                }
+                                                                else
+                                                                {
+                                                                    <span class="text-muted fst-italic">No disponible</span>
+                                                                }
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <!-- Información de Modificación -->
+                                            <div class="col-md-6">
+                                                <div class="border-start border-warning border-3 ps-3">
+                                                    <div class="d-flex align-items-center mb-3">
+                                                        <div class="flex-shrink-0">
+                                                            <div class="avatar-sm bg-warning-subtle rounded-circle d-flex align-items-center justify-content-center">
+                                                                <i class="ri-edit-circle-line text-warning"></i>
+                                                            </div>
+                                                        </div>
+                                                        <div class="flex-grow-1 ms-3">
+                                                            <h6 class="mb-1 text-warning fw-semibold">
+                                                                <i class="ri-pencil-line me-1"></i>Última Modificación
+                                                            </h6>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="ps-4">
+                                                        <div class="mb-3">
+                                                            <label class="form-label text-muted fw-medium mb-1">Fecha y Hora</label>
+                                                            <div class="d-flex align-items-center">
+                                                                <i class="ri-time-line text-muted me-2"></i>
+                                                                @if (Model.FechaModificacion.HasValue)
+                                                                {
+                                                                    <span class="fw-semibold">@Model.FechaModificacion.Value.ToString("dd/MM/yyyy 'a las' HH:mm")</span>
+                                                                }
+                                                                else
+                                                                {
+                                                                    <span class="text-muted fst-italic">Sin modificaciones</span>
+                                                                }
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="mb-0">
+                                                            <label class="form-label text-muted fw-medium mb-1">Usuario Modificador</label>
+                                                            <div class="d-flex align-items-center">
+                                                                <i class="ri-user-settings-line text-muted me-2"></i>
+                                                                @if (Model.UsuarioModificadorId.HasValue)
+                                                                {
+                                                                    <span class="badge bg-warning-subtle text-warning fs-6 px-3 py-1">
+                                                                        ID: @Model.UsuarioModificadorId
+                                                                    </span>
+                                                                }
+                                                                else
+                                                                {
+                                                                    <span class="text-muted fst-italic">Sin modificaciones</span>
+                                                                }
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Estadísticas del Registro -->
+                                        <div class="row mt-4 pt-3 border-top">
+                                            <div class="col-12">
+                                                <div class="bg-light rounded-3 p-3">
+                                                    <div class="row text-center">
+                                                        <div class="col-md-4">
+                                                            <div class="d-flex align-items-center justify-content-center">
+                                                                <i class="ri-calendar-line text-primary me-2 fs-5"></i>
+                                                                <div>
+                                                                    <small class="text-muted d-block">Días desde creación</small>
+                                                                    <span class="fw-bold text-primary">
+                                                                        @if (Model.FechaCreacion != null)
+                                                                        {
+                                                                            @((DateTime.Now - Model.FechaCreacion).Days)
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            <span class="text-muted">N/A</span>
+                                                                        }
+                                                                    </span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-4">
+                                                            <div class="d-flex align-items-center justify-content-center">
+                                                                <i class="ri-refresh-line text-warning me-2 fs-5"></i>
+                                                                <div>
+                                                                    <small class="text-muted d-block">Estado del registro</small>
+                                                                    <span class="badge bg-success-subtle text-success">Activo</span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-4">
+                                                            <div class="d-flex align-items-center justify-content-center">
+                                                                <i class="ri-database-line text-info me-2 fs-5"></i>
+                                                                <div>
+                                                                    <small class="text-muted d-block">ID del registro</small>
+                                                                    <span class="badge bg-info-subtle text-info font-monospace">@Model.Id</span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>

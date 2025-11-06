@@ -286,6 +286,12 @@ namespace Highdmin.ViewModels
 
         [Display(Name = "Vacunas Aplicadas")]
         public List<VacunaAplicadaItemViewModel> VacunasAplicadasList { get; set; } = new();
+
+        [Display(Name = "Régimen de Afiliación Cuidador")]
+        public string? RegimenAfiliacionCuidadorNombre { get; set; }
+
+        [Display(Name = "Pertenencia Étnica Cuidador")]
+        public string? PertenenciaEtnicaCuidadorNombre { get; set; }
     }
 
     public class VacunaAplicadaItemViewModel

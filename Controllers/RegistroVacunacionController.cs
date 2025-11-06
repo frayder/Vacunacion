@@ -709,6 +709,24 @@ namespace Highdmin.Controllers
                 return NotFound();
             }
 
+            // Obtener nombres de régimen de afiliación y pertenencia étnica para el cuidador
+            string? regimenAfiliacionCuidadorNombre = null;
+            string? pertenenciaEtnicaCuidadorNombre = null;
+
+            if (registro.RegimenAfiliacionCuidador.HasValue)
+            {
+                var regimenCuidador = await _context.RegimenesAfiliacion
+                    .FirstOrDefaultAsync(r => r.Id == registro.RegimenAfiliacionCuidador.Value);
+                regimenAfiliacionCuidadorNombre = regimenCuidador?.Nombre;
+            }
+
+            if (registro.PertenenciaEtnicaIdCuidador.HasValue)
+            {
+                var pertenenciaCuidador = await _context.PertenenciasEtnicas
+                    .FirstOrDefaultAsync(p => p.Id == registro.PertenenciaEtnicaIdCuidador.Value);
+                pertenenciaEtnicaCuidadorNombre = pertenenciaCuidador?.Nombre;
+            }
+
             var viewModel = new RegistroVacunacionItemViewModel
             {
                 Id = registro.Id,
@@ -793,6 +811,8 @@ namespace Highdmin.Controllers
                 CentroSaludResponsable = registro.CentroSaludResponsable,
                 MotivoNoIngresoPAIWEB = registro.MotivoNoIngresoPAIWEB,
                 NombreCompleto = $"{registro.PrimerNombre} {registro.SegundoNombre} {registro.PrimerApellido} {registro.SegundoApellido}".Trim(),
+                RegimenAfiliacionCuidadorNombre = regimenAfiliacionCuidadorNombre,
+                PertenenciaEtnicaCuidadorNombre = pertenenciaEtnicaCuidadorNombre,
                 VacunasAplicadasList = registro.VacunasAplicadas
                     .Where(va => va.Activo)
                     .Select(va => new VacunaAplicadaItemViewModel
